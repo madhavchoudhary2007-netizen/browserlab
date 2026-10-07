@@ -111,6 +111,29 @@ def _resource_summary(rows: list[dict[str, Any]], phase: str, idle_power_w: floa
         "compute_energy_j_raw": raw_e,
         "compute_energy_j_above_idle": excess_e,
     }
+    if "phys_footprint_mb" in df:
+        fp = pd.to_numeric(
+            df["phys_footprint_mb"],
+            errors="coerce",
+        ).dropna()
+    else:
+        fp = pd.Series(dtype=float)
+
+    if not fp.empty:
+        out["mean_phys_footprint_mb"] = float(fp.mean())
+        out["median_phys_footprint_mb"] = float(fp.median())
+        out["sd_phys_footprint_mb"] = (
+            float(fp.std(ddof=1))
+            if len(fp) > 1
+            else 0.0
+        )
+        out["peak_phys_footprint_mb"] = float(fp.max())
+    else:
+        out["mean_phys_footprint_mb"] = math.nan
+        out["median_phys_footprint_mb"] = math.nan
+        out["sd_phys_footprint_mb"] = math.nan
+        out["peak_phys_footprint_mb"] = math.nan
+
     if "uss_mb" in df and pd.to_numeric(df["uss_mb"], errors="coerce").notna().any():
         out["mean_uss_mb"] = float(pd.to_numeric(df["uss_mb"], errors="coerce").mean())
         out["peak_uss_mb"] = float(pd.to_numeric(df["uss_mb"], errors="coerce").max())
@@ -190,9 +213,31 @@ def run_core_trial(cfg: dict[str, Any], cond: Condition, server: WorkloadServer,
         session.close()
 
 
-def _rss_at_end(rows: list[dict[str, Any]], phase: str) -> float:
-    candidates = [r for r in rows if r["phase"] == phase]
-    return float(candidates[-1]["rss_mb"]) if candidates else math.nan
+def _metric_at_end(
+    rows: list[dict[str, Any]],
+    phase: str,
+    key: str,
+) -> float:
+    candidates = [
+        r
+        for r in rows
+        if r["phase"] == phase
+    ]
+
+    if not candidates:
+        return math.nan
+
+    try:
+        value = float(
+            candidates[-1].get(
+                key,
+                math.nan,
+            )
+        )
+    except (TypeError, ValueError):
+        return math.nan
+
+    return value
 
 
 def run_lifecycle_trial(cfg: dict[str, Any], cond: Condition, server: WorkloadServer, energy, idle_power_w: float):
@@ -205,15 +250,38 @@ def run_lifecycle_trial(cfg: dict[str, Any], cond: Condition, server: WorkloadSe
         handles = open_tabs(session.driver, url, cond.tabs)
         monitor.collect(float(section["warmup_seconds"]), "warmup")
         monitor.collect(float(section["active_measure_seconds"]), "active")
-        active_end = _rss_at_end(monitor.rows, "active")
+        active_end_phys = _metric_at_end(
+            monitor.rows,
+            "active",
+            "phys_footprint_mb",
+        )
+
+        active_end_rss = _metric_at_end(
+            monitor.rows,
+            "active",
+            "rss_mb",
+        )
         background_all_workload_tabs(session.driver, handles)
 
         prev = 0
-        idle_values: dict[int, float] = {}
+        idle_phys_values: dict[int, float] = {}
+        idle_rss_values: dict[int, float] = {}
         for checkpoint in [int(x) for x in section["idle_checkpoints_seconds"]]:
             interval = checkpoint - prev
             monitor.collect(interval, f"idle_{checkpoint}s")
-            idle_values[checkpoint] = _rss_at_end(monitor.rows, f"idle_{checkpoint}s")
+            phase_name = f"idle_{checkpoint}s"
+
+            idle_phys_values[checkpoint] = _metric_at_end(
+                monitor.rows,
+                phase_name,
+                "phys_footprint_mb",
+            )
+
+            idle_rss_values[checkpoint] = _metric_at_end(
+                monitor.rows,
+                phase_name,
+                "rss_mb",
+            )
             prev = checkpoint
 
         reactivation = measure_reactivation(session.driver, handles)
@@ -222,14 +290,55 @@ def run_lifecycle_trial(cfg: dict[str, Any], cond: Condition, server: WorkloadSe
         summary = {
             **_common_summary(cond, cfg, session, started, idle_power_w),
             **{f"active_{k}": v for k, v in _resource_summary(monitor.rows, "active", idle_power_w).items()},
-            "active_end_rss_mb": active_end,
+            "active_end_phys_footprint_mb": active_end_phys,
+            "active_end_rss_mb": active_end_rss,
             "mean_resume_roundtrip_ms": _nanmean([r.get("resume_roundtrip_ms", math.nan) for r in reactivation]),
             "max_resume_roundtrip_ms": max([r.get("resume_roundtrip_ms", math.nan) for r in reactivation], default=math.nan),
             **_flatten_page_metrics(metrics),
         }
-        for cp, rss in idle_values.items():
-            summary[f"idle_{cp}s_rss_mb"] = rss
-            summary[f"reclamation_ratio_{cp}s"] = ((active_end - rss) / active_end) if active_end and math.isfinite(active_end) else math.nan
+        for cp, phys in idle_phys_values.items():
+            rss = idle_rss_values.get(
+                cp,
+                math.nan,
+            )
+
+            summary[
+                f"idle_{cp}s_phys_footprint_mb"
+            ] = phys
+
+            summary[
+                f"idle_{cp}s_rss_mb"
+            ] = rss
+
+            if (
+                math.isfinite(active_end_phys)
+                and active_end_phys > 0
+                and math.isfinite(phys)
+            ):
+                summary[
+                    f"reclamation_ratio_{cp}s"
+                ] = (
+                    active_end_phys - phys
+                ) / active_end_phys
+            else:
+                summary[
+                    f"reclamation_ratio_{cp}s"
+                ] = math.nan
+
+            if (
+                math.isfinite(active_end_rss)
+                and active_end_rss > 0
+                and math.isfinite(rss)
+            ):
+                summary[
+                    f"rss_reclamation_ratio_{cp}s"
+                ] = (
+                    active_end_rss - rss
+                ) / active_end_rss
+            else:
+                summary[
+                    f"rss_reclamation_ratio_{cp}s"
+                ] = math.nan
         return summary, monitor.rows, monitor.process_rows, metrics, reactivation
     finally:
         session.close()

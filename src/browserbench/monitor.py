@@ -7,26 +7,149 @@ from typing import Any
 
 import psutil
 
+from .macos_memory import phys_footprint_mb
 from .system import thermal_pressure
 
 
-def classify_process(proc: psutil.Process) -> str:
+def classify_process_details(proc: psutil.Process) -> tuple[str, str]:
     try:
         name = (proc.name() or "").lower()
-        cmd = " ".join(proc.cmdline()).lower()
+        argv = [str(x) for x in proc.cmdline()]
+        lower_argv = [x.lower() for x in argv]
+        cmd = " ".join(lower_argv)
     except (psutil.NoSuchProcess, psutil.AccessDenied):
-        return "unknown"
-    if "--type=renderer" in cmd or "web content" in name or "webcontent" in name:
-        return "renderer"
-    if "--type=gpu-process" in cmd or "gpu process" in name:
-        return "gpu"
-    if "--type=utility" in cmd or "utility" in name:
-        return "utility"
-    if "network" in name or "socket process" in name:
-        return "network"
+        return "unknown", "unknown"
+
+    # Chromium family
+    chromium_type = None
+
+    for token in lower_argv:
+        if token.startswith("--type="):
+            chromium_type = token.split("=", 1)[1]
+            break
+
+    if chromium_type == "renderer":
+        return "renderer", "renderer"
+
+    if chromium_type == "gpu-process":
+        return "gpu", "gpu-process"
+
+    if "network.mojom.networkservice" in cmd or "networkservice" in cmd:
+        return "network", "network-service"
+
+    if chromium_type == "utility":
+        return "utility", "utility"
+
+    if chromium_type:
+        return "other", chromium_type
+
+    # Gecko family
+    is_gecko = (
+        "firefox" in name
+        or "librewolf" in name
+        or "plugin-container" in name
+        or "-contentproc" in lower_argv
+    )
+
+    if is_gecko:
+        raw_type = None
+
+        known_types = {
+            "tab",
+            "web",
+            "content",
+            "prealloc",
+            "privilegedabout",
+            "privilegedmozilla",
+            "extension",
+            "socket",
+            "rdd",
+            "utility",
+            "gmp",
+            "gpu",
+            "vr",
+        }
+
+        for token in reversed(lower_argv):
+            token = token.strip()
+
+            if token in known_types:
+                raw_type = token
+                break
+
+            if token.startswith("webisolated"):
+                raw_type = token
+                break
+
+            if token.startswith("webcoop"):
+                raw_type = token
+                break
+
+        if raw_type in {
+            "tab",
+            "web",
+            "content",
+            "prealloc",
+            "privilegedabout",
+            "privilegedmozilla",
+            "extension",
+        }:
+            return "renderer", raw_type
+
+        if raw_type and (
+            raw_type.startswith("webisolated")
+            or raw_type.startswith("webcoop")
+        ):
+            return "renderer", raw_type
+
+        if raw_type == "socket":
+            return "network", raw_type
+
+        if raw_type == "utility":
+            return "utility", raw_type
+
+        if raw_type == "gpu":
+            return "gpu", raw_type
+
+        if raw_type in {"rdd", "gmp"}:
+            return "media_or_plugin", raw_type
+
+        if raw_type == "vr":
+            return "vr", raw_type
+
+        if "-isforbrowser" in lower_argv:
+            return "renderer", raw_type or "content-unknown"
+
+        if (
+            ("firefox" in name or "librewolf" in name)
+            and "-contentproc" not in lower_argv
+        ):
+            return "browser", "browser"
+
+        return "other", raw_type or "unknown"
+
+    # Generic fallbacks
+    if "web content" in name or "webcontent" in name:
+        return "renderer", "name-web-content"
+
+    if "gpu process" in name:
+        return "gpu", "name-gpu"
+
+    if "socket process" in name:
+        return "network", "name-socket"
+
     if "plugin" in name or "rdd" in name:
-        return "media_or_plugin"
-    return "other"
+        return "media_or_plugin", "name-media"
+
+    if "chrome" in name or "brave" in name:
+        return "browser", "browser"
+
+    return "other", "unknown"
+
+
+def classify_process(proc: psutil.Process) -> str:
+    return classify_process_details(proc)[0]
+
 
 
 class ProcessMonitor:
@@ -87,6 +210,9 @@ class ProcessMonitor:
         total_rss = 0
         total_uss = 0
         has_uss = False
+
+        total_phys_footprint_mb = 0.0
+        has_phys_footprint = False
         cpu_delta = 0.0
         counts: Counter[str] = Counter()
         current_cpu: dict[int, float] = {}
@@ -105,6 +231,12 @@ class ProcessMonitor:
                             has_uss = True
                     except (psutil.AccessDenied, AttributeError, NotImplementedError):
                         pass
+                footprint_mb = phys_footprint_mb(p.pid)
+
+                if math.isfinite(footprint_mb):
+                    total_phys_footprint_mb += footprint_mb
+                    has_phys_footprint = True
+
                 ct = p.cpu_times()
                 csum = float(ct.user + ct.system)
                 current_cpu[p.pid] = csum
@@ -113,7 +245,7 @@ class ProcessMonitor:
                 total_rss += rss
                 if uss is not None:
                     total_uss += uss
-                cls = classify_process(p)
+                cls, raw_type = classify_process_details(p)
                 counts[cls] += 1
                 if self.save_per_process:
                     per_rows.append({
@@ -125,8 +257,10 @@ class ProcessMonitor:
                         "pid": p.pid,
                         "process_name": p.name(),
                         "process_class": cls,
+                        "process_type_raw": raw_type,
                         "rss_mb": rss / 1024**2,
                         "uss_mb": (uss / 1024**2) if uss is not None else math.nan,
+                        "phys_footprint_mb": footprint_mb,
                     })
             except (psutil.NoSuchProcess, psutil.AccessDenied):
                 continue
@@ -162,11 +296,17 @@ class ProcessMonitor:
             "cpu_pct_normalized": normalized_cpu_pct,
             "rss_mb": total_rss / 1024**2,
             "uss_mb": (total_uss / 1024**2) if has_uss else math.nan,
+            "phys_footprint_mb": (
+                total_phys_footprint_mb
+                if has_phys_footprint
+                else math.nan
+            ),
             "process_count": len(procs),
             "renderer_count": counts["renderer"],
             "gpu_count": counts["gpu"],
             "utility_count": counts["utility"],
             "network_count": counts["network"],
+            "media_process_count": counts["media_or_plugin"],
             "available_memory_pct": available_pct,
             "thermal_pressure": thermal,
             "cpu_power_w": energy.get("cpu_w", math.nan),
