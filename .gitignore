@@ -18,10 +18,10 @@ data_prime/
 tmp/
 profiles/
 
-# R workspace/history
+# R
 .RData
 .Rhistory
 
-# Logs/cache
+# Cache/logs
 *.log
 .pytest_cache/
