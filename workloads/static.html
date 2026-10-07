@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BrowserBench Static DOM</title>
+<style>
+  :root{font-family:system-ui,sans-serif;color-scheme:light dark}
+  body{margin:0;padding:24px;background:#f4f4f4;color:#111}
+  #grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+  .card{background:white;border:1px solid #ccc;border-radius:8px;padding:10px;min-height:72px}
+  .bar{height:8px;background:linear-gradient(90deg,#333,#bbb);margin-top:8px}
+</style>
+</head>
+<body>
+<h1>Deterministic Static DOM Workload</h1>
+<p>This page creates a fixed DOM tree and then performs no continuous JavaScript work.</p>
+<div id="grid"></div>
+<script>
+(() => {
+  const t0 = performance.now();
+  const grid = document.getElementById('grid');
+  const frag = document.createDocumentFragment();
+  for (let i=0;i<1000;i++) {
+    const c=document.createElement('section');
+    c.className='card';
+    c.innerHTML=`<strong>Item ${i}</strong><div>Deterministic content ${((i*2654435761)>>>0).toString(16)}</div><div class="bar"></div>`;
+    frag.appendChild(c);
+  }
+  grid.appendChild(frag);
+  window.__bench = {type:'static', dom_nodes:document.getElementsByTagName('*').length, build_ms:performance.now()-t0, ready:true};
+})();
+</script>
+</body>
+</html>

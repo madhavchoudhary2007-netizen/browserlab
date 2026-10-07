@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BrowserBench JavaScript</title>
+<style>
+body{font:16px system-ui,sans-serif;margin:24px} #status{white-space:pre;font-family:ui-monospace,monospace}
+</style>
+</head>
+<body>
+<h1>Deterministic JavaScript Workload</h1>
+<div id="status"></div>
+<script>
+(() => {
+  // Burst-style compute: deterministic but deliberately not a thermal torture loop.
+  const q = new URLSearchParams(location.search);
+  const duty = Math.min(0.5, Math.max(0.05, Number(q.get('duty') || 0.20)));
+  const periodMs = 100;
+  const computeMs = periodMs * duty;
+  const state = window.__bench = {type:'javascript', operations:0, bursts:0, checksum:0, ready:true, duty};
+  let seed = 0x12345678;
+  function rnd(){seed=(1664525*seed+1013904223)>>>0; return seed/4294967296;}
+  function burst(){
+    const start = performance.now();
+    let checksum = state.checksum || 0;
+    while (performance.now() - start < computeMs) {
+      const a = new Float64Array(256);
+      for (let i=0;i<a.length;i++) a[i]=rnd()*1000;
+      a.sort();
+      checksum = (checksum + Math.floor(a[17]*1000) + Math.floor(a[233]*1000)) >>> 0;
+      state.operations += a.length;
+    }
+    state.checksum = checksum;
+    state.bursts++;
+    document.getElementById('status').textContent = JSON.stringify(state,null,2);
+    setTimeout(burst, Math.max(0, periodMs-(performance.now()-start)));
+  }
+  burst();
+})();
+</script>
+</body>
+</html>

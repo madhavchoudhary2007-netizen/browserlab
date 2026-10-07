@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BrowserBench Video</title></head>
+<body style="margin:0;background:#111;color:#eee;font-family:system-ui,sans-serif">
+<div style="padding:16px"><h1>Deterministic Local 1080p Video</h1>
+<video id="v" width="1280" height="720" muted autoplay loop playsinline preload="auto" controls="false" src="assets/test_1080p.mp4"></video>
+<pre id="status"></pre></div>
+<script>
+(() => {
+  const v=document.getElementById('v');
+  const state=window.__bench={type:'video',ready:false,play_events:0,errors:0};
+  v.addEventListener('playing',()=>{state.ready=true;state.play_events++;});
+  v.addEventListener('error',()=>{state.errors++;});
+  v.play().catch(()=>{});
+  setInterval(()=>{
+    let q=null;
+    if(v.getVideoPlaybackQuality) q=v.getVideoPlaybackQuality();
+    state.current_time=v.currentTime;
+    state.decoded_frames=q?q.totalVideoFrames:(v.webkitDecodedFrameCount||null);
+    state.dropped_frames=q?q.droppedVideoFrames:(v.webkitDroppedFrameCount||null);
+    document.getElementById('status').textContent=JSON.stringify(state,null,2);
+  },1000);
+})();
+</script>
+</body>
+</html>

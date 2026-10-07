@@ -1,0 +1,2 @@
+[console_scripts]
+browserbench = browserbench.cli:main

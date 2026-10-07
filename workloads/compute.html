@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>BrowserBench Work Units</title></head>
+<body>
+<h1>Fixed-interval deterministic work-unit workload</h1>
+<pre id="status"></pre>
+<script>
+(() => {
+  const q = new URLSearchParams(location.search);
+  const unitsPerBurst = Math.max(1, Number(q.get('units') || 8));
+  const state = window.__bench = {type:'compute', units_per_burst:unitsPerBurst, completed_units:0, checksum:0, ready:true};
+  let seed = 0x9e3779b9;
+  function rnd(){seed=(1103515245*seed+12345)>>>0; return seed;}
+  function oneUnit(){
+    const a = new Uint32Array(2048);
+    for(let i=0;i<a.length;i++) a[i]=rnd();
+    a.sort();
+    let s=0;
+    for(let i=0;i<a.length;i+=64) s=(s+a[i])>>>0;
+    state.checksum=(state.checksum+s)>>>0;
+    state.completed_units++;
+  }
+  function loop(){
+    const start=performance.now();
+    for(let u=0;u<unitsPerBurst;u++) oneUnit();
+    state.last_burst_ms=performance.now()-start;
+    document.getElementById('status').textContent=JSON.stringify(state,null,2);
+    setTimeout(loop, 0);
+  }
+  loop();
+})();
+</script>
+</body>
+</html>
