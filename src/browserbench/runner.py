@@ -181,7 +181,7 @@ def _common_summary(cond: Condition, cfg: dict[str, Any], session, started: floa
         **cond.to_dict(),
         "browser_engine": cfg["browsers"][cond.browser]["engine"],
         "browser_version": browser_version(session.binary),
-        "profile_mode": "fresh_throwaway_profile_per_trial",
+        "profile_mode": session.profile_mode,
         "started_unix": started,
         "ended_unix": time.time(),
         "duration_sec": time.time() - started,

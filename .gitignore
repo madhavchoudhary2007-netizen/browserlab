@@ -25,3 +25,6 @@ profiles/
 # Cache/logs
 *.log
 .pytest_cache/
+
+# Local BrowserBench baseline profiles
+.browserbench/
