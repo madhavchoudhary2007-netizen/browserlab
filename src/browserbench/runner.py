@@ -10,8 +10,9 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
+import psutil
 
-from .browsers import browser_version, launch_browser
+from .browsers import browser_version, launch_browser, matching_processes
 from .config import enabled_browsers
 from .energy import EnergySampler
 from .models import Condition
@@ -19,7 +20,13 @@ from .monitor import ProcessMonitor
 from .scheduler import build_schedule
 from .server import WorkloadServer
 from .storage import Storage
-from .system import assert_safe, macos_metadata, power_status
+from .system import (
+    assert_safe,
+    available_memory_percent,
+    macos_metadata,
+    power_status,
+    thermal_pressure,
+)
 from .workloads import (
     background_all_workload_tabs,
     collect_page_metrics,
@@ -389,6 +396,175 @@ def _validate_configured_trial_duration(cfg: dict[str, Any], suite: str) -> None
     if expected > limit:
         raise RuntimeError(f"Configured {suite} trial may take about {expected:.0f}s, above safety max_trial_seconds={limit:.0f}s")
 
+
+def _adaptive_recovery_cooldown(
+    cfg: dict[str, Any],
+    cond: Condition,
+) -> dict[str, Any]:
+    """Wait until the system has sufficiently recovered between trials."""
+
+    rcfg = cfg.get("recovery_cooldown", {})
+
+    if not bool(rcfg.get("enabled", False)):
+        return {
+            "enabled": False,
+            "elapsed_seconds": 0.0,
+            "recovered": False,
+            "reason": "disabled",
+        }
+
+    minimum_seconds = max(
+        0.0,
+        float(rcfg.get("minimum_seconds", 5.0)),
+    )
+
+    maximum_seconds = max(
+        minimum_seconds,
+        float(rcfg.get("maximum_seconds", 20.0)),
+    )
+
+    poll_seconds = max(
+        0.5,
+        float(rcfg.get("poll_seconds", 1.0)),
+    )
+
+    consecutive_required = max(
+        1,
+        int(rcfg.get("consecutive_passes", 2)),
+    )
+
+    cpu_threshold = max(
+        0.0,
+        float(rcfg.get("system_cpu_max_pct", 15.0)),
+    )
+
+    minimum_memory = float(
+        cfg.get("safety", {}).get(
+            "minimum_available_memory_percent",
+            20.0,
+        )
+    )
+
+    memory_margin = max(
+        0.0,
+        float(
+            rcfg.get(
+                "memory_margin_pct_points",
+                5.0,
+            )
+        ),
+    )
+
+    # Use an absolute safety/repeatability floor rather than
+    # forcing macOS to recreate the exact previous free-memory
+    # percentage. Reclaimable caches should not cause needless
+    # cooldown delays.
+    memory_target = min(
+        100.0,
+        minimum_memory + memory_margin,
+    )
+
+    require_nominal_thermal = bool(
+        rcfg.get("require_nominal_thermal", True)
+    )
+
+    binary = str(
+        Path(
+            cfg["browsers"][cond.browser]["binary"]
+        )
+        .expanduser()
+        .resolve()
+    )
+
+    started = time.monotonic()
+
+    if minimum_seconds > 0:
+        time.sleep(minimum_seconds)
+
+    consecutive = 0
+    last: dict[str, Any] = {}
+
+    while True:
+
+        cpu_pct = float(
+            psutil.cpu_percent(
+                interval=poll_seconds,
+            )
+        )
+
+        mem_pct = float(
+            available_memory_percent()
+        )
+
+        thermal = thermal_pressure()
+
+        browser_processes = len(
+            matching_processes(binary)
+        )
+
+        browser_ok = browser_processes == 0
+        cpu_ok = cpu_pct <= cpu_threshold
+        memory_ok = mem_pct >= memory_target
+
+        if require_nominal_thermal:
+            thermal_ok = thermal == "nominal"
+        else:
+            thermal_ok = thermal not in {
+                "serious",
+                "critical",
+            }
+
+        recovered_now = (
+            browser_ok
+            and cpu_ok
+            and memory_ok
+            and thermal_ok
+        )
+
+        if recovered_now:
+            consecutive += 1
+        else:
+            consecutive = 0
+
+        elapsed = time.monotonic() - started
+
+        last = {
+            "enabled": True,
+            "elapsed_seconds": elapsed,
+            "system_cpu_pct": cpu_pct,
+            "available_memory_pct": mem_pct,
+            "memory_target_pct": memory_target,
+            "thermal_pressure": thermal,
+            "browser_processes": browser_processes,
+            "browser_ok": browser_ok,
+            "cpu_ok": cpu_ok,
+            "memory_ok": memory_ok,
+            "thermal_ok": thermal_ok,
+            "consecutive_passes": consecutive,
+        }
+
+        if consecutive >= consecutive_required:
+            last.update(
+                {
+                    "recovered": True,
+                    "reason": "recovered",
+                    "elapsed_seconds":
+                        time.monotonic() - started,
+                }
+            )
+            return last
+
+        if elapsed >= maximum_seconds:
+            last.update(
+                {
+                    "recovered": False,
+                    "reason": "maximum_timeout",
+                    "elapsed_seconds":
+                        time.monotonic() - started,
+                }
+            )
+            return last
+
 def run_suite(cfg: dict[str, Any], suite: str, repetitions: int | None = None, resume: bool = True) -> Path:
     _validate_configured_trial_duration(cfg, suite)
     root = Path(cfg["_project_root"])
@@ -449,6 +625,7 @@ def run_suite(cfg: dict[str, Any], suite: str, repetitions: int | None = None, r
             for attempt in range(max_retries + 1):
                 try:
                     snap = assert_safe(cfg, out, cond.tabs)
+
                     print(
                         f"[{idx}/{total}] {cond.trial_id} attempt={attempt+1} "
                         f"mem_available={snap['available_memory_pct']}% thermal={snap['thermal_pressure']}"
@@ -501,10 +678,77 @@ def run_suite(cfg: dict[str, Any], suite: str, repetitions: int | None = None, r
             if not success:
                 print(f"    GAVE UP after {max_retries + 1} attempt(s); trial remains incomplete for resume.")
 
+            # No recovery delay is required after the final
+            # scheduled condition because no subsequent trial
+            # can be contaminated.
+            if idx == total:
+                continue
+
             section_name = "work_units" if suite == "work" else suite
-            cooldown = int(cfg[section_name].get("cooldown_seconds", 25))
-            if cooldown > 0:
-                time.sleep(cooldown)
+
+            recovery_cfg = cfg.get(
+                "recovery_cooldown",
+                {},
+            )
+
+            if recovery_cfg.get("enabled", False):
+
+                recovery = _adaptive_recovery_cooldown(
+                    cfg,
+                    cond,
+                )
+
+                print(
+                    "    recovery "
+                    f"{recovery['elapsed_seconds']:.1f}s "
+                    f"status={recovery['reason']} "
+                    f"cpu={recovery.get('system_cpu_pct', float('nan')):.1f}% "
+                    f"mem={recovery.get('available_memory_pct', float('nan')):.1f}% "
+                    f"target={recovery.get('memory_target_pct', float('nan')):.1f}% "
+                    f"thermal={recovery.get('thermal_pressure', 'unknown')} "
+                    f"browser_procs={recovery.get('browser_processes', -1)}"
+                )
+
+                with (
+                    storage.logs_dir
+                    / "recovery_cooldown.jsonl"
+                ).open(
+                    "a",
+                    encoding="utf-8",
+                ) as f:
+
+                    f.write(
+                        json.dumps(
+                            {
+                                "trial_id": cond.trial_id,
+                                "block": cond.block,
+                                "browser": cond.browser,
+                                "workload": cond.workload,
+                                "tabs": cond.tabs,
+                                **recovery,
+                            }
+                        )
+                        + "\n"
+                    )
+
+                if not recovery["recovered"]:
+                    print(
+                        "    WARNING: adaptive recovery "
+                        "reached its maximum timeout; "
+                        "the next assert_safe() will still "
+                        "protect the following trial."
+                    )
+
+            else:
+                cooldown = int(
+                    cfg[section_name].get(
+                        "cooldown_seconds",
+                        25,
+                    )
+                )
+
+                if cooldown > 0:
+                    time.sleep(cooldown)
     finally:
         if energy:
             energy.stop()
