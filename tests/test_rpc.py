@@ -51,3 +51,9 @@ def test_run_prepares_dir_and_single_active(tmp_path):
     assert cfg.exists() and (cfg.parent / "workloads").is_symlink()
     assert s.run.state == "completed"
     assert call(s, "run.status")["result"]["state"] == s.run.state
+
+
+def test_preflight_rpc_shape(tmp_path):
+    r = call(server(tmp_path), "preflight", mode="quick", workload="static", tabs=1)["result"]
+    ids = {c["id"] for c in r["checks"]}
+    assert {"memory", "disk", "thermal"} <= ids and isinstance(r["can_start"], bool)

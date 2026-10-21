@@ -12,6 +12,7 @@ use tauri::{AppHandle, Emitter, State};
 
 const ALLOWED: &[&str] = &[
     "hello",
+    "preflight",
     "plan",
     "library.scan",
     "run.start",

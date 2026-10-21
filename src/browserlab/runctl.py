@@ -17,6 +17,8 @@ import time
 from pathlib import Path
 from typing import Any, Callable, Sequence
 
+from .preview import LivePreview
+
 import yaml
 
 TRANSITIONS: dict[str, set[str]] = {
@@ -39,7 +41,9 @@ class InvalidTransition(RuntimeError):
 
 class RunController:
     def __init__(self, run_dir: Path, argv: Sequence[str], emit: Callable[[Event], None],
-                 cwd: Path | None = None) -> None:
+                 cwd: Path | None = None, preview_interval: float | None = 1.0) -> None:
+        self.preview_interval = preview_interval
+        self._preview: LivePreview | None = None
         self.run_dir, self.argv, self.emit, self.cwd = Path(run_dir), list(argv), emit, cwd
         self.state = "idle"
         self.progress = {"index": 0, "total": 0, "trial_id": None, "completed": 0}
@@ -72,6 +76,9 @@ class RunController:
             )
             self._thread = threading.Thread(target=self._pump, args=(self._proc,), daemon=True)
             self._thread.start()
+            if self.preview_interval:
+                self._preview = LivePreview(self._proc.pid, self.emit, self.preview_interval)
+                self._preview.start()
 
     def pause(self) -> None:
         with self._lock:
@@ -123,6 +130,8 @@ class RunController:
             else:
                 self.emit({"type": "log", "line": line})
         rc = proc.wait()
+        if self._preview:
+            self._preview.stop()
         self._finish(rc, interrupted)
 
     def _finish(self, rc: int, interrupted: bool) -> None:

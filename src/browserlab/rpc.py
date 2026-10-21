@@ -14,6 +14,7 @@ import yaml
 
 from .library import scan, to_json
 from .modes import BROWSERS, MODES, TAB_LEVELS, WORKLOADS, mode_config, plan
+from .preflight import run_preflight
 from .runctl import RunController, engine_argv, prepare_run_dir
 
 PROTOCOL_VERSION = 1
@@ -90,6 +91,11 @@ class Server:
 
     def m_library_scan(self, p: dict[str, Any]) -> Any:
         return json.loads(to_json(scan(self.project_root)))
+
+    def m_preflight(self, p: dict[str, Any]) -> Any:
+        mode, kw = self._selection(p)
+        cfg = mode_config(self._base(), mode, **kw)
+        return run_preflight(cfg, kw["browsers"], tuple(cfg["core"]["workloads"]), self.home / "preflight")
 
     def m_run_start(self, p: dict[str, Any]) -> Any:
         if self.run and self.run.state in ("running", "pausing", "stopping"):

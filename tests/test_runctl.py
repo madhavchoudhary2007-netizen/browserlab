@@ -75,3 +75,13 @@ def test_failed_exit(tmp_path):
     c = RunController(tmp_path, [sys.executable, str(bad)], ev.append)
     c.start(); c.wait(10)
     assert c.state == "failed"
+
+
+def test_live_preview_samples_descendants_only(tmp_path):
+    script = tmp_path / "spawn.py"
+    script.write_text("import subprocess,sys,time\nc=subprocess.Popen([sys.executable,'-c','import time;time.sleep(2)'])\ntime.sleep(2)\n")
+    ev = []
+    c = RunController(tmp_path, [sys.executable, str(script)], ev.append, preview_interval=0.2)
+    c.start(); c.wait(20)
+    live = [e for e in ev if e["type"] == "live_sample"]
+    assert live and max(e["processes"] for e in live) >= 1 and all(e["rss_mb"] >= 0 for e in live)
