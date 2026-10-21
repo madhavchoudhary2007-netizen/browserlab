@@ -1,4 +1,5 @@
 export interface Condition {
+  cpu?: number | null; processes?: number | null; renderers?: number | null; cpu_values?: number[];
   browser: string; workload: string; tabs: number; n: number; mean: number | null;
   ci_lo: number | null; ci_hi: number | null; values: number[];
   median?: number | null; sd?: number | null; cv?: number | null;
@@ -36,3 +37,17 @@ export function boxStats(values: number[]): [number, number, number, number, num
 }
 
 export const uniq = <T,>(xs: T[]): T[] => [...new Set(xs)];
+
+export interface Summ { n: number; mean: number | null; ci_lo: number | null; ci_hi: number | null; values: number[] }
+export interface JsRow { browser: string; tabs: number; ops_per_sec_total: Summ; per_tab: Summ | null }
+export interface VideoRow {
+  browser: string; tabs: number; decoded_fps_total: Summ; drop_pct: Summ | null;
+  per_tab_fps: { all: Summ; foreground?: Summ | null; background?: Summ | null } | null;
+}
+export interface TopologyRow { browser: string; workload: string; tabs: number; processes: number | null; renderers: number | null }
+export interface Extras {
+  javascript: { available: boolean; reason: string | null; rows: JsRow[]; note?: string };
+  video: { available: boolean; reason: string | null; rows: VideoRow[]; visibility_distinguishable: boolean; notes?: string[] };
+  topology: TopologyRow[];
+}
+export type FullAnalysis = Analysis & Extras;

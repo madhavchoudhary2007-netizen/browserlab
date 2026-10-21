@@ -7,7 +7,7 @@ from typing import Any
 
 import pandas as pd
 
-from . import stats
+from . import metrics, stats
 
 PRIMARY = "mean_phys_footprint_mb"
 FALLBACK = "mean_rss_mb"
@@ -28,8 +28,9 @@ def _clean(o: Any) -> Any:
     return o
 
 
-def analyze(summary_csv: Path, protocol_key: str = "") -> dict[str, Any]:
+def analyze(summary_csv: Path, protocol_key: str = "", page_metrics: Path | None = None) -> dict[str, Any]:
     df = pd.read_csv(summary_csv)
+    full = df.copy()
     notes: list[str] = []
     metric = PRIMARY
     if PRIMARY not in df or df[PRIMARY].notna().sum() == 0:
@@ -40,7 +41,7 @@ def analyze(summary_csv: Path, protocol_key: str = "") -> dict[str, Any]:
     if len(df) < total:
         notes.append(f"{total - len(df)} trial(s) excluded for missing {metric}.")
     if df.empty:
-        return _clean({"metric": metric, "n_trials": 0, "conditions": [], "scaling": [], "anova": None,
+        return _clean({"javascript": {"available": False, "rows": [], "reason": "No data."}, "video": {"available": False, "rows": [], "visibility_distinguishable": False, "reason": "No data."}, "topology": [], "metric": metric, "n_trials": 0, "conditions": [], "scaling": [], "anova": None,
                        "notes": notes + ["No usable trials."], "inference": {"allowed": False, "reason": "No data."}})
     cells = df.groupby(FACTORS)
     conditions = []
@@ -49,7 +50,8 @@ def analyze(summary_csv: Path, protocol_key: str = "") -> dict[str, Any]:
         m, lo, hi = stats.mean_ci(vals)
         conditions.append({"browser": b, "workload": w, "tabs": int(t), "n": len(vals), "mean": m, "ci_lo": lo,
                            "ci_hi": hi, "values": vals, **{k: v for k, v in stats.describe(vals).items() if k in ("median", "sd", "cv", "p5", "p95")},
-                           **{name: float(g[col].mean()) if col in g else None for name, col in EXTRA_METRICS.items()}})
+                           **{name: float(g[col].mean()) if col in g else None for name, col in EXTRA_METRICS.items()},
+                           "cpu_values": g[EXTRA_METRICS["cpu"]].tolist() if EXTRA_METRICS["cpu"] in g else []})
     min_reps = int(cells.size().min())
     allowed, reason = stats.inference_allowed("standard" if min_reps >= 2 else "quick", min_reps)
     scaling = []
@@ -73,7 +75,9 @@ def analyze(summary_csv: Path, protocol_key: str = "") -> dict[str, Any]:
             notes.append(f"ANOVA not run: {e}")
     else:
         notes.append(reason)
-    return _clean({"metric": metric, "metric_label": "Process-tree physical footprint (MB)" if metric == PRIMARY else "Summed RSS (MB)",
+    tabs = metrics.tab_deltas(page_metrics) if page_metrics else metrics.tab_deltas(Path("/nonexistent"))
+    return _clean({"javascript": metrics.javascript_payload(full, tabs), "video": metrics.video_payload(full, tabs),
+                   "topology": metrics.topology_rows(df), "metric": metric, "metric_label": "Process-tree physical footprint (MB)" if metric == PRIMARY else "Summed RSS (MB)",
                    "n_trials": len(df), "min_reps_per_cell": min_reps, "protocol_key": protocol_key,
                    "conditions": conditions, "scaling": scaling, "anova": anova, "notes": notes,
                    "inference": {"allowed": allowed, "reason": reason,

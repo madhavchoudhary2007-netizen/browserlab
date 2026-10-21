@@ -8,6 +8,9 @@ import { CanvasRenderer } from "echarts/renderers";
 echarts.use([BoxplotChart, CustomChart, HeatmapChart, LineChart, ScatterChart, GridComponent, LegendComponent,
   TooltipComponent, VisualMapComponent, ToolboxComponent, DataZoomComponent, CanvasRenderer]);
 
+/** Leaves headroom so the last tab level is not clipped at the plot edge. */
+export const padMax = (e: { max: number }): number => Math.ceil(e.max * 1.08) + 1;
+
 export const AXIS = { axisLine: { lineStyle: { color: "#2a3039" } }, axisLabel: { color: "#8b94a0" }, nameTextStyle: { color: "#8b94a0" }, splitLine: { lineStyle: { color: "#1d2229" } } };
 
 /** Mounts an ECharts instance on a div ref and applies `option` whenever it changes. */

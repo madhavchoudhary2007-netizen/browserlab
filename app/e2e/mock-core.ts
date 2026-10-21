@@ -12,7 +12,7 @@ export async function invoke(cmd: string, args: { method: string; params: Record
     return { path: "/mock/out." + args.format, bytes: 1234, format: args.format };
   }
   const { method, params } = args;
-  if (method === "library.scan") return [exp("data_a", "exploratory", "k1"), exp("data_b", "pilot", "k2")];
+  if (method === "library.scan") return ["data_static_scaling_v013", "data_video_policy_smoke", "data_performance_instrumentation_5tab", "data_javascript_core_rep23"].map((id, i) => exp(id, i ? "pilot" : "exploratory", "k" + i));
   if (method === "library.table") {
     const off = Number(params.offset), lim = Number(params.limit);
     const rows = [];
@@ -20,7 +20,7 @@ export async function invoke(cmd: string, args: { method: string; params: Record
     return { columns: COLS, rows, total: TOTAL, offset: off };
   }
   if (method === "stats.run") {
-    const real = await fetch("/e2e-analysis.json").then((r) => (r.ok ? r.json() : null)).catch(() => null);
+    const real = await fetch(`/e2e-analysis-${String(params.id)}.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null);
     if (real) return real;
     const conditions = [];
     for (const [bi, b] of ["chrome", "brave", "firefox", "librewolf"].entries())

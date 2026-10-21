@@ -135,7 +135,7 @@ class Server:
         path = Path(info.path) / "processed" / f"trial_summary_{suite}.csv"
         if not path.exists():
             raise RpcError("not_found", "no trial summary for this experiment")
-        return analyze(path, info.protocol_key)
+        return analyze(path, info.protocol_key, Path(info.path) / "raw" / "page_metrics.csv")
 
     def m_export_write(self, p: dict[str, Any]) -> Any:
         """Write one export. Reached only from the native save dialog, never directly from the UI."""
@@ -153,7 +153,7 @@ class Server:
             raise RpcError("invalid_params", "images must be a list of at most 6 PNG data URLs")
         try:
             dest = validate_dest(str(p.get("path", "")), fmt, [Path(i.path).parent for i in infos] + [self.project_root / "analysis"])
-            return write_export(fmt, dest, asdict(info), summary, analyze(summary, info.protocol_key), images)
+            return write_export(fmt, dest, asdict(info), summary, analyze(summary, info.protocol_key, Path(info.path) / "raw" / "page_metrics.csv"), images)
         except ExportError as e:
             raise RpcError("invalid_params", str(e))
 

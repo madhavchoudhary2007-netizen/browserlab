@@ -1,7 +1,11 @@
 import { useMemo, useState } from "react";
-import { uniq, type Analysis, type AnovaResult } from "../analysis";
+import { uniq, type AnovaResult, type FullAnalysis } from "../analysis";
 import { BoxChart } from "../charts/BoxChart";
+import { EfficiencyChart } from "../charts/EfficiencyChart";
 import { Heatmap } from "../charts/Heatmap";
+import { ThroughputChart } from "../charts/ThroughputChart";
+import { TopologyChart } from "../charts/TopologyChart";
+import { VideoChart } from "../charts/VideoChart";
 import { ScalingChart } from "../charts/ScalingChart";
 import { ChartPngButton, ExportBar } from "../components/ExportBar";
 import { useRemote } from "../useRemote";
@@ -32,7 +36,7 @@ function AnovaTable({ title, a }: { title: string; a: AnovaResult }) {
 }
 
 export function AnalysisView({ selected }: { selected: Selected }) {
-  const [state, retry] = useRemote<Analysis>("stats.run", { id: selected.id, suite: selected.suite });
+  const [state, retry] = useRemote<FullAnalysis>("stats.run", { id: selected.id, suite: selected.suite });
   const [workload, setWorkload] = useState<string | null>(null);
   const [tabs, setTabs] = useState<number | null>(null);
   const data = state.kind === "ready" ? state.value : null;
@@ -66,6 +70,27 @@ export function AnalysisView({ selected }: { selected: Selected }) {
         <ScalingChart data={d} workload={wl} unit={unit} /></div>
       <div><h3 className="font-semibold">Between-trial distribution at {tb} tabs</h3><ChartPngButton prefix="Trial-level distribution" id={selected.id} suite={selected.suite} />
         <BoxChart data={d} workload={wl} tabs={tb} unit={unit} /></div>
+      <div><h3 className="font-semibold">CPU vs memory ({wl})</h3>
+        <p style={{ color: "var(--muted)" }}>Condition means; marker size grows with tab count. CPU is a resource cost, not workload performance.</p>
+        <ChartPngButton prefix="CPU versus memory" id={selected.id} suite={selected.suite} /><EfficiencyChart data={d} workload={wl} /></div>
+      {d.topology.length > 0 && <div><h3 className="font-semibold">Process topology ({wl})</h3>
+        <p style={{ color: "var(--muted)" }}>Solid: all processes. Dashed: renderers.</p>
+        <ChartPngButton prefix="Process and renderer" id={selected.id} suite={selected.suite} /><TopologyChart rows={d.topology} workload={wl} /></div>}
+      {wl === "javascript" && (d.javascript.available ? (
+        <div><h3 className="font-semibold">JavaScript throughput</h3>
+          <p style={{ color: "var(--muted)" }}>{d.javascript.note}</p>
+          <ChartPngButton prefix="JavaScript throughput" id={selected.id} suite={selected.suite} /><ThroughputChart rows={d.javascript.rows} /></div>
+      ) : <p>JavaScript throughput unavailable: {d.javascript.reason}</p>)}
+      {wl === "video" && (d.video.available ? (
+        <div><h3 className="font-semibold">Video decoding</h3>
+          {d.video.notes?.map((n) => <p key={n} style={{ color: "var(--muted)" }}>{n}</p>)}
+          <ChartPngButton prefix="Video decoding" id={selected.id} suite={selected.suite} /><VideoChart rows={d.video.rows} />
+          <table className="num w-full text-left"><thead><tr><th>Browser</th><th>Tabs</th><th>Aggregate fps</th><th>Dropped %</th><th>Per-tab fps (min–max)</th></tr></thead>
+            <tbody>{d.video.rows.map((r) => { const v = r.per_tab_fps?.all.values ?? []; return (
+              <tr key={`${r.browser}${r.tabs}`}><td>{r.browser}</td><td>{r.tabs}</td><td>{fmt(r.decoded_fps_total.mean, 1)}</td><td>{fmt(r.drop_pct?.mean, 2)}</td>
+                <td>{v.length ? `${fmt(Math.min(...v), 1)} – ${fmt(Math.max(...v), 1)}` : "—"}</td></tr>); })}</tbody></table>
+        </div>
+      ) : <p>Video metrics unavailable: {d.video.reason}</p>)}
       <div><h3 className="font-semibold">Browser × workload × tabs</h3><ChartPngButton prefix="Mean memory by browser" id={selected.id} suite={selected.suite} /><Heatmap data={d} unit={unit} /></div>
       <div>
         <h3 className="font-semibold">Scaling slopes ({wl})</h3>
