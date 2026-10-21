@@ -54,3 +54,43 @@ def analyze(headless: list[float], supervised: list[float], margin: float = 0.02
     else:
         v, note = "inconclusive", f"CI includes 1 but is wider than +-{margin:.0%}; more blocks needed."
     return Verdict(n, round(math.exp(mean), 4), round(lo, 4), round(hi, 4), margin, v, note)
+
+
+# ---- execution orchestration (testable: the trial runner is injected) -------------------------
+import csv
+from pathlib import Path
+from typing import Callable
+
+FIELDS = ("block", "arm", "footprint_mb", "run_dir")
+
+
+def load_results(path: Path) -> dict[tuple[str, str], float]:
+    if not path.exists():
+        return {}
+    with path.open() as f:
+        return {(r["block"], r["arm"]): float(r["footprint_mb"]) for r in csv.DictReader(f)}
+
+
+def execute(blocks: int, results_csv: Path, run_arm: Callable[[int, str], tuple[float, str]],
+            between: Callable[[], None] = lambda: None) -> dict[tuple[str, str], float]:
+    """Run every (block, arm) not already recorded, in alternating order, appending each result to
+    the CSV as soon as it exists. Re-running resumes; recorded results are never rewritten.
+    A failed arm raises and leaves its block incomplete (it is simply re-run on resume)."""
+    done = load_results(results_csv)
+    results_csv.parent.mkdir(parents=True, exist_ok=True)
+    new_file = not results_csv.exists()
+    for b, order in enumerate(block_order(blocks)):
+        for arm in order:
+            key = (f"{b:02d}", arm)
+            if key in done:
+                continue
+            fp, run_dir = run_arm(b, arm)
+            with results_csv.open("a", newline="") as f:
+                w = csv.writer(f)
+                if new_file:
+                    w.writerow(FIELDS)
+                    new_file = False
+                w.writerow([key[0], arm, f"{fp:.4f}", run_dir])
+            done[key] = fp
+            between()
+    return done
