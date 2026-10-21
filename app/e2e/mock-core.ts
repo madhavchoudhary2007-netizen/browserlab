@@ -34,6 +34,11 @@ export async function invoke(cmd: string, args: { method: string; params: Record
       anova: { raw: { table: [{ term: "C(browser)", df: 3, F: 120.5, p: 1e-9, partial_eta_sq: 0.9 }], factors: ["browser"], df_resid: 80, block: { F: 1, p: 0.3 }, bp: { lm: 10, p: 0.02 } }, log: null },
       notes: [], inference: { allowed: true, reason: "Exploratory: fewer than 5 repetitions per cell; low power, wide uncertainty.", caveat: "A non-significant p-value does not show equivalence or absence of an effect." } };
   }
+  if (method === "settings.get") return { project_root: "/Users/demo/study", source: "saved", datasets: 16, setup_active: null, profiles: [
+    { browser: "chrome", state: "ready", installed: true, version: "Google Chrome 155", created_with: "Google Chrome 155", path: "/x" },
+    { browser: "brave", state: "version_changed", installed: true, version: "Brave 156", created_with: "Brave 155", path: "/x" },
+    { browser: "firefox", state: "missing", installed: true, version: "Firefox 157", path: "/x" },
+    { browser: "librewolf", state: "unmanaged", installed: true, version: "LibreWolf 157", path: "/x" } ] };
   if (method === "plan") return { mode: "quick", trial_count: 4, complete_design: true, inference_allowed: false, min_seconds_lower_bound: 200 };
   if (method === "preflight") return { checks: [{ id: "memory", label: "Available memory", status: "pass", detail: "50%" }], can_start: true, has_warnings: false };
   throw new Error("mock: " + method);

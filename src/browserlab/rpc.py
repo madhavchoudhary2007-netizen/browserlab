@@ -15,6 +15,7 @@ from dataclasses import asdict
 
 from .library import scan, to_json
 from .modes import BROWSERS, MODES, TAB_LEVELS, WORKLOADS, mode_config, plan
+from . import settings as st
 from .paths import default_project_root, workloads_dir
 from .preflight import run_preflight
 from . import tables
@@ -55,6 +56,7 @@ class Server:
         self.argv_factory = argv_factory or (lambda cfg: engine_argv(self.python, cfg))
         self._wlock = threading.Lock()
         self.run: RunController | None = None
+        self.setup: tuple[str, Any] | None = None  # (browser, Popen) of an active baseline-profile setup
         self.run_id: str | None = None
 
     def send(self, obj: dict[str, Any]) -> None:
@@ -155,6 +157,68 @@ class Server:
         except ExportError as e:
             raise RpcError("invalid_params", str(e))
 
+    def _browser_specs(self) -> dict[str, Any]:
+        return self._base()["browsers"]
+
+    def m_settings_get(self, p: dict[str, Any]) -> Any:
+        from browserbench.browsers import browser_version
+        root = self.project_root
+        pointer = self.home / "project_root"
+        source = "environment" if os.environ.get("BROWSERLAB_PROJECT_ROOT") else "saved" if pointer.is_file() else "default"
+        specs = self._browser_specs()
+        return {
+            "project_root": str(root), "source": source,
+            "datasets": len([d for d in root.glob("data_*") if d.is_dir()]),
+            "profiles": [st.profile_status(root, b, specs[b], browser_version) for b in BROWSERS],
+            "setup_active": self.setup[0] if self.setup else None,
+        }
+
+    def m_settings_set_project_root(self, p: dict[str, Any]) -> Any:
+        """Internal: path comes from the native folder dialog."""
+        if self.run and self.run.state in ("running", "pausing", "stopping"):
+            raise RpcError("busy", "cannot change the project folder during a run")
+        if self.setup:
+            raise RpcError("busy", "finish or cancel the baseline-profile setup first")
+        if os.environ.get("BROWSERLAB_PROJECT_ROOT"):
+            raise RpcError("locked", "project folder is set by the BROWSERLAB_PROJECT_ROOT environment variable")
+        try:
+            self.project_root = st.write_pointer(self.home, str(p.get("path", "")))
+        except st.SettingsError as e:
+            raise RpcError("invalid_params", str(e))
+        return self.m_settings_get({})
+
+    def m_profiles_prepare(self, p: dict[str, Any]) -> Any:
+        from browserbench.browsers import matching_processes
+        browser = _enum(p, "browser", BROWSERS)
+        if self.setup:
+            raise RpcError("busy", "a baseline-profile setup is already active")
+        if self.run and self.run.state in ("running", "pausing", "stopping"):
+            raise RpcError("busy", "cannot set up a profile during a run")
+        try:
+            proc = st.start_profile_setup(self.project_root, browser, self._browser_specs()[browser], matching_processes)
+        except st.SettingsError as e:
+            raise RpcError("invalid_params", str(e))
+        self.setup = (browser, proc)
+        return {"browser": browser, "state": "launched"}
+
+    def _end_setup(self, finish: bool) -> Any:
+        from browserbench.browsers import browser_version
+        if not self.setup:
+            raise RpcError("no_setup", "no baseline-profile setup is active")
+        browser, proc = self.setup
+        st.stop_tree(proc)
+        self.setup = None
+        if finish:
+            spec = self._browser_specs()[browser]
+            st.write_marker(self.project_root, browser, browser_version(spec["binary"]))
+        return self.m_settings_get({})
+
+    def m_profiles_finish(self, p: dict[str, Any]) -> Any:
+        return self._end_setup(True)
+
+    def m_profiles_cancel(self, p: dict[str, Any]) -> Any:
+        return self._end_setup(False)
+
     def m_preflight(self, p: dict[str, Any]) -> Any:
         mode, kw = self._selection(p)
         cfg = mode_config(self._base(), mode, **kw)
@@ -163,6 +227,8 @@ class Server:
     def m_run_start(self, p: dict[str, Any]) -> Any:
         if self.run and self.run.state in ("running", "pausing", "stopping"):
             raise RpcError("busy", "an experiment run is already active")
+        if self.setup:
+            raise RpcError("busy", "finish or cancel the baseline-profile setup first")
         mode, kw = self._selection(p)
         run_id = p.get("resume_run_id") or time.strftime("%Y%m%d-%H%M%S-") + uuid.uuid4().hex[:6]
         if not run_id.replace("-", "").isalnum():

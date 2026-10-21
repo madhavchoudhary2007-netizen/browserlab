@@ -1,12 +1,14 @@
 import { useState } from "react";
 import { LibraryView, type Selected } from "./views/LibraryView";
 import { ResultsView } from "./views/ResultsView";
+import { SettingsView } from "./views/SettingsView";
 import { RunView } from "./views/RunView";
 
 const VIEWS = [
   { id: "run", label: "Run" },
   { id: "library", label: "Library" },
   { id: "results", label: "Results" },
+  { id: "settings", label: "Settings" },
 ] as const;
 type ViewId = (typeof VIEWS)[number]["id"];
 
@@ -30,6 +32,7 @@ export function App() {
           {/* RunView stays mounted so an active run's controls never unmount */}
           <div hidden={view !== "run"}><RunView /></div>
           {view === "library" && <LibraryView onOpen={(s) => { setSelected(s); setView("results"); }} />}
+          {view === "settings" && <SettingsView />}
           {view === "results" && <ResultsView selected={selected} />}
         </div>
       </main>

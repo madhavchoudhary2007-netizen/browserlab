@@ -14,6 +14,10 @@ use tauri_plugin_dialog::DialogExt;
 const ALLOWED: &[&str] = &[
     "hello",
     "preflight",
+    "settings.get",
+    "profiles.prepare",
+    "profiles.finish",
+    "profiles.cancel",
     "plan",
     "library.scan",
     "library.table",
@@ -26,7 +30,7 @@ const ALLOWED: &[&str] = &[
 ];
 
 /// Reachable only through native commands that first obtain a user-chosen path.
-const INTERNAL: &[&str] = &["export.write"];
+const INTERNAL: &[&str] = &["export.write", "settings.set_project_root"];
 
 type Pending = Arc<Mutex<HashMap<u64, Sender<Value>>>>;
 
@@ -180,4 +184,22 @@ pub async fn export_save(
     let params =
         json!({"format": format, "id": id, "suite": suite, "images": images, "path": path});
     call_engine(&app, &state, "export.write", params)
+}
+
+/// Choose the project folder via the native dialog; the path never comes from the webview.
+#[tauri::command]
+pub async fn settings_choose_folder(
+    app: AppHandle,
+    state: State<'_, Engine>,
+) -> Result<Value, String> {
+    let Some(picked) = app.dialog().file().blocking_pick_folder() else {
+        return Ok(json!({"cancelled": true}));
+    };
+    let path = picked.into_path().map_err(|e| e.to_string())?;
+    call_engine(
+        &app,
+        &state,
+        "settings.set_project_root",
+        json!({ "path": path }),
+    )
 }
