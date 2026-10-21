@@ -45,21 +45,22 @@ def test_unpaired_lengths_rejected():
 
 
 def test_execute_alternates_order_and_resumes(tmp_path):
-    from browserlab.overhead import execute, load_results
+    from browserlab.overhead import analyze_by_browser, execute, load_results
     calls = []
 
     def run_arm(b, arm):
         calls.append((b, arm))
         if len(calls) == 5:
             raise RuntimeError("browser failed")
-        return 100.0 + b, f"d{b}-{arm}"
+        return {"chrome": 100.0 + b, "brave": 50.0}, f"d{b}-{arm}"
 
     csv_path = tmp_path / "r.csv"
     with pytest.raises(RuntimeError):
         execute(4, csv_path, run_arm)
     assert calls[:4] == [(0, "headless"), (0, "supervised"), (1, "supervised"), (1, "headless")]
-    assert len(load_results(csv_path)) == 4  # the four finished arms were persisted before the failure
-    calls.clear()
-    out = execute(4, csv_path, lambda b, a: (200.0, "x"))
-    assert len(out) == 8
-    assert load_results(csv_path)[("00", "headless")] == 100.0  # earlier results untouched
+    assert len(load_results(csv_path)) == 8  # 4 finished arms x 2 browsers persisted before the failure
+    out = execute(4, csv_path, lambda b, a: ({"chrome": 200.0, "brave": 50.0}, "x"))
+    assert len(out) == 16
+    assert load_results(csv_path)[("00", "headless", "chrome")] == 100.0  # earlier results untouched
+    v = analyze_by_browser(out)
+    assert set(v) == {"chrome", "brave"} and v["chrome"].verdict == "insufficient"  # 4 blocks < 8

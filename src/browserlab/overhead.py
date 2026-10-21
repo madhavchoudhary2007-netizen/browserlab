@@ -61,36 +61,48 @@ import csv
 from pathlib import Path
 from typing import Callable
 
-FIELDS = ("block", "arm", "footprint_mb", "run_dir")
+FIELDS = ("block", "arm", "browser", "footprint_mb", "run_dir")
+ArmResult = tuple[dict[str, float], str]  # {browser: mean footprint MB}, run_dir
 
 
-def load_results(path: Path) -> dict[tuple[str, str], float]:
+def load_results(path: Path) -> dict[tuple[str, str, str], float]:
+    """{(block, arm, browser): footprint_mb}"""
     if not path.exists():
         return {}
     with path.open() as f:
-        return {(r["block"], r["arm"]): float(r["footprint_mb"]) for r in csv.DictReader(f)}
+        return {(r["block"], r["arm"], r.get("browser", "chrome (single-arm legacy format)")): float(r["footprint_mb"]) for r in csv.DictReader(f)}
 
 
-def execute(blocks: int, results_csv: Path, run_arm: Callable[[int, str], tuple[float, str]],
-            between: Callable[[], None] = lambda: None) -> dict[tuple[str, str], float]:
-    """Run every (block, arm) not already recorded, in alternating order, appending each result to
-    the CSV as soon as it exists. Re-running resumes; recorded results are never rewritten.
-    A failed arm raises and leaves its block incomplete (it is simply re-run on resume)."""
+def execute(blocks: int, results_csv: Path, run_arm: Callable[[int, str], ArmResult],
+            between: Callable[[], None] = lambda: None) -> dict[tuple[str, str, str], float]:
+    """Run every (block, arm) not already recorded, in alternating order, appending an arm's rows
+    to the CSV in one write as soon as the arm finishes. Re-running resumes; recorded results are
+    never rewritten. A failed arm raises and is simply re-run on resume."""
     done = load_results(results_csv)
     results_csv.parent.mkdir(parents=True, exist_ok=True)
     new_file = not results_csv.exists()
     for b, order in enumerate(block_order(blocks)):
         for arm in order:
-            key = (f"{b:02d}", arm)
-            if key in done:
+            if any(k[:2] == (f"{b:02d}", arm) for k in done):
                 continue
-            fp, run_dir = run_arm(b, arm)
+            fps, run_dir = run_arm(b, arm)
             with results_csv.open("a", newline="") as f:
                 w = csv.writer(f)
                 if new_file:
                     w.writerow(FIELDS)
                     new_file = False
-                w.writerow([key[0], arm, f"{fp:.4f}", run_dir])
-            done[key] = fp
+                for browser, fp in sorted(fps.items()):
+                    w.writerow([f"{b:02d}", arm, browser, f"{fp:.4f}", run_dir])
+                    done[(f"{b:02d}", arm, browser)] = fp
             between()
     return done
+
+
+def analyze_by_browser(results: dict[tuple[str, str, str], float], margin: float = 0.02) -> dict[str, Verdict]:
+    """One paired verdict per browser (never pooled across browsers)."""
+    out: dict[str, Verdict] = {}
+    for browser in sorted({k[2] for k in results}):
+        blocks = sorted({k[0] for k in results if k[2] == browser and (k[0], "headless", browser) in results and (k[0], "supervised", browser) in results})
+        out[browser] = analyze([results[(b, "headless", browser)] for b in blocks],
+                               [results[(b, "supervised", browser)] for b in blocks], margin)
+    return out
