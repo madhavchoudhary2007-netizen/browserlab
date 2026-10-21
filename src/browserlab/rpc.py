@@ -15,6 +15,7 @@ from dataclasses import asdict
 
 from .library import scan, to_json
 from .modes import BROWSERS, MODES, TAB_LEVELS, WORKLOADS, mode_config, plan
+from .paths import default_project_root, workloads_dir
 from .preflight import run_preflight
 from . import tables
 from .analysis import analyze
@@ -168,7 +169,7 @@ class Server:
             raise RpcError("invalid_params", "bad run id")
         run_dir = self.home / "runs" / run_id
         cfg = mode_config(self._base(), mode, **kw)
-        cfg_path = prepare_run_dir(self.project_root, run_dir, cfg)
+        cfg_path = prepare_run_dir(self.project_root, run_dir, cfg, workloads_dir(self.project_root))
         self.run_id = run_id
         self.run = RunController(
             run_dir, self.argv_factory(cfg_path),
@@ -230,8 +231,7 @@ class Server:
 
 def main() -> None:
     home = Path(os.environ.get("BROWSERLAB_HOME", Path.home() / "Library/Application Support/BrowserLab"))
-    root = Path(os.environ.get("BROWSERLAB_PROJECT_ROOT", Path.cwd()))
-    Server(sys.stdout, home, root).serve(sys.stdin)
+    Server(sys.stdout, home, default_project_root(home)).serve(sys.stdin)
 
 
 if __name__ == "__main__":

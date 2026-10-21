@@ -9,6 +9,8 @@ from typing import Any, Callable
 from browserbench.browsers import browser_version, matching_processes
 from browserbench.system import safety_snapshot
 
+from .paths import workloads_dir
+
 PASS, WARN, FAIL = "pass", "warn", "fail"
 
 
@@ -66,7 +68,7 @@ def run_preflight(
     checks.append(Check("thermal", "Thermal state", FAIL if th in ("serious", "critical") else PASS if th in ("nominal", "fair") else WARN,
                         f"{th}" + (" (sensor state not determinable)" if th == "unknown" else "")))
     if "video" in workloads:
-        video = Path(cfg["_project_root"]) / "workloads" / "assets" / "test_1080p.mp4"
+        video = workloads_dir(Path(cfg["_project_root"])) / "assets" / "test_1080p.mp4"
         checks.append(Check("video_asset", "Video workload asset", PASS if video.exists() else FAIL,
                             str(video) if video.exists() else "Missing; run tools/generate_video.sh"))
     if any(cfg["browsers"][b].get("engine") == "firefox" for b in browsers):

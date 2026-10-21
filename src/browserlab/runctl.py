@@ -162,13 +162,13 @@ class RunController:
             return 0
 
 
-def prepare_run_dir(project_root: Path, run_dir: Path, cfg: dict[str, Any]) -> Path:
+def prepare_run_dir(project_root: Path, run_dir: Path, cfg: dict[str, Any], workloads: Path | None = None) -> Path:
     """Create run dir with config + symlinks to shared workloads/baseline profiles."""
     run_dir.mkdir(parents=True, exist_ok=True)
-    for name in ("workloads", ".browserbench"):
+    for name, target in (("workloads", workloads or project_root / "workloads"), (".browserbench", project_root / ".browserbench")):
         link = run_dir / name
-        if not link.exists() and (project_root / name).exists():
-            link.symlink_to(project_root / name)
+        if not link.is_symlink() and not link.exists() and target.exists():
+            link.symlink_to(target)
     clean = {k: v for k, v in cfg.items() if not k.startswith("_")}
     clean.setdefault("project", {})["output_dir"] = "data"
     path = run_dir / "config.yaml"
@@ -179,4 +179,7 @@ def prepare_run_dir(project_root: Path, run_dir: Path, cfg: dict[str, Any]) -> P
 
 
 def engine_argv(python: str, config_path: Path) -> list[str]:
+    from .paths import is_frozen
+    if is_frozen():  # packaged sidecar: same executable, --bench selects the benchmark CLI
+        return [python, "--bench", "--config", str(config_path), "run", "--suite", "core"]
     return [python, "-u", "-m", "browserbench", "--config", str(config_path), "run", "--suite", "core"]

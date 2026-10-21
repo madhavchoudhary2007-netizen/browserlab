@@ -8,7 +8,7 @@ use std::process::{Child, ChildStdin, Command, Stdio};
 use std::sync::mpsc::{channel, Sender};
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
-use tauri::{AppHandle, Emitter, State};
+use tauri::{AppHandle, Emitter, Manager, State};
 use tauri_plugin_dialog::DialogExt;
 
 const ALLOWED: &[&str] = &[
@@ -42,16 +42,26 @@ pub struct Engine {
     next_id: Mutex<u64>,
 }
 
-fn sidecar_command() -> Command {
-    // Dev: BROWSERLAB_PYTHON points at the project venv. Packaged: bundled sidecar binary (see docs).
-    let python = std::env::var("BROWSERLAB_PYTHON").unwrap_or_else(|_| "python3".into());
-    let mut c = Command::new(python);
-    c.args(["-m", "browserlab.rpc"]);
-    c
+fn sidecar_command(app: &AppHandle) -> Result<Command, String> {
+    // Dev: BROWSERLAB_PYTHON points at the project venv. Packaged: the bundled frozen sidecar.
+    if let Ok(python) = std::env::var("BROWSERLAB_PYTHON") {
+        let mut c = Command::new(python);
+        c.args(["-m", "browserlab.rpc"]);
+        return Ok(c);
+    }
+    let exe = app
+        .path()
+        .resource_dir()
+        .map_err(|e| e.to_string())?
+        .join("engine/browserlab-engine/browserlab-engine");
+    if !exe.is_file() {
+        return Err(format!("bundled engine missing at {}", exe.display()));
+    }
+    Ok(Command::new(exe))
 }
 
 fn spawn(app: &AppHandle, pending: &Pending) -> Result<Running, String> {
-    let mut child = sidecar_command()
+    let mut child = sidecar_command(app)?
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .stderr(Stdio::null())
