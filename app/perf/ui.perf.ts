@@ -26,7 +26,7 @@ test("navigation between views: p95 < 100 ms", async ({ page }) => {
   const views: View[] = ["Run", "Library", "Results", "Settings"];
   for (const v of views) await timedNav(page, v); // warm-up
   const times: number[] = [];
-  for (let i = 0; i < 60; i++) times.push(await timedNav(page, views[i % views.length]));
+  for (let i = 0; i < 60; i++) times.push(await timedNav(page, views[i % views.length] as View));
   console.log(`nav n=${times.length} median=${median(times).toFixed(1)}ms p95=${p95(times).toFixed(1)}ms max=${Math.max(...times).toFixed(1)}ms`);
   expect(p95(times)).toBeLessThan(100);
 });
