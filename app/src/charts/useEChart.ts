@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { withMotionPreference, prefersReducedMotion } from "./motion";
 import { registerChart } from "./registry";
 import * as echarts from "echarts/core";
 import { BoxplotChart, CustomChart, HeatmapChart, LineChart, ScatterChart } from "echarts/charts";
@@ -25,7 +26,7 @@ export function useEChart(option: echarts.EChartsCoreOption, label: string) {
     ro.observe(el.current);
     return () => { ro.disconnect(); c.dispose(); chart.current = null; };
   }, []);
-  useEffect(() => { chart.current?.setOption(option, true); }, [option]);
+  useEffect(() => { chart.current?.setOption(withMotionPreference(option, prefersReducedMotion()), true); }, [option]);
   const png = () => chart.current?.getDataURL({ type: "png", pixelRatio: 2, backgroundColor: "#0e1013" });
   useEffect(() => registerChart(label, png), [label]);
   return { el, png, props: { role: "img", "aria-label": label } as const };

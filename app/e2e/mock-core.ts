@@ -12,6 +12,13 @@ export async function invoke(cmd: string, args: { method: string; params: Record
     return { path: "/mock/out." + args.format, bytes: 1234, format: args.format };
   }
   const { method, params } = args;
+  const w = window as unknown as { __calls?: { method: string; params: unknown }[] };
+  (w.__calls ??= []).push({ method, params });
+  const q = new URLSearchParams(location.search);
+  if (q.get("delay")) await new Promise((r) => setTimeout(r, Number(q.get("delay"))));
+  if (q.get("fail") === method) throw new Error("mock failure: " + method);
+  if (q.get("empty") === method) return [];
+  if (method === "run.start") return { run_id: "mock-run", state: "running" };
   if (method === "library.scan") return ["data_static_scaling_v013", "data_video_policy_smoke", "data_performance_instrumentation_5tab", "data_javascript_core_rep23"].map((id, i) => exp(id, i ? "pilot" : "exploratory", "k" + i)).concat([{ ...exp("lifecycle_fixture", "pilot", "kL"), suite: "lifecycle" }]);
   if (method === "library.table") {
     const off = Number(params.offset), lim = Number(params.limit);

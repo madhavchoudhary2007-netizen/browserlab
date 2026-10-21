@@ -6,5 +6,5 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   clearScreen: false,
   server: { port: 1420, strictPort: true },
-  test: { environment: "jsdom" },
+  test: { environment: "jsdom", include: ["src/**/*.test.ts"] },
 });

@@ -23,7 +23,7 @@ interface LabStore {
   progress: Progress;
   live: LiveSample[];
   warnings: string[];
-  setRunId: (id: string | null) => void;
+  setRunId: (id: string | null, state?: RunState) => void;
   apply: (e: EngineEvent) => void;
 }
 
@@ -35,7 +35,7 @@ export const useLab = create<LabStore>((set) => ({
   progress: emptyProgress,
   live: [],
   warnings: [],
-  setRunId: (runId) => set({ runId, state: "idle", progress: emptyProgress, live: [], warnings: [] }),
+  setRunId: (runId, state = "idle") => set({ runId, state, progress: emptyProgress, live: [], warnings: [] }),
   apply: (e) =>
     set((s) => {
       switch (e.event) {

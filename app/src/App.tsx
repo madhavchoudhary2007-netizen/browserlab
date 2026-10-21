@@ -19,18 +19,18 @@ export function App() {
   const [selected, setSelected] = useState<Selected | null>(null);
   const [pair, setPair] = useState<[Selected, Selected] | null>(null);
   return (
-    <div className="grid h-full grid-cols-[176px_1fr]">
-      <nav aria-label="Primary" className="flex flex-col gap-1 p-4" style={{ background: "var(--graphite)", borderRight: "1px solid var(--line)" }}>
-        <div className="mb-4 font-semibold">BrowserLab</div>
+    <div className="grid h-full grid-cols-1 grid-rows-[auto_1fr] md:grid-cols-[176px_1fr] md:grid-rows-1">
+      <nav aria-label="Primary" className="flex flex-row items-center gap-1 overflow-x-auto p-2 md:flex-col md:items-stretch md:p-4" style={{ background: "var(--graphite)", borderBottom: "1px solid var(--line)" }}>
+        <div className="px-2 font-semibold md:mb-4 md:px-0">BrowserLab</div>
         {VIEWS.filter((v) => v.id !== "compare" || pair).map((v) => (
           <button key={v.id} aria-current={view === v.id ? "page" : undefined} onClick={() => setView(v.id)}
-            className="min-h-11 rounded-md px-3 text-left"
+            className="min-h-11 min-w-11 shrink-0 rounded-md px-3 text-left"
             style={{ background: view === v.id ? "var(--raise)" : "transparent", color: view === v.id ? "var(--text)" : "var(--muted)" }}>
             {v.label}
           </button>
         ))}
       </nav>
-      <main className="min-w-0 overflow-auto p-8">
+      <main className="min-w-0 overflow-auto p-4 md:p-8">
         <div className="mx-auto max-w-5xl">
           {/* RunView stays mounted so an active run's controls never unmount */}
           <div hidden={view !== "run"}><RunView /></div>

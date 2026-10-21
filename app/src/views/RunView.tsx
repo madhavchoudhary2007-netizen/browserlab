@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRemote } from "../useRemote";
 import { call, type Mode, type PlanResult } from "../engine";
 import { Preflight, type PreflightResult } from "../components/Preflight";
 import { RunPanel } from "../components/RunPanel";
-import { attachEngineEvents, useLab } from "../store";
+import { attachEngineEvents, useLab, type RunState } from "../store";
 
 const MODES: { id: Mode; title: string; blurb: string }[] = [
   { id: "quick", title: "Quick", blurb: "4 trials, one condition" },
@@ -29,6 +29,16 @@ export function RunView() {
   const [startError, setStartError] = useState<string | null>(null);
 
   const [advanced, setAdvanced] = useState(false);
+  const radioRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const moveMode = (e: React.KeyboardEvent, from: number) => {
+    const n = MODES.length;
+    const next = { ArrowRight: (from + 1) % n, ArrowDown: (from + 1) % n, ArrowLeft: (from + n - 1) % n, ArrowUp: (from + n - 1) % n, Home: 0, End: n - 1 }[e.key];
+    if (next === undefined || busy) return;
+    e.preventDefault();
+    setAdvanced(false);
+    setMode(MODES[next]!.id);
+    radioRefs.current[next]?.focus();
+  };
   const sel: Record<string, unknown> = advanced ? { mode: "lifecycle" } : mode === "quick" ? { mode, workload, tabs } : { mode };
   const [plan] = useRemote<PlanResult>("plan", sel);
   const [pre, retryPre] = useRemote<PreflightResult>("preflight", sel);
@@ -46,8 +56,8 @@ export function RunView() {
   const start = async () => {
     setStartError(null);
     try {
-      const r = await call<{ run_id: string }>("run.start", sel);
-      setRunId(r.run_id);
+      const r = await call<{ run_id: string; state: RunState }>("run.start", sel);
+      setRunId(r.run_id, r.state);
     } catch (e) {
       setStartError(String(e));
     }
@@ -56,8 +66,8 @@ export function RunView() {
   return (
     <div className="flex flex-col gap-6">
       <div role="radiogroup" aria-label="Test mode" className="grid grid-cols-3 gap-4">
-        {MODES.map((m) => (
-          <button key={m.id} role="radio" aria-checked={!advanced && mode === m.id} disabled={busy} onClick={() => { setAdvanced(false); setMode(m.id); }}
+        {MODES.map((m, i) => (
+          <button key={m.id} ref={(el) => { radioRefs.current[i] = el; }} role="radio" tabIndex={(advanced ? i === 0 : mode === m.id) ? 0 : -1} onKeyDown={(e) => moveMode(e, i)} aria-checked={!advanced && mode === m.id} disabled={busy} onClick={() => { setAdvanced(false); setMode(m.id); }}
             className="min-h-11 rounded-md border p-4 text-left"
             style={{ borderColor: !advanced && mode === m.id ? "var(--signal)" : "var(--line)", background: "var(--graphite)" }}>
             <div className="font-semibold">{m.title}</div>

@@ -53,9 +53,11 @@ export function LibraryView({ onOpen, onCompare }: { onOpen: (s: Selected) => vo
         {shown.map((e) => {
           const key = `${e.id}/${e.suite}`;
           return (
-            <li key={key} className="grid grid-cols-[2rem_1fr_auto] items-center gap-4 rounded-md border p-4" style={{ borderColor: "var(--line)" }}>
-              <input type="checkbox" aria-label={`Compare ${e.id}`} checked={cmp.includes(key)}
-                onChange={(ev) => setCmp(ev.target.checked ? [...cmp, key].slice(-2) : cmp.filter((k) => k !== key))} />
+            <li key={key} className="grid grid-cols-[2.75rem_1fr_auto] items-center gap-4 rounded-md border p-4" style={{ borderColor: "var(--line)" }}>
+              <label className="flex min-h-11 min-w-11 items-center justify-center">
+                <input type="checkbox" aria-label={`Compare ${e.id}`} checked={cmp.includes(key)}
+                  onChange={(ev) => setCmp(ev.target.checked ? [...cmp, key].slice(-2) : cmp.filter((k) => k !== key))} />
+              </label>
               <div>
                 <div><strong>{e.id}</strong> <span className="num" style={{ color: "var(--signal)" }}>{e.status}</span></div>
                 <div className="num" style={{ color: "var(--muted)" }}>
