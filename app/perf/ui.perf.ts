@@ -64,9 +64,9 @@ test("long session: heap does not grow across 400 navigations", async ({ page })
   await openApp(page);
   await openExperiment(page, "data_static_scaling_v013");
   const views: View[] = ["Run", "Library", "Results", "Settings"];
-  for (let i = 0; i < 40; i++) await goTo(page, views[i % 4]);
+  for (let i = 0; i < 40; i++) await goTo(page, views[i % 4] as View);
   const before = await heapMB(page);
-  for (let i = 0; i < 400; i++) await timedNav(page, views[i % 4]);
+  for (let i = 0; i < 400; i++) await timedNav(page, views[i % 4] as View);
   const after = await heapMB(page);
   console.log(`heap before=${before.toFixed(1)}MB after=${after.toFixed(1)}MB delta=${(after - before).toFixed(1)}MB`);
   expect(after - before).toBeLessThan(15);
