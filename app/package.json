@@ -10,7 +10,8 @@
     "lint": "eslint . --max-warnings 0",
     "test": "vitest run",
     "tauri": "tauri",
-    "e2e": "../.venv/bin/python ../scripts/make_e2e_fixtures.py && playwright test"
+    "e2e": "../.venv/bin/python ../scripts/make_e2e_fixtures.py && playwright test",
+    "perf": "playwright test -c playwright.perf.config.ts"
   },
   "dependencies": {
     "@tanstack/react-virtual": "^3.14.21",
