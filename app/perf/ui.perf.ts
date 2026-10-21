@@ -1,8 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
 import { goTo, openApp, openExperiment, type View } from "../e2e/helpers";
 
-const p95 = (xs: number[]): number => [...xs].sort((a, b) => a - b)[Math.ceil(xs.length * 0.95) - 1];
-const median = (xs: number[]): number => [...xs].sort((a, b) => a - b)[Math.floor(xs.length / 2)];
+const p95 = (xs: number[]): number => [...xs].sort((a, b) => a - b)[Math.ceil(xs.length * 0.95) - 1] ?? NaN;
+const median = (xs: number[]): number => [...xs].sort((a, b) => a - b)[Math.floor(xs.length / 2)] ?? NaN;
 
 /** click -> two animation frames later (state committed and painted). */
 async function timedNav(page: Page, view: View): Promise<number> {
