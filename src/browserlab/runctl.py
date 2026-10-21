@@ -23,12 +23,13 @@ import yaml
 
 TRANSITIONS: dict[str, set[str]] = {
     "idle": {"running"},
-    "running": {"pausing", "stopping", "completed", "failed"},
-    "pausing": {"paused", "completed", "failed", "stopping"},
+    "running": {"pausing", "stopping", "completed", "incomplete", "failed"},
+    "pausing": {"paused", "completed", "incomplete", "failed", "stopping"},
     "paused": {"running", "stopped"},
-    "stopping": {"stopped", "completed", "failed"},
+    "stopping": {"stopped", "completed", "incomplete", "failed"},
     "stopped": {"running"},
     "completed": set(),
+    "incomplete": {"running"},
     "failed": {"running"},
 }
 TRIAL_RE = re.compile(r"^\[(\d+)/(\d+)\]\s+(\S+)\s+attempt=(\d+)")
@@ -145,15 +146,27 @@ class RunController:
             elif interrupted and want == "stop":
                 self._go("stopped")
             elif rc == 0:
-                if self.state == "running":
-                    self._go("completed")
+                if self.state == "pausing":
+                    self.state = "stopping"
+                missing = self._scheduled_count() - self.progress["completed"]
+                if missing > 0:
+                    # The engine exits 0 after exhausting retries on a trial; never call that complete.
+                    self._go("incomplete")
+                    self.emit({"type": "warning", "message": f"{missing} scheduled trial(s) did not complete; see {self.suite}/logs/errors.jsonl. Resume to retry them."})
                 else:
-                    self.state = "stopping" if self.state == "pausing" else self.state
                     self._go("completed")
             else:
                 if self.state in ("pausing", "stopping", "running"):
                     self._go("failed")
         self.emit({"type": "exit", "returncode": rc})
+
+    def _scheduled_count(self) -> int:
+        try:
+            with (self.run_dir / "data" / self.suite / "schedule.csv").open() as f:
+                rows = max(sum(1 for _ in f) - 1, 0)
+        except OSError:
+            rows = 0
+        return max(rows, self.progress["total"])
 
     def _completed_count(self) -> int:
         p = self.run_dir / "data" / self.suite / "state.json"

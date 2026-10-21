@@ -50,7 +50,7 @@ export function RunView() {
   }, []);
   useEffect(() => setConfirmed(false), [mode, workload, tabs, advanced]);
 
-  const busy = runState !== "idle" && runState !== "completed" && runState !== "failed" && runState !== "stopped";
+  const busy = runState !== "idle" && runState !== "completed" && runState !== "failed" && runState !== "incomplete" && runState !== "stopped";
   const ready = pre.kind === "ready" && pre.value.can_start && plan.kind === "ready";
 
   const start = async () => {

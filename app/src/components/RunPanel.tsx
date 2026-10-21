@@ -4,7 +4,7 @@ import { LiveChart } from "./LiveChart";
 
 const LABEL: Record<RunState, string> = {
   idle: "Idle", running: "Running", pausing: "Pausing after current trial", paused: "Paused",
-  stopping: "Stopping after current trial", stopped: "Stopped", completed: "Completed", failed: "Failed",
+  stopping: "Stopping after current trial", stopped: "Stopped", completed: "Completed", incomplete: "Incomplete: some trials did not finish", failed: "Failed",
 };
 
 export function RunPanel() {
@@ -26,7 +26,7 @@ export function RunPanel() {
       <LiveChart />
       <div className="flex gap-4">
         <button className="min-h-11 px-4" disabled={state !== "running"} onClick={() => act("run.pause")}>Pause after trial</button>
-        <button className="min-h-11 px-4" disabled={state !== "paused" && state !== "stopped"} onClick={() => act("run.resume")}>Resume</button>
+        <button className="min-h-11 px-4" disabled={state !== "paused" && state !== "stopped" && state !== "incomplete"} onClick={() => act("run.resume")}>Resume</button>
         <button className="min-h-11 px-4" disabled={!active && state !== "paused"} onClick={() => act("run.stop")}>Stop after trial</button>
       </div>
       {warnings.length > 0 && (

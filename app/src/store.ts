@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { listen } from "@tauri-apps/api/event";
 
 export type RunState =
-  | "idle" | "running" | "pausing" | "paused" | "stopping" | "stopped" | "completed" | "failed";
+  | "idle" | "running" | "pausing" | "paused" | "stopping" | "stopped" | "completed" | "incomplete" | "failed";
 
 export interface Progress { index: number; total: number; trial_id: string | null; completed: number }
 export interface LiveSample { t: number; rss_mb: number; cpu_pct: number; processes: number }

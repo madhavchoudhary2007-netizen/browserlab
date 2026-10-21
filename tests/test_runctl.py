@@ -85,3 +85,15 @@ def test_live_preview_samples_descendants_only(tmp_path):
     c.start(); c.wait(20)
     live = [e for e in ev if e["type"] == "live_sample"]
     assert live and max(e["processes"] for e in live) >= 1 and all(e["rss_mb"] >= 0 for e in live)
+
+
+def test_exit_zero_with_missing_trial_is_incomplete_not_completed(tmp_path):
+    script = tmp_path / "skip.py"
+    script.write_text(FAKE.replace('if tid in done: continue', 'if tid in done: continue\n        if tid == "t3": print("[3/4] t3 attempt=1 mem=50%", flush=True); continue'))
+    ev = []
+    c = RunController(tmp_path, [sys.executable, "-u", str(script), str(tmp_path), "4", "0.05"], ev.append)
+    c.start(); c.wait(20)
+    assert c.state == "incomplete" and c.progress["completed"] == 3
+    assert any(e["type"] == "warning" and "1 scheduled" in e["message"] for e in ev)
+    c.start(); c.wait(20)  # incomplete is resumable
+    assert c.state == "incomplete"
