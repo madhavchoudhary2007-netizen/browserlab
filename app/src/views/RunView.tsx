@@ -28,7 +28,8 @@ export function RunView() {
   const setRunId = useLab((s) => s.setRunId);
   const [startError, setStartError] = useState<string | null>(null);
 
-  const sel = mode === "quick" ? { mode, workload, tabs } : { mode };
+  const [advanced, setAdvanced] = useState(false);
+  const sel: Record<string, unknown> = advanced ? { mode: "lifecycle" } : mode === "quick" ? { mode, workload, tabs } : { mode };
   const [plan] = useRemote<PlanResult>("plan", sel);
   const [pre, retryPre] = useRemote<PreflightResult>("preflight", sel);
 
@@ -37,7 +38,7 @@ export function RunView() {
     void attachEngineEvents().then((f) => { off = f; }).catch(() => undefined);
     return () => off?.();
   }, []);
-  useEffect(() => setConfirmed(false), [mode, workload, tabs]);
+  useEffect(() => setConfirmed(false), [mode, workload, tabs, advanced]);
 
   const busy = runState !== "idle" && runState !== "completed" && runState !== "failed" && runState !== "stopped";
   const ready = pre.kind === "ready" && pre.value.can_start && plan.kind === "ready";
@@ -56,15 +57,15 @@ export function RunView() {
     <div className="flex flex-col gap-6">
       <div role="radiogroup" aria-label="Test mode" className="grid grid-cols-3 gap-4">
         {MODES.map((m) => (
-          <button key={m.id} role="radio" aria-checked={mode === m.id} disabled={busy} onClick={() => setMode(m.id)}
+          <button key={m.id} role="radio" aria-checked={!advanced && mode === m.id} disabled={busy} onClick={() => { setAdvanced(false); setMode(m.id); }}
             className="min-h-11 rounded-md border p-4 text-left"
-            style={{ borderColor: mode === m.id ? "var(--signal)" : "var(--line)", background: "var(--graphite)" }}>
+            style={{ borderColor: !advanced && mode === m.id ? "var(--signal)" : "var(--line)", background: "var(--graphite)" }}>
             <div className="font-semibold">{m.title}</div>
             <div style={{ color: "var(--muted)" }}>{m.blurb}</div>
           </button>
         ))}
       </div>
-      {mode === "quick" && (
+      {!advanced && mode === "quick" && (
         <div className="flex gap-4">
           <label>Workload{" "}
             <select value={workload} disabled={busy} onChange={(e) => setWorkload(e.target.value as typeof workload)}>
@@ -78,9 +79,14 @@ export function RunView() {
           </label>
         </div>
       )}
+      <label className="flex min-h-11 items-center gap-2">
+        <input type="checkbox" checked={advanced} disabled={busy} onChange={(e) => setAdvanced(e.target.checked)} />
+        Advanced research: lifecycle analysis (a separate experiment, not part of Quick / Standard / Full)
+      </label>
       <section aria-live="polite" className="rounded-md border p-4" style={{ borderColor: "var(--line)" }}>
         {plan.kind === "loading" && <p>Planning…</p>}
         {plan.kind === "error" && <p role="alert">Engine unavailable: {plan.message}</p>}
+        {plan.kind === "ready" && plan.value.disclosure && <p role="note" style={{ color: "var(--signal)" }}>{plan.value.disclosure}</p>}
         {plan.kind === "ready" && (
           <p className="num">
             {plan.value.trial_count} trials · at least {fmtDuration(plan.value.min_seconds_lower_bound)} (excludes startup and cooldown) ·{" "}

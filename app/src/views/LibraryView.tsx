@@ -21,7 +21,7 @@ export function compareNote(a: ExperimentInfo, b: ExperimentInfo): string {
     : `Protocols differ (${a.protocol_key} vs ${b.protocol_key}); do not pool these.`;
 }
 
-export function LibraryView({ onOpen }: { onOpen: (s: Selected) => void }) {
+export function LibraryView({ onOpen, onCompare }: { onOpen: (s: Selected) => void; onCompare: (a: Selected, b: Selected) => void }) {
   const [state, retry] = useRemote<ExperimentInfo[]>("library.scan", {});
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<string>("all");
@@ -69,7 +69,12 @@ export function LibraryView({ onOpen }: { onOpen: (s: Selected) => void }) {
           );
         })}
       </ul>
-      {picked.length === 2 && <p role="status">{compareNote(picked[0]!, picked[1]!)}</p>}
+      {picked.length === 2 && (
+        <div className="flex items-center gap-4">
+          <p role="status">{compareNote(picked[0]!, picked[1]!)}</p>
+          <button className="min-h-11 px-4" onClick={() => onCompare({ id: picked[0]!.id, suite: picked[0]!.suite }, { id: picked[1]!.id, suite: picked[1]!.suite })}>Compare sessions</button>
+        </div>
+      )}
     </section>
   );
 }

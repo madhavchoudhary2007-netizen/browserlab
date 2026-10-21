@@ -41,7 +41,7 @@ def analyze(summary_csv: Path, protocol_key: str = "", page_metrics: Path | None
     if len(df) < total:
         notes.append(f"{total - len(df)} trial(s) excluded for missing {metric}.")
     if df.empty:
-        return _clean({"javascript": {"available": False, "rows": [], "reason": "No data."}, "video": {"available": False, "rows": [], "visibility_distinguishable": False, "reason": "No data."}, "topology": [], "metric": metric, "n_trials": 0, "conditions": [], "scaling": [], "anova": None,
+        return _clean({"javascript": {"available": False, "rows": [], "reason": "No data."}, "video": {"available": False, "rows": [], "visibility_distinguishable": False, "reason": "No data."}, "topology": [], "diagnostics": None, "posthoc": [], "metric": metric, "n_trials": 0, "conditions": [], "scaling": [], "anova": None,
                        "notes": notes + ["No usable trials."], "inference": {"allowed": False, "reason": "No data."}})
     cells = df.groupby(FACTORS)
     conditions = []
@@ -64,6 +64,8 @@ def analyze(summary_csv: Path, protocol_key: str = "", page_metrics: Path | None
                              if len(levels) == 2 else "Linear trend across trials; nonlinearity not excluded.")
         scaling.append(entry)
     anova: dict[str, Any] | None = None
+    diagnostics: dict[str, Any] | None = None
+    posthoc: list[dict[str, Any]] = []
     if allowed:
         try:
             anova = {"raw": stats.anova_auto(df, metric, FACTORS), "log": None}
@@ -71,13 +73,18 @@ def analyze(summary_csv: Path, protocol_key: str = "", page_metrics: Path | None
                 anova["log"] = stats.anova_auto(df, metric, FACTORS, log=True)
             except ValueError:
                 pass
+            diagnostics = {"raw": stats.residual_diagnostics(df, metric, FACTORS),
+                           "log": stats.residual_diagnostics(df, metric, FACTORS, log=True) if anova["log"] else None}
+            for (w, t), g in df.groupby(["workload", "tabs"]):
+                fam = {b: gg[metric].tolist() for b, gg in g.groupby("browser")}
+                posthoc += [{"workload": w, "tabs": int(t), **r} for r in stats.pairwise_holm(fam)]
         except ValueError as e:
             notes.append(f"ANOVA not run: {e}")
     else:
         notes.append(reason)
     tabs = metrics.tab_deltas(page_metrics) if page_metrics else metrics.tab_deltas(Path("/nonexistent"))
     return _clean({"javascript": metrics.javascript_payload(full, tabs), "video": metrics.video_payload(full, tabs),
-                   "topology": metrics.topology_rows(df), "metric": metric, "metric_label": "Process-tree physical footprint (MB)" if metric == PRIMARY else "Summed RSS (MB)",
+                   "topology": metrics.topology_rows(df), "diagnostics": diagnostics, "posthoc": posthoc, "metric": metric, "metric_label": "Process-tree physical footprint (MB)" if metric == PRIMARY else "Summed RSS (MB)",
                    "n_trials": len(df), "min_reps_per_cell": min_reps, "protocol_key": protocol_key,
                    "conditions": conditions, "scaling": scaling, "anova": anova, "notes": notes,
                    "inference": {"allowed": allowed, "reason": reason,

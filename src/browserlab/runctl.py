@@ -41,7 +41,8 @@ class InvalidTransition(RuntimeError):
 
 class RunController:
     def __init__(self, run_dir: Path, argv: Sequence[str], emit: Callable[[Event], None],
-                 cwd: Path | None = None, preview_interval: float | None = 1.0) -> None:
+                 cwd: Path | None = None, preview_interval: float | None = 1.0, suite: str = "core") -> None:
+        self.suite = suite
         self.preview_interval = preview_interval
         self._preview: LivePreview | None = None
         self.run_dir, self.argv, self.emit, self.cwd = Path(run_dir), list(argv), emit, cwd
@@ -155,7 +156,7 @@ class RunController:
         self.emit({"type": "exit", "returncode": rc})
 
     def _completed_count(self) -> int:
-        p = self.run_dir / "core" / "state.json"
+        p = self.run_dir / "data" / self.suite / "state.json"
         try:
             return len(json.loads(p.read_text())["completed_trial_ids"])
         except (OSError, ValueError, KeyError):
@@ -178,8 +179,8 @@ def prepare_run_dir(project_root: Path, run_dir: Path, cfg: dict[str, Any], work
     return path
 
 
-def engine_argv(python: str, config_path: Path) -> list[str]:
+def engine_argv(python: str, config_path: Path, suite: str = "core") -> list[str]:
     from .paths import is_frozen
     if is_frozen():  # packaged sidecar: same executable, --bench selects the benchmark CLI
-        return [python, "--bench", "--config", str(config_path), "run", "--suite", "core"]
-    return [python, "-u", "-m", "browserbench", "--config", str(config_path), "run", "--suite", "core"]
+        return [python, "--bench", "--config", str(config_path), "run", "--suite", suite]
+    return [python, "-u", "-m", "browserbench", "--config", str(config_path), "run", "--suite", suite]

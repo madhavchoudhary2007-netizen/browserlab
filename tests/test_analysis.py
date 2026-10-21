@@ -56,3 +56,18 @@ def test_real_dataset_via_rpc():
     json.dumps(r, allow_nan=False)
     assert r["n_trials"] == 48 and r["metric"] == "mean_phys_footprint_mb" and len(r["conditions"]) == 16
     assert s.handle(json.dumps({"id": 2, "method": "stats.run", "params": {"id": "nope"}}))["error"]["code"] == "not_found"
+
+
+def test_diagnostics_and_posthoc_present_when_inference_allowed(tmp_path):
+    p = tmp_path / "s.csv"; frame(reps=4).to_csv(p, index=False)
+    a = analyze(p)
+    assert a["diagnostics"]["raw"]["shapiro"] is not None and len(a["diagnostics"]["raw"]["fitted"]) == a["n_trials"]
+    ph = a["posthoc"]
+    assert len(ph) == 3 and all(r["a"] == "a" and r["b"] == "b" and "p_holm" in r for r in ph)  # one pair per tab level
+    json.dumps(a, allow_nan=False)
+
+
+def test_no_posthoc_or_diagnostics_for_single_rep(tmp_path):
+    p = tmp_path / "s.csv"; frame(reps=1).to_csv(p, index=False)
+    a = analyze(p)
+    assert a["diagnostics"] is None and a["posthoc"] == []

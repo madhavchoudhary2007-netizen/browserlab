@@ -25,6 +25,8 @@ def main() -> int:
         {"id": 6, "method": "export.write", "params": {"id": "data_static_scaling_v013", "format": "json", "path": str(out)}},
         {"id": 7, "method": "preflight", "params": {"mode": "quick", "workload": "video", "tabs": 1}},
         {"id": 8, "method": "settings.get"},
+        {"id": 9, "method": "compare.run", "params": {"a": {"id": "data_static_scaling_v013"}, "b": {"id": "data_javascript_core_rep23"}}},
+        {"id": 10, "method": "lifecycle.plan"},
     ]
     p = subprocess.run([exe], input="\n".join(map(json.dumps, reqs)) + "\n", capture_output=True, text=True, env=env, timeout=180)
     res = {r["id"]: r for r in map(json.loads, p.stdout.splitlines())}
@@ -36,6 +38,8 @@ def main() -> int:
         "table paging": len(res[5]["result"]["rows"]) == 3,
         "json export written": "result" in res[6] and out.exists() and json.loads(out.read_text())["analysis"]["n_trials"] == 48,
         "preflight has checks": len(res[7]["result"]["checks"]) > 5,
+        "compare refuses mismatched protocols": res[9]["result"]["compatible"] is False and res[9]["result"]["rows"] == [],
+        "lifecycle plan discloses 40 trials": res[10]["result"]["trial_count"] == 40,
         "settings reports 4 profiles": len(res[8]["result"]["profiles"]) == 4,
     }
     bench = subprocess.run([exe, "--bench", "--config", str(root / "config.yaml"), "schedule", "--suite", "core", "--repetitions", "1"],

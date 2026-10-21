@@ -43,7 +43,7 @@ def test_library_scan(tmp_path):
 
 
 def test_run_prepares_dir_and_single_active(tmp_path):
-    s = Server(io.StringIO(), tmp_path, ROOT, argv_factory=lambda cfg: [sys.executable, "-c", "print('noop')"])  # never launch real browsers
+    s = Server(io.StringIO(), tmp_path, ROOT, argv_factory=lambda cfg, suite: [sys.executable, "-c", "print('noop')"])  # never launch real browsers
     r = call(s, "run.start", mode="quick", workload="static", tabs=1)
     assert "run_id" in r["result"]
     s.run.wait(20)
@@ -81,3 +81,20 @@ def test_rust_allowlist_matches_rpc_methods():
     methods = {n[2:].replace("_", ".", 1) if n.count("_") else n[2:] for n in dir(Server) if n.startswith("m_")}
     # m_library_scan -> library.scan ; m_run_start -> run.start ; m_hello -> hello
     assert allowed == methods, (allowed ^ methods)
+
+
+def test_lifecycle_run_uses_lifecycle_suite_and_is_disclosed(tmp_path):
+    seen = {}
+    def factory(cfg, suite):
+        seen["suite"] = suite
+        return [sys.executable, "-c", "print('noop')"]
+    s = Server(io.StringIO(), tmp_path, ROOT, argv_factory=factory)
+    plan = call(s, "plan", mode="lifecycle")["result"]
+    assert plan["trial_count"] == 40 and "additional trials" in plan["disclosure"]
+    assert "lifecycle" not in call(s, "hello")["result"]["modes"]  # primary UI keeps exactly three modes
+    r = call(s, "run.start", mode="lifecycle", browsers=["chrome"])
+    s.run.wait(20)
+    assert seen["suite"] == "lifecycle" and s.run.suite == "lifecycle"
+    import yaml
+    cfg = yaml.safe_load((tmp_path / "runs" / r["result"]["run_id"] / "config.yaml").read_text())
+    assert [k for k, v in cfg["browsers"].items() if v["enabled"]] == ["chrome"]

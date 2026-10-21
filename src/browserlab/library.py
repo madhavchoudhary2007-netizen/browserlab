@@ -35,6 +35,7 @@ class ExperimentInfo:
     sample_interval_seconds: float | None
     protocol_key: str
     system: dict[str, Any] = field(default_factory=dict)
+    browser_versions: dict[str, str] = field(default_factory=dict)
     warnings: list[str] = field(default_factory=list)
 
 
@@ -79,6 +80,7 @@ def inspect_suite_dir(suite_dir: Path, name: str) -> ExperimentInfo:
         workloads=list(sec.get("workloads", [])), tab_levels=[int(t) for t in tabs],
         repetitions=sec.get("repetitions"), warmup_seconds=warm, measure_seconds=meas,
         sample_interval_seconds=interval, protocol_key=key, system=meta.get("system", {}), warnings=warns,
+        browser_versions={b: d.get("detected_version", "") for b, d in meta.get("browsers", {}).items() if d.get("enabled")},
     )
 
 

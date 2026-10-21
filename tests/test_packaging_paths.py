@@ -50,3 +50,9 @@ def test_project_root_pointer_file(monkeypatch, tmp_path):
     assert paths.default_project_root(tmp_path) == study
     (tmp_path / "project_root").write_text("/does/not/exist")
     assert paths.default_project_root(tmp_path) == Path.cwd()
+
+
+def test_suite_argument_in_argv(monkeypatch, tmp_path):
+    assert engine_argv("py", tmp_path / "c.yaml", "lifecycle")[-1] == "lifecycle"
+    monkeypatch.setattr(sys, "frozen", True, raising=False)
+    assert engine_argv("e", tmp_path / "c.yaml", "lifecycle")[-2:] == ["--suite", "lifecycle"]

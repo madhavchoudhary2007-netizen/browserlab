@@ -51,3 +51,25 @@ export interface Extras {
   topology: TopologyRow[];
 }
 export type FullAnalysis = Analysis & Extras;
+
+export interface Diagnostics { fitted: number[]; std_resid: number[]; qq_theoretical: number[]; qq_sample: number[]; shapiro: { W: number; p: number } | null }
+export interface PostHocRow {
+  workload: string; tabs: number; a: string; b: string; n_a: number; n_b: number;
+  mean_diff?: number; ci_lo?: number; ci_hi?: number; p?: number; p_holm?: number; hedges_g?: number;
+}
+export interface Inferential { diagnostics: { raw: Diagnostics; log: Diagnostics | null } | null; posthoc: PostHocRow[] }
+export type AnalysisWithInference = FullAnalysis & Inferential;
+
+export interface CompareRow {
+  browser: string; workload: string; tabs: number; n_a: number; n_b: number; mean_a: number; mean_b: number;
+  mean_diff?: number; ci_lo?: number; ci_hi?: number; p?: number; p_holm?: number; hedges_g?: number;
+}
+export interface CompareResult {
+  compatible: boolean; reason: string | null; a: { id: string; status: string }; b: { id: string; status: string };
+  rows: CompareRow[]; notes: string[]; metric?: string;
+}
+export interface LifecyclePoint {
+  browser: string; workload: string; tabs: number; checkpoint_s: number; on_frontier: boolean;
+  reclaimed_mb: Summ; latency_ms: Summ; reclaimed_ratio: Summ | null;
+}
+export interface LifecycleResult { available: boolean; reason: string | null; checkpoints?: number[]; points: LifecyclePoint[]; notes: string[] }

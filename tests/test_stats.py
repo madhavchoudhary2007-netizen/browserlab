@@ -91,3 +91,31 @@ def test_anova_auto_matches_scipy_oneway():
     r = stats.anova_auto(d, "y", ["g"])
     f, p = st.f_oneway(*[d.y[d.g == k] for k in "abc"])
     assert r["table"][0]["F"] == pytest.approx(f) and r["table"][0]["p"] == pytest.approx(p)
+
+
+def test_welch_known_answer():
+    r = stats.welch([1, 2, 3], [2, 3, 4])
+    assert r["mean_diff"] == pytest.approx(-1) and r["t"] == pytest.approx(-1.2247449, abs=1e-6)
+    assert r["df"] == pytest.approx(4) and r["p"] == pytest.approx(0.28787, abs=1e-4)
+    assert r["hedges_g"] == pytest.approx(-0.8) and r["ci_lo"] < -1 < r["ci_hi"]
+    assert stats.welch([1], [1, 2]) is None
+
+
+def test_pairwise_holm_family():
+    rows = stats.pairwise_holm({"a": [1, 2, 3.1], "b": [10, 11, 12.2], "c": [10.1, 11.1, 12.0], "d": [5]})
+    assert len(rows) == 6
+    tested = [r for r in rows if "p" in r]
+    assert len(tested) == 3 and all(r["p_holm"] >= r["p"] for r in tested)
+    assert all("p_holm" not in r for r in rows if "p" not in r)  # n=1 group: untested, not invented
+    ac = next(r for r in rows if (r["a"], r["b"]) == ("a", "c"))
+    assert ac["p_holm"] < 0.05
+
+
+def test_residual_diagnostics_shapes_and_normality():
+    rng = np.random.default_rng(0)
+    d = pd.DataFrame({"g": list("ab") * 30, "y": rng.normal(10, 1, 60) + np.where(np.arange(60) % 2, 3, 0)})
+    r = stats.residual_diagnostics(d, "y", ["g"])
+    assert len(r["fitted"]) == len(r["std_resid"]) == len(r["qq_sample"]) == 60 and r["shapiro"]["p"] > 0.01
+    skew = d.assign(y=rng.exponential(1.0, 60) ** 3 + 1)
+    assert stats.residual_diagnostics(skew, "y", ["g"])["shapiro"]["p"] < 0.01
+    assert stats.residual_diagnostics(skew, "y", ["g"], log=True)["shapiro"]["p"] > stats.residual_diagnostics(skew, "y", ["g"])["shapiro"]["p"]

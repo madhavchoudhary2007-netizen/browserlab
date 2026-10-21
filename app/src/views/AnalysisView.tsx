@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
-import { uniq, type AnovaResult, type FullAnalysis } from "../analysis";
+import { uniq, type AnalysisWithInference, type AnovaResult } from "../analysis";
 import { BoxChart } from "../charts/BoxChart";
+import { QQChart, ResidualsChart } from "../charts/DiagnosticsChart";
 import { EfficiencyChart } from "../charts/EfficiencyChart";
 import { Heatmap } from "../charts/Heatmap";
 import { ThroughputChart } from "../charts/ThroughputChart";
@@ -14,7 +15,7 @@ import type { Selected } from "./LibraryView";
 const fmtP = (p: number | null): string => (p === null ? "—" : p < 1e-4 ? "<0.0001" : p.toFixed(4));
 const fmt = (v: number | null | undefined, d = 2): string => (v == null ? "—" : v.toFixed(d));
 
-function AnovaTable({ title, a }: { title: string; a: AnovaResult }) {
+function AnovaTable({ title, a, log = false }: { title: string; a: AnovaResult; log?: boolean }) {
   return (
     <div>
       <h4 className="font-semibold">{title}</h4>
@@ -28,17 +29,32 @@ function AnovaTable({ title, a }: { title: string; a: AnovaResult }) {
       </table>
       <p style={{ color: "var(--muted)" }}>
         Residual df {a.df_resid}.{" "}
-        {a.bp && (a.bp.p < 0.05 ? `Breusch–Pagan p=${fmtP(a.bp.p)}: residual variance is unequal; treat p-values cautiously (see log-scale model).` : `Breusch–Pagan p=${fmtP(a.bp.p)}: no evidence of unequal variance (absence of evidence only).`)}{" "}
+        {a.bp && (a.bp.p < 0.05 ? `Breusch–Pagan p=${fmtP(a.bp.p)}: residual variance is unequal${log ? " even on the log scale" : ""}; treat p-values cautiously${log ? "" : " (see log-scale model)"}.` : `Breusch–Pagan p=${fmtP(a.bp.p)}: no evidence of unequal variance (absence of evidence only).`)}{" "}
         {a.block && `Block effect p=${fmtP(a.block.p)}.`}
       </p>
     </div>
   );
 }
 
+function PostHoc({ rows, workload, tabs }: { rows: AnalysisWithInference["posthoc"]; workload: string; tabs: number }) {
+  const r = rows.filter((x) => x.workload === workload && x.tabs === tabs);
+  if (r.length === 0) return <p>No post-hoc comparisons for this cell.</p>;
+  return (
+    <table className="num w-full text-left">
+      <thead><tr><th>A − B</th><th>n</th><th>Δ MB</th><th>95% CI</th><th>p</th><th>p (Holm)</th><th>Hedges g</th></tr></thead>
+      <tbody>{r.map((x) => (
+        <tr key={`${x.a}${x.b}`}><td>{x.a} − {x.b}</td><td>{x.n_a}/{x.n_b}</td><td>{fmt(x.mean_diff, 1)}</td>
+          <td>{x.ci_lo == null ? "—" : `${fmt(x.ci_lo, 1)} – ${fmt(x.ci_hi, 1)}`}</td><td>{fmtP(x.p ?? null)}</td><td>{fmtP(x.p_holm ?? null)}</td><td>{fmt(x.hedges_g, 1)}</td></tr>
+      ))}</tbody>
+    </table>
+  );
+}
+
 export function AnalysisView({ selected }: { selected: Selected }) {
-  const [state, retry] = useRemote<FullAnalysis>("stats.run", { id: selected.id, suite: selected.suite });
+  const [state, retry] = useRemote<AnalysisWithInference>("stats.run", { id: selected.id, suite: selected.suite });
   const [workload, setWorkload] = useState<string | null>(null);
   const [tabs, setTabs] = useState<number | null>(null);
+  const [scale, setScale] = useState<"raw" | "log">("raw");
   const data = state.kind === "ready" ? state.value : null;
   const workloads = useMemo(() => uniq(data?.conditions.map((c) => c.workload) ?? []), [data]);
   const tabLevels = useMemo(() => uniq(data?.conditions.map((c) => c.tabs) ?? []).sort((a, b) => a - b), [data]);
@@ -101,11 +117,23 @@ export function AnalysisView({ selected }: { selected: Selected }) {
           ))}</tbody>
         </table>
       </div>
+      {d.posthoc.length > 0 && (
+        <div><h3 className="font-semibold">Pairwise browser comparisons at {tb} tabs ({wl})</h3>
+          <p style={{ color: "var(--muted)" }}>Welch tests per browser pair; Holm correction across the pairs in this cell. Small groups give wide intervals and inflated Hedges g.</p>
+          <PostHoc rows={d.posthoc} workload={wl} tabs={tb} /></div>)}
+      {d.diagnostics && (() => {
+        const dg = scale === "log" && d.diagnostics.log ? d.diagnostics.log : d.diagnostics.raw;
+        return (
+          <div><h3 className="font-semibold">Residual diagnostics</h3>
+            <label>Scale <select className="min-h-11" value={scale} onChange={(e) => setScale(e.target.value as "raw" | "log")}><option value="raw">raw</option>{d.diagnostics.log && <option value="log">log</option>}</select></label>
+            <p style={{ color: "var(--muted)" }}>{dg.shapiro ? `Shapiro–Wilk W=${dg.shapiro.W.toFixed(3)}, p=${fmtP(dg.shapiro.p)}. ` : ""}Residuals should scatter evenly around 0 and follow the diagonal; fans or curves indicate violated assumptions. Passing a test does not prove the assumptions hold.</p>
+            <div className="grid grid-cols-2 gap-4"><ResidualsChart d={dg} /><QQChart d={dg} /></div></div>);
+      })()}
       {d.anova ? (
         <div className="flex flex-col gap-4">
           <h3 className="font-semibold">Factorial ANOVA (trial level, Type II)</h3>
           <AnovaTable title="Raw scale" a={d.anova.raw} />
-          {d.anova.log && <AnovaTable title="Log scale (sensitivity)" a={d.anova.log} />}
+          {d.anova.log && <AnovaTable title="Log scale (sensitivity)" a={d.anova.log} log />}
         </div>
       ) : <p>Inferential tests not run for this experiment.</p>}
     </section>

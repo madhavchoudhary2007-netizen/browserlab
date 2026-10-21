@@ -12,7 +12,7 @@ export async function invoke(cmd: string, args: { method: string; params: Record
     return { path: "/mock/out." + args.format, bytes: 1234, format: args.format };
   }
   const { method, params } = args;
-  if (method === "library.scan") return ["data_static_scaling_v013", "data_video_policy_smoke", "data_performance_instrumentation_5tab", "data_javascript_core_rep23"].map((id, i) => exp(id, i ? "pilot" : "exploratory", "k" + i));
+  if (method === "library.scan") return ["data_static_scaling_v013", "data_video_policy_smoke", "data_performance_instrumentation_5tab", "data_javascript_core_rep23"].map((id, i) => exp(id, i ? "pilot" : "exploratory", "k" + i)).concat([{ ...exp("lifecycle_fixture", "pilot", "kL"), suite: "lifecycle" }]);
   if (method === "library.table") {
     const off = Number(params.offset), lim = Number(params.limit);
     const rows = [];
@@ -39,6 +39,9 @@ export async function invoke(cmd: string, args: { method: string; params: Record
     { browser: "brave", state: "version_changed", installed: true, version: "Brave 156", created_with: "Brave 155", path: "/x" },
     { browser: "firefox", state: "missing", installed: true, version: "Firefox 157", path: "/x" },
     { browser: "librewolf", state: "unmanaged", installed: true, version: "LibreWolf 157", path: "/x" } ] };
+  if (method === "compare.run") return fetch("/e2e-compare.json").then((r) => r.json());
+  if (method === "lifecycle.analyze") return fetch("/e2e-lifecycle.json").then((r) => r.json());
+  if (method === "plan" && params.mode === "lifecycle") return { mode: "lifecycle", trial_count: 40, complete_design: true, inference_allowed: true, min_seconds_lower_bound: 144000, disclosure: "40 additional trials, at least 40.0 h excluding browser startup, profile cloning and recovery cooldown. Not included in Quick, Standard or Full." };
   if (method === "plan") return { mode: "quick", trial_count: 4, complete_design: true, inference_allowed: false, min_seconds_lower_bound: 200 };
   if (method === "preflight") return { checks: [{ id: "memory", label: "Available memory", status: "pass", detail: "50%" }], can_start: true, has_warnings: false };
   throw new Error("mock: " + method);

@@ -7,6 +7,7 @@ export interface PlanResult {
   complete_design: boolean;
   inference_allowed: boolean;
   min_seconds_lower_bound: number;
+  disclosure?: string;
 }
 
 export type Remote<T> =

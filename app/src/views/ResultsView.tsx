@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import { call } from "../engine";
 import { VirtualTable, type Page } from "../components/VirtualTable";
 import { AnalysisView } from "./AnalysisView";
+import { LifecycleView } from "./LifecycleView";
 import type { Selected } from "./LibraryView";
 
 const TABLES = [
@@ -35,7 +36,9 @@ export function ResultsView({ selected }: { selected: Selected | null }) {
           </button>
         ))}
       </div>
-      {table === "analysis" && <AnalysisView key={`${sel.id}|${sel.suite}`} selected={sel} />}
+      {table === "analysis" && (sel.suite === "lifecycle"
+        ? <LifecycleView key={`${sel.id}|lifecycle`} selected={sel} />
+        : <AnalysisView key={`${sel.id}|${sel.suite}`} selected={sel} />)}
       {table !== "summary" && table !== "analysis" && (
         <label>Trial ID filter <input value={trial} onChange={(e) => setTrial(e.target.value)} className="num min-h-11 px-2" style={{ width: 360 }} placeholder="e.g. core-b001-o001-brave-static-t1" /></label>
       )}

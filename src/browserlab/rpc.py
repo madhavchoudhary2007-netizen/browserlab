@@ -20,6 +20,8 @@ from .paths import default_project_root, workloads_dir
 from .preflight import run_preflight
 from . import tables
 from .analysis import analyze
+from .compare import compare_sessions
+from .lifecycle import analyze_lifecycle, plan_lifecycle
 from .export import ExportError, FORMATS, validate_dest, write_export
 from .runctl import RunController, engine_argv, prepare_run_dir
 
@@ -51,9 +53,9 @@ def _browsers(params: dict[str, Any]) -> tuple[str, ...]:
 
 class Server:
     def __init__(self, out: TextIO, home: Path, project_root: Path, python: str = sys.executable,
-                 argv_factory: Callable[[Path], list[str]] | None = None) -> None:
+                 argv_factory: Callable[[Path, str], list[str]] | None = None) -> None:
         self.out, self.home, self.project_root, self.python = out, home, project_root, python
-        self.argv_factory = argv_factory or (lambda cfg: engine_argv(self.python, cfg))
+        self.argv_factory = argv_factory or (lambda cfg, suite: engine_argv(self.python, cfg, suite))
         self._wlock = threading.Lock()
         self.run: RunController | None = None
         self.setup: tuple[str, Any] | None = None  # (browser, Popen) of an active baseline-profile setup
@@ -70,7 +72,7 @@ class Server:
         return cfg
 
     def _selection(self, p: dict[str, Any]) -> tuple[str, dict[str, Any]]:
-        mode = _enum(p, "mode", tuple(MODES))
+        mode = _enum(p, "mode", (*MODES, "lifecycle"))
         kw: dict[str, Any] = {"browsers": _browsers(p)}
         if mode == "quick":
             kw["workload"] = _enum(p, "workload", WORKLOADS)
@@ -83,6 +85,10 @@ class Server:
 
     def m_plan(self, p: dict[str, Any]) -> Any:
         mode, kw = self._selection(p)
+        if mode == "lifecycle":
+            lp = plan_lifecycle(self._base(), kw["browsers"])
+            return {"mode": mode, "trial_count": lp["trial_count"], "complete_design": set(kw["browsers"]) == set(BROWSERS),
+                    "inference_allowed": True, "min_seconds_lower_bound": lp["total_seconds_lower_bound"], "disclosure": lp["disclosure"]}
         try:
             sched = plan(self._base(), mode, **kw)
         except ValueError as e:
@@ -219,8 +225,37 @@ class Server:
     def m_profiles_cancel(self, p: dict[str, Any]) -> Any:
         return self._end_setup(False)
 
+    def m_compare_run(self, p: dict[str, Any]) -> Any:
+        infos = scan(self.project_root)
+        picked = []
+        for key in ("a", "b"):
+            ref = p.get(key)
+            if not isinstance(ref, dict):
+                raise RpcError("invalid_params", f"{key} must be {{id, suite}}")
+            info = next((i for i in infos if i.id == ref.get("id") and i.suite == ref.get("suite", "core")), None)
+            csv_path = Path(info.path) / "processed" / f"trial_summary_{info.suite}.csv" if info else None
+            if info is None or not csv_path.exists():
+                raise RpcError("not_found", f"unknown experiment for {key}")
+            picked.append((asdict(info), csv_path))
+        return compare_sessions(picked[0][0], picked[0][1], picked[1][0], picked[1][1])
+
+    def m_lifecycle_plan(self, p: dict[str, Any]) -> Any:
+        return plan_lifecycle(self._base(), _browsers(p))
+
+    def m_lifecycle_analyze(self, p: dict[str, Any]) -> Any:
+        info = next((i for i in scan(self.project_root) if i.id == p.get("id") and i.suite == "lifecycle"), None)
+        csv_path = Path(info.path) / "processed" / "trial_summary_lifecycle.csv" if info else None
+        if info is None or not csv_path.exists():
+            raise RpcError("not_found", "no lifecycle experiment with that id")
+        return analyze_lifecycle(csv_path, info.protocol_key)
+
     def m_preflight(self, p: dict[str, Any]) -> Any:
         mode, kw = self._selection(p)
+        if mode == "lifecycle":
+            cfg = self._base()
+            for name, spec in cfg["browsers"].items():
+                spec["enabled"] = name in kw["browsers"]
+            return run_preflight(cfg, kw["browsers"], tuple(cfg["lifecycle"]["workloads"]), self.home / "preflight")
         cfg = mode_config(self._base(), mode, **kw)
         return run_preflight(cfg, kw["browsers"], tuple(cfg["core"]["workloads"]), self.home / "preflight")
 
@@ -234,12 +269,19 @@ class Server:
         if not run_id.replace("-", "").isalnum():
             raise RpcError("invalid_params", "bad run id")
         run_dir = self.home / "runs" / run_id
-        cfg = mode_config(self._base(), mode, **kw)
+        suite = "core"
+        if mode == "lifecycle":
+            suite = "lifecycle"
+            cfg = self._base()
+            for name, spec in cfg["browsers"].items():
+                spec["enabled"] = name in kw["browsers"]
+        else:
+            cfg = mode_config(self._base(), mode, **kw)
         cfg_path = prepare_run_dir(self.project_root, run_dir, cfg, workloads_dir(self.project_root))
         self.run_id = run_id
         self.run = RunController(
-            run_dir, self.argv_factory(cfg_path),
-            lambda e: self.send({"event": e["type"], "run_id": run_id, **e}), cwd=run_dir,
+            run_dir, self.argv_factory(cfg_path, suite),
+            lambda e: self.send({"event": e["type"], "run_id": run_id, **e}), cwd=run_dir, suite=suite,
         )
         self.run.start()
         return {"run_id": run_id, "state": self.run.state}

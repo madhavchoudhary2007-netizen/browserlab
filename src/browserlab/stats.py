@@ -152,3 +152,49 @@ def slope_ci(x: Sequence[float], y: Sequence[float], level: float = 0.95) -> dic
         return {**r, "slope_lo": float("nan"), "slope_hi": float("nan")}
     h = st.t.ppf((1 + level) / 2, n - 2) * r["slope_se"]
     return {**r, "slope_lo": r["slope"] - h, "slope_hi": r["slope"] + h}
+
+
+def welch(a: Sequence[float], b: Sequence[float], level: float = 0.95) -> dict[str, float] | None:
+    """Welch two-sample contrast a - b with CI, Hedges' g and p. None unless both groups have n >= 2."""
+    x, y = np.asarray(a, float), np.asarray(b, float)
+    x, y = x[np.isfinite(x)], y[np.isfinite(y)]
+    if len(x) < 2 or len(y) < 2:
+        return None
+    res = st.ttest_ind(x, y, equal_var=False)
+    ci = res.confidence_interval(level)
+    d = cohens_d(x, y)
+    j = 1 - 3 / (4 * (len(x) + len(y) - 2) - 1)
+    return {"n_a": len(x), "n_b": len(y), "mean_diff": float(x.mean() - y.mean()), "ci_lo": float(ci.low), "ci_hi": float(ci.high),
+            "t": float(res.statistic), "df": float(res.df), "p": float(res.pvalue), "hedges_g": float(d * j)}
+
+
+def pairwise_holm(groups: dict[str, Sequence[float]]) -> list[dict]:
+    """All pairwise Welch contrasts within one family of groups, Holm-adjusted across the family."""
+    names = sorted(groups)
+    rows = []
+    for i, p in enumerate(names):
+        for q in names[i + 1:]:
+            w = welch(groups[p], groups[q])
+            rows.append({"a": p, "b": q, **(w or {"n_a": len(groups[p]), "n_b": len(groups[q])})})
+    tested = [r for r in rows if "p" in r]
+    for r, adj in zip(tested, holm([r["p"] for r in tested]) if tested else []):
+        r["p_holm"] = adj
+    return rows
+
+
+def residual_diagnostics(df: pd.DataFrame, y: str, factors: Sequence[str], log: bool = False) -> dict:
+    d = df.dropna(subset=[y]).copy()
+    if log:
+        d[y] = np.log(d[y])
+    used = [f for f in factors if d[f].nunique() > 1]
+    model = smf.ols(f"{y} ~ " + " * ".join(f"C({f})" for f in used), data=d).fit()
+    if model.df_resid <= 0:
+        raise ValueError("No residual degrees of freedom")
+    z = (model.resid / math.sqrt(model.mse_resid)).to_numpy()
+    (theo, samp), _ = st.probplot(z, dist="norm")
+    out = {"fitted": model.fittedvalues.tolist(), "std_resid": z.tolist(), "qq_theoretical": theo.tolist(),
+           "qq_sample": samp.tolist(), "shapiro": None}
+    if 3 <= len(z) <= 5000:
+        w, p = st.shapiro(z)
+        out["shapiro"] = {"W": float(w), "p": float(p)}
+    return out
