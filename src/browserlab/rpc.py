@@ -15,6 +15,7 @@ import yaml
 from .library import scan, to_json
 from .modes import BROWSERS, MODES, TAB_LEVELS, WORKLOADS, mode_config, plan
 from .preflight import run_preflight
+from . import tables
 from .runctl import RunController, engine_argv, prepare_run_dir
 
 PROTOCOL_VERSION = 1
@@ -91,6 +92,34 @@ class Server:
 
     def m_library_scan(self, p: dict[str, Any]) -> Any:
         return json.loads(to_json(scan(self.project_root)))
+
+    TABLE_FILES = {
+        "summary": "processed/trial_summary_{suite}.csv",
+        "samples": "raw/samples.csv",
+        "process_samples": "raw/process_samples.csv",
+        "page_metrics": "raw/page_metrics.csv",
+    }
+
+    def m_library_table(self, p: dict[str, Any]) -> Any:
+        """Page of a dataset table. Paths come from a library scan, never from the caller."""
+        table = _enum(p, "table", tuple(self.TABLE_FILES))
+        suite = p.get("suite", "core")
+        info = next((i for i in scan(self.project_root) if i.id == p.get("id") and i.suite == suite), None)
+        if info is None:
+            raise RpcError("not_found", "unknown experiment")
+        path = Path(info.path) / self.TABLE_FILES[table].format(suite=suite)
+        if not path.exists():
+            raise RpcError("not_found", f"{table} not present in this experiment")
+        off, lim = p.get("offset", 0), p.get("limit", 200)
+        if not (isinstance(off, int) and isinstance(lim, int) and off >= 0 and lim >= 0):
+            raise RpcError("invalid_params", "offset/limit must be non-negative integers")
+        tid = p.get("trial_id")
+        if tid is not None and not isinstance(tid, str):
+            raise RpcError("invalid_params", "trial_id must be a string")
+        try:
+            return tables.read_page(path, off, lim, tid)
+        except ValueError as e:
+            raise RpcError("unsupported", str(e))
 
     def m_preflight(self, p: dict[str, Any]) -> Any:
         mode, kw = self._selection(p)

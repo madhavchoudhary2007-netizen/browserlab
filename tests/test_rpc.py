@@ -57,3 +57,15 @@ def test_preflight_rpc_shape(tmp_path):
     r = call(server(tmp_path), "preflight", mode="quick", workload="static", tabs=1)["result"]
     ids = {c["id"] for c in r["checks"]}
     assert {"memory", "disk", "thermal"} <= ids and isinstance(r["can_start"], bool)
+
+
+def test_library_table_paging_and_validation(tmp_path):
+    s = server(tmp_path)
+    r = call(s, "library.table", id="data_static_scaling_v013", table="summary", offset=0, limit=5)["result"]
+    assert r["total"] == 48 and len(r["rows"]) == 5 and "trial_id" in r["columns"]
+    tid = r["rows"][0][r["columns"].index("trial_id")]
+    r2 = call(s, "library.table", id="data_static_scaling_v013", table="samples", trial_id=tid, limit=1000)["result"]
+    assert 0 < r2["total"] == len(r2["rows"])
+    assert call(s, "library.table", id="../../etc", table="summary")["error"]["code"] == "not_found"
+    assert call(s, "library.table", id="data_static_scaling_v013", table="passwd")["error"]["code"] == "invalid_params"
+    assert call(s, "library.table", id="data_static_scaling_v013", table="samples", offset=-1)["error"]["code"] == "invalid_params"
