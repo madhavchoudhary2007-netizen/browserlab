@@ -1,3 +1,2 @@
 # Next (ordered)
-1. engine RPC server (stdio JSON-RPC) + run FSM wrapping browserbench.run_suite with pause/stop at trial boundaries. Verify: pytest tests/test_rpc.py
-2. exports (CSV/XLSX/JSON/PDF). 3. Scaffold Tauri2+Vite+React in app/. 4. Screens: setup, live, library, results, stats. 5. PyInstaller sidecar + .app bundle. 6. Perf, a11y, E2E, overhead experiment, two audits.
+1. Event streaming of live samples (tail raw/samples.csv in runctl) + live view. 2. Setup wizard: preflight RPC (browsers, disk, AC, thermal). 3. Library + results screens with virtualized tables. 4. Charts 1-12. 5. Exports. 6. PyInstaller sidecar bundled into .app. 7. Playwright/axe, perf fixtures, overhead experiment, two audits.

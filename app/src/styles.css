@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+:root {
+  --ink: #0e1013;
+  --graphite: #161a1f;
+  --raise: #1d2229;
+  --line: #2a3039;
+  --text: #e6e8eb;
+  --muted: #8b94a0;
+  --signal: #f2a93b;
+  --font-sans: "Geist", "Inter", system-ui, sans-serif;
+  --font-mono: "Geist Mono", ui-monospace, "SF Mono", monospace;
+}
+html, body, #root { height: 100%; }
+body {
+  margin: 0; background: var(--ink); color: var(--text);
+  font-family: var(--font-sans); font-size: 14px; -webkit-font-smoothing: antialiased;
+}
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+:focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }

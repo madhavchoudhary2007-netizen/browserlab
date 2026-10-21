@@ -1,0 +1,17 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "BrowserLab",
+  "version": "0.1.0",
+  "identifier": "app.browserlab.desktop",
+  "build": {
+    "beforeDevCommand": "pnpm dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "pnpm build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [{ "title": "BrowserLab", "width": 1280, "height": 840, "minWidth": 960, "minHeight": 640 }],
+    "security": { "csp": "default-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:" }
+  },
+  "bundle": { "active": true, "targets": ["app"], "icon": ["icons/icon.png"] }
+}

@@ -1,6 +1,8 @@
 # Current state (verified)
 - 2026-10-21, branch perfection-loop, architecture LOCKED (sha256 in DECISIONS.md D-005).
-- Done: `src/browserlab/{modes,library,stats}.py` + tests (27 pytest pass via .venv; includes 18 original+new).
-- Verified: Quick=4, Standard=48, Full=240 trials, block-balanced; library scan read-only over 16 datasets; known-answer stats.
-- NOT done: RPC sidecar, run control FSM, exports, Tauri/Rust shell, React UI, packaging, perf/a11y/E2E, audits.
-- Risks: disk 34 GB free; user's uncommitted edits in runner.py/workloads.py untouched.
+- Python: `src/browserlab/{modes,library,stats,runctl,rpc}.py`; 36 pytest pass (`.venv/bin/python -m pytest`).
+- runctl: pause/stop only at trial boundary via SIGINT after "OK ->"; resume relaunches engine (state.json skip). Known limitation: recovery cooldown after the last trial before a pause is cut short, so first trial after resume has no preceding cooldown (to be logged/flagged).
+- rpc: NDJSON stdio; methods hello, plan, library.scan, run.start/pause/resume/stop/status.
+- app/: Tauri 2 + React/TS strict + Tailwind 4 + ECharts (dep only). typecheck, eslint(0 warn), vitest(1), vite build, cargo fmt/clippy/check all pass. `pnpm tauri build --debug --bundles app` produces BrowserLab.app (23.8 MiB, unsigned). Launched with BROWSERLAB_PYTHON=.venv python: UI spawned the sidecar (pgrep). Visual not screenshot-verified (screencapture denied).
+- NOT done: bundled sidecar (PyInstaller), real browser run from app, live charts, library/results/stats screens, exports, E2E/a11y/perf tests, overhead experiment, audits.
+- Risks: disk ~32 GB free; user's uncommitted edits in runner.py/workloads.py untouched; test must never start real browsers (rpc test uses argv_factory).
