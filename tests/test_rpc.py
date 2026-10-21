@@ -75,6 +75,9 @@ def test_rust_allowlist_matches_rpc_methods():
     import re
     src = (ROOT / "app/src-tauri/src/engine.rs").read_text()
     allowed = set(re.findall(r'"([a-z_.]+)"', src[src.index("const ALLOWED"):src.index("];")]))
+    internal = set(re.findall(r'"([a-z_.]+)"', src[src.index("const INTERNAL"):src.index("];", src.index("const INTERNAL"))]))
+    assert internal == {"export.write"} and not (internal & allowed)
+    allowed |= internal
     methods = {n[2:].replace("_", ".", 1) if n.count("_") else n[2:] for n in dir(Server) if n.startswith("m_")}
     # m_library_scan -> library.scan ; m_run_start -> run.start ; m_hello -> hello
     assert allowed == methods, (allowed ^ methods)

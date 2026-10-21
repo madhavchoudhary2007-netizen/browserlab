@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { registerChart } from "./registry";
 import * as echarts from "echarts/core";
 import { BoxplotChart, CustomChart, HeatmapChart, LineChart, ScatterChart } from "echarts/charts";
 import { GridComponent, LegendComponent, TooltipComponent, VisualMapComponent, ToolboxComponent, DataZoomComponent } from "echarts/components";
@@ -23,5 +24,6 @@ export function useEChart(option: echarts.EChartsCoreOption, label: string) {
   }, []);
   useEffect(() => { chart.current?.setOption(option, true); }, [option]);
   const png = () => chart.current?.getDataURL({ type: "png", pixelRatio: 2, backgroundColor: "#0e1013" });
+  useEffect(() => registerChart(label, png), [label]);
   return { el, png, props: { role: "img", "aria-label": label } as const };
 }

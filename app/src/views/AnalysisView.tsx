@@ -3,6 +3,7 @@ import { uniq, type Analysis, type AnovaResult } from "../analysis";
 import { BoxChart } from "../charts/BoxChart";
 import { Heatmap } from "../charts/Heatmap";
 import { ScalingChart } from "../charts/ScalingChart";
+import { ChartPngButton, ExportBar } from "../components/ExportBar";
 import { useRemote } from "../useRemote";
 import type { Selected } from "./LibraryView";
 
@@ -55,16 +56,17 @@ export function AnalysisView({ selected }: { selected: Selected }) {
         {d.inference.caveat && <p style={{ color: "var(--muted)" }}>{d.inference.caveat}</p>}
         {d.notes.map((n) => <p key={n} style={{ color: "var(--signal)" }}>{n}</p>)}
       </div>
+      <ExportBar id={selected.id} suite={selected.suite} />
       <div className="flex flex-wrap gap-4">
         <label>Workload <select className="min-h-11" value={wl} onChange={(e) => setWorkload(e.target.value)}>{workloads.map((w) => <option key={w}>{w}</option>)}</select></label>
         <label>Tabs (distribution) <select className="min-h-11" value={tb} onChange={(e) => setTabs(Number(e.target.value))}>{tabLevels.map((t) => <option key={t}>{t}</option>)}</select></label>
       </div>
-      <div><h3 className="font-semibold">Memory vs tab count</h3>
+      <div><h3 className="font-semibold">Memory vs tab count</h3><ChartPngButton prefix="Memory versus tab count" id={selected.id} suite={selected.suite} />
         <p style={{ color: "var(--muted)" }}>Points: condition means with 95% CI across trials. Dashed: linear trend (≥3 levels).</p>
         <ScalingChart data={d} workload={wl} unit={unit} /></div>
-      <div><h3 className="font-semibold">Between-trial distribution at {tb} tabs</h3>
+      <div><h3 className="font-semibold">Between-trial distribution at {tb} tabs</h3><ChartPngButton prefix="Trial-level distribution" id={selected.id} suite={selected.suite} />
         <BoxChart data={d} workload={wl} tabs={tb} unit={unit} /></div>
-      <div><h3 className="font-semibold">Browser × workload × tabs</h3><Heatmap data={d} unit={unit} /></div>
+      <div><h3 className="font-semibold">Browser × workload × tabs</h3><ChartPngButton prefix="Mean memory by browser" id={selected.id} suite={selected.suite} /><Heatmap data={d} unit={unit} /></div>
       <div>
         <h3 className="font-semibold">Scaling slopes ({wl})</h3>
         <table className="num w-full text-left">

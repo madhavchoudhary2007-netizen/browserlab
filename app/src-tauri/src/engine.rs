@@ -9,6 +9,7 @@ use std::sync::mpsc::{channel, Sender};
 use std::sync::{Arc, Mutex};
 use std::time::Duration;
 use tauri::{AppHandle, Emitter, State};
+use tauri_plugin_dialog::DialogExt;
 
 const ALLOWED: &[&str] = &[
     "hello",
@@ -23,6 +24,9 @@ const ALLOWED: &[&str] = &[
     "run.stop",
     "run.status",
 ];
+
+/// Reachable only through native commands that first obtain a user-chosen path.
+const INTERNAL: &[&str] = &["export.write"];
 
 type Pending = Arc<Mutex<HashMap<u64, Sender<Value>>>>;
 
@@ -90,6 +94,16 @@ pub fn engine_call(
     if !ALLOWED.contains(&method.as_str()) {
         return Err(format!("method not allowed: {method}"));
     }
+    call_engine(&app, &state, &method, params)
+}
+
+fn call_engine(
+    app: &AppHandle,
+    state: &Engine,
+    method: &str,
+    params: Value,
+) -> Result<Value, String> {
+    debug_assert!(ALLOWED.contains(&method) || INTERNAL.contains(&method));
     if !params.is_object() {
         return Err("params must be an object".into());
     }
@@ -107,7 +121,7 @@ pub fn engine_call(
             None => true,
         };
         if dead {
-            *guard = Some(spawn(&app, &state.pending)?);
+            *guard = Some(spawn(app, &state.pending)?);
         }
         let r = guard.as_mut().unwrap();
         let req = json!({"id": id, "method": method, "params": params});
@@ -122,4 +136,38 @@ pub fn engine_call(
         return Err(err.to_string());
     }
     Ok(resp.get("result").cloned().unwrap_or(Value::Null))
+}
+
+/// Save an export: the destination comes from the native save dialog, never from the webview.
+#[tauri::command]
+pub async fn export_save(
+    app: AppHandle,
+    state: State<'_, Engine>,
+    format: String,
+    id: String,
+    suite: String,
+    images: Vec<String>,
+) -> Result<Value, String> {
+    let (ext, name) = match format.as_str() {
+        "csv_trials" => ("csv", "trials"),
+        "csv_conditions" => ("csv", "conditions"),
+        "xlsx" => ("xlsx", "report"),
+        "json" => ("json", "results"),
+        "pdf" => ("pdf", "report"),
+        "png" => ("png", "chart"),
+        _ => return Err(format!("unknown format: {format}")),
+    };
+    let picked = app
+        .dialog()
+        .file()
+        .add_filter(ext, &[ext])
+        .set_file_name(format!("{id}-{name}.{ext}"))
+        .blocking_save_file();
+    let Some(path) = picked else {
+        return Ok(json!({"cancelled": true}));
+    };
+    let path = path.into_path().map_err(|e| e.to_string())?;
+    let params =
+        json!({"format": format, "id": id, "suite": suite, "images": images, "path": path});
+    call_engine(&app, &state, "export.write", params)
 }

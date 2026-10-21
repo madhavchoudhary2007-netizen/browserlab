@@ -11,12 +11,14 @@ from pathlib import Path
 from typing import Any, Callable, TextIO
 
 import yaml
+from dataclasses import asdict
 
 from .library import scan, to_json
 from .modes import BROWSERS, MODES, TAB_LEVELS, WORKLOADS, mode_config, plan
 from .preflight import run_preflight
 from . import tables
 from .analysis import analyze
+from .export import ExportError, FORMATS, validate_dest, write_export
 from .runctl import RunController, engine_argv, prepare_run_dir
 
 PROTOCOL_VERSION = 1
@@ -131,6 +133,26 @@ class Server:
         if not path.exists():
             raise RpcError("not_found", "no trial summary for this experiment")
         return analyze(path, info.protocol_key)
+
+    def m_export_write(self, p: dict[str, Any]) -> Any:
+        """Write one export. Reached only from the native save dialog, never directly from the UI."""
+        fmt = _enum(p, "format", tuple(FORMATS))
+        suite = p.get("suite", "core")
+        infos = scan(self.project_root)
+        info = next((i for i in infos if i.id == p.get("id") and i.suite == suite), None)
+        if info is None:
+            raise RpcError("not_found", "unknown experiment")
+        summary = Path(info.path) / "processed" / f"trial_summary_{suite}.csv"
+        if not summary.exists():
+            raise RpcError("not_found", "no trial summary for this experiment")
+        images = p.get("images", [])
+        if not isinstance(images, list) or len(images) > 6:
+            raise RpcError("invalid_params", "images must be a list of at most 6 PNG data URLs")
+        try:
+            dest = validate_dest(str(p.get("path", "")), fmt, [Path(i.path).parent for i in infos] + [self.project_root / "analysis"])
+            return write_export(fmt, dest, asdict(info), summary, analyze(summary, info.protocol_key), images)
+        except ExportError as e:
+            raise RpcError("invalid_params", str(e))
 
     def m_preflight(self, p: dict[str, Any]) -> Any:
         mode, kw = self._selection(p)

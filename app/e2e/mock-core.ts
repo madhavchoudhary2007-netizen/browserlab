@@ -6,7 +6,11 @@ const exp = (id: string, status: string, key: string) => ({
   workloads: ["static"], tab_levels: [1, 30], repetitions: 2, warmup_seconds: 20, measure_seconds: 105,
   protocol_key: key, warnings: [],
 });
-export async function invoke(_cmd: string, args: { method: string; params: Record<string, number | string> }) {
+export async function invoke(cmd: string, args: { method: string; params: Record<string, number | string> } & { images?: string[]; format?: string }) {
+  if (cmd === "export_save") {
+    (window as unknown as { __lastExport: unknown }).__lastExport = { format: args.format, images: (args.images ?? []).map((i) => i.slice(0, 22) + "…" + i.length) };
+    return { path: "/mock/out." + args.format, bytes: 1234, format: args.format };
+  }
   const { method, params } = args;
   if (method === "library.scan") return [exp("data_a", "exploratory", "k1"), exp("data_b", "pilot", "k2")];
   if (method === "library.table") {
