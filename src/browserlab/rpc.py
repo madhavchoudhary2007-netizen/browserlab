@@ -16,6 +16,7 @@ from .library import scan, to_json
 from .modes import BROWSERS, MODES, TAB_LEVELS, WORKLOADS, mode_config, plan
 from .preflight import run_preflight
 from . import tables
+from .analysis import analyze
 from .runctl import RunController, engine_argv, prepare_run_dir
 
 PROTOCOL_VERSION = 1
@@ -120,6 +121,16 @@ class Server:
             return tables.read_page(path, off, lim, tid)
         except ValueError as e:
             raise RpcError("unsupported", str(e))
+
+    def m_stats_run(self, p: dict[str, Any]) -> Any:
+        suite = p.get("suite", "core")
+        info = next((i for i in scan(self.project_root) if i.id == p.get("id") and i.suite == suite), None)
+        if info is None:
+            raise RpcError("not_found", "unknown experiment")
+        path = Path(info.path) / "processed" / f"trial_summary_{suite}.csv"
+        if not path.exists():
+            raise RpcError("not_found", "no trial summary for this experiment")
+        return analyze(path, info.protocol_key)
 
     def m_preflight(self, p: dict[str, Any]) -> Any:
         mode, kw = self._selection(p)

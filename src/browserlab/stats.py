@@ -102,3 +102,53 @@ def inference_allowed(mode: str, reps_per_cell: int) -> tuple[bool, str]:
     if reps_per_cell < 5:
         return True, "Exploratory: fewer than 5 repetitions per cell; low power, wide uncertainty."
     return True, "Planned design; power is not guaranteed by repetition count alone."
+
+
+def anova_auto(df: pd.DataFrame, y: str, factors: Sequence[str], log: bool = False) -> dict:
+    """Type II ANOVA over the factors that actually vary, with partial eta-squared.
+
+    Returns {"table": [...], "factors": [...], "df_resid": int, "block": {...}|None}.
+    Raises ValueError when there is no residual df (no replication within cells).
+    """
+    d = df.dropna(subset=[y]).copy()
+    if log:
+        if (d[y] <= 0).any():
+            raise ValueError("log transform needs positive values")
+        d[y] = np.log(d[y])
+    used = [f for f in factors if d[f].nunique() > 1]
+    if not used:
+        raise ValueError("no factor varies")
+    rhs = " * ".join(f"C({f})" for f in used)
+    model = smf.ols(f"{y} ~ {rhs}", data=d).fit()
+    if model.df_resid <= 0:
+        raise ValueError("No residual degrees of freedom: need replication within cells")
+    tbl = sm.stats.anova_lm(model, typ=2)
+    ss_res = float(tbl.loc["Residual", "sum_sq"])
+    rows = []
+    for name, r in tbl.iterrows():
+        if name == "Residual":
+            continue
+        rows.append({"term": name, "df": float(r["df"]), "sum_sq": float(r["sum_sq"]), "F": float(r["F"]),
+                     "p": float(r["PR(>F)"]), "partial_eta_sq": float(r["sum_sq"] / (r["sum_sq"] + ss_res))})
+    out = {"table": rows, "factors": used, "df_resid": int(model.df_resid), "block": None, "bp": None}
+    if "block" in d and d["block"].nunique() > 1:
+        with_block = smf.ols(f"{y} ~ {rhs} + C(block)", data=d).fit()
+        if with_block.df_resid > 0:
+            c = sm.stats.anova_lm(model, with_block)
+            out["block"] = {"F": float(c["F"].iloc[1]), "p": float(c["Pr(>F)"].iloc[1]), "df": float(c["df_diff"].iloc[1])}
+    from statsmodels.stats.diagnostic import het_breuschpagan
+    try:
+        lm, p, _, _ = het_breuschpagan(model.resid, model.model.exog)
+        out["bp"] = {"lm": float(lm), "p": float(p)}
+    except Exception:  # noqa: BLE001 - diagnostics must not break the analysis
+        pass
+    return out
+
+
+def slope_ci(x: Sequence[float], y: Sequence[float], level: float = 0.95) -> dict[str, float]:
+    r = linear_trend(x, y)
+    n = len(x)
+    if n < 3 or len(set(x)) < 2:
+        return {**r, "slope_lo": float("nan"), "slope_hi": float("nan")}
+    h = st.t.ppf((1 + level) / 2, n - 2) * r["slope_se"]
+    return {**r, "slope_lo": r["slope"] - h, "slope_hi": r["slope"] + h}

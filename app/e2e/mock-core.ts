@@ -15,6 +15,21 @@ export async function invoke(_cmd: string, args: { method: string; params: Recor
     for (let i = off; i < Math.min(TOTAL, off + lim); i++) rows.push([`trial-${Math.floor(i / 3000)}`, String(i), String(800 + (i % 97) * 1.2345), i % 7 === 0 ? null : String(i * 0.01), "measure"]);
     return { columns: COLS, rows, total: TOTAL, offset: off };
   }
+  if (method === "stats.run") {
+    const real = await fetch("/e2e-analysis.json").then((r) => (r.ok ? r.json() : null)).catch(() => null);
+    if (real) return real;
+    const conditions = [];
+    for (const [bi, b] of ["chrome", "brave", "firefox", "librewolf"].entries())
+      for (const w of ["static", "javascript"])
+        for (const t of [1, 5, 15, 30]) {
+          const mean = 700 + bi * 90 + t * (9 + bi) + (w === "javascript" ? 120 : 0);
+          conditions.push({ browser: b, workload: w, tabs: t, n: 3, mean, ci_lo: mean - 20, ci_hi: mean + 20, values: [mean - 12, mean, mean + 15] });
+        }
+    const scaling = ["chrome", "brave", "firefox", "librewolf"].flatMap((b, bi) => ["static", "javascript"].map((w) => ({ browser: b, workload: w, levels: [1, 5, 15, 30], slope: 9 + bi, intercept: 700 + bi * 90 + (w === "javascript" ? 120 : 0), slope_lo: 8 + bi, slope_hi: 10 + bi, r2: 0.97 })));
+    return { metric: "mean_phys_footprint_mb", metric_label: "Process-tree physical footprint (MB)", n_trials: 96, min_reps_per_cell: 3, conditions, scaling,
+      anova: { raw: { table: [{ term: "C(browser)", df: 3, F: 120.5, p: 1e-9, partial_eta_sq: 0.9 }], factors: ["browser"], df_resid: 80, block: { F: 1, p: 0.3 }, bp: { lm: 10, p: 0.02 } }, log: null },
+      notes: [], inference: { allowed: true, reason: "Exploratory: fewer than 5 repetitions per cell; low power, wide uncertainty.", caveat: "A non-significant p-value does not show equivalence or absence of an effect." } };
+  }
   if (method === "plan") return { mode: "quick", trial_count: 4, complete_design: true, inference_allowed: false, min_seconds_lower_bound: 200 };
   if (method === "preflight") return { checks: [{ id: "memory", label: "Available memory", status: "pass", detail: "50%" }], can_start: true, has_warnings: false };
   throw new Error("mock: " + method);

@@ -1,9 +1,11 @@
 import { useCallback, useState } from "react";
 import { call } from "../engine";
 import { VirtualTable, type Page } from "../components/VirtualTable";
+import { AnalysisView } from "./AnalysisView";
 import type { Selected } from "./LibraryView";
 
 const TABLES = [
+  { id: "analysis", label: "Analysis" },
   { id: "summary", label: "Trial summary" },
   { id: "samples", label: "Resource time series" },
   { id: "process_samples", label: "Process measurements" },
@@ -11,7 +13,7 @@ const TABLES = [
 ] as const;
 
 export function ResultsView({ selected }: { selected: Selected | null }) {
-  const [table, setTable] = useState<(typeof TABLES)[number]["id"]>("summary");
+  const [table, setTable] = useState<(typeof TABLES)[number]["id"]>("analysis");
   const [trial, setTrial] = useState("");
   const sel = selected;
   const tid = trial.trim() || undefined;
@@ -33,10 +35,11 @@ export function ResultsView({ selected }: { selected: Selected | null }) {
           </button>
         ))}
       </div>
-      {table !== "summary" && (
+      {table === "analysis" && <AnalysisView key={`${sel.id}|${sel.suite}`} selected={sel} />}
+      {table !== "summary" && table !== "analysis" && (
         <label>Trial ID filter <input value={trial} onChange={(e) => setTrial(e.target.value)} className="num min-h-11 px-2" style={{ width: 360 }} placeholder="e.g. core-b001-o001-brave-static-t1" /></label>
       )}
-      <VirtualTable key={`${sel.id}|${table}|${tid ?? ""}`} fetchPage={fetchPage} label={label} filterLabel={table !== "summary" ? tid : undefined} />
+      {table !== "analysis" && <VirtualTable key={`${sel.id}|${table}|${tid ?? ""}`} fetchPage={fetchPage} label={label} filterLabel={table !== "summary" ? tid : undefined} />}
     </section>
   );
 }

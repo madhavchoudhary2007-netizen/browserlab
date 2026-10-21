@@ -69,3 +69,12 @@ def test_library_table_paging_and_validation(tmp_path):
     assert call(s, "library.table", id="../../etc", table="summary")["error"]["code"] == "not_found"
     assert call(s, "library.table", id="data_static_scaling_v013", table="passwd")["error"]["code"] == "invalid_params"
     assert call(s, "library.table", id="data_static_scaling_v013", table="samples", offset=-1)["error"]["code"] == "invalid_params"
+
+
+def test_rust_allowlist_matches_rpc_methods():
+    import re
+    src = (ROOT / "app/src-tauri/src/engine.rs").read_text()
+    allowed = set(re.findall(r'"([a-z_.]+)"', src[src.index("const ALLOWED"):src.index("];")]))
+    methods = {n[2:].replace("_", ".", 1) if n.count("_") else n[2:] for n in dir(Server) if n.startswith("m_")}
+    # m_library_scan -> library.scan ; m_run_start -> run.start ; m_hello -> hello
+    assert allowed == methods, (allowed ^ methods)

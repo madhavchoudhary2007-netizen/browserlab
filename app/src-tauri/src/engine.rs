@@ -15,6 +15,8 @@ const ALLOWED: &[&str] = &[
     "preflight",
     "plan",
     "library.scan",
+    "library.table",
+    "stats.run",
     "run.start",
     "run.pause",
     "run.resume",
