@@ -1,0 +1,89 @@
+project:
+  name: Browser Resource Scaling and Lifecycle Study
+  output_dir: data_static_scaling_v013
+  seed: 20261006
+server:
+  host: 127.0.0.1
+  port: 0
+browsers:
+  chrome:
+    enabled: true
+    engine: chromium
+    binary: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+    profile_mode: template_clone
+    template_profile: .browserbench/profiles/chrome
+  brave:
+    enabled: true
+    engine: chromium
+    binary: /Applications/Brave Browser.app/Contents/MacOS/Brave Browser
+    profile_mode: template_clone
+    template_profile: .browserbench/profiles/brave
+  firefox:
+    enabled: true
+    engine: firefox
+    binary: /Applications/Firefox.app/Contents/MacOS/firefox
+    profile_mode: template_clone
+    template_profile: .browserbench/profiles/firefox
+  librewolf:
+    enabled: true
+    engine: firefox
+    binary: /Applications/LibreWolf.app/Contents/MacOS/librewolf
+    profile_mode: template_clone
+    template_profile: .browserbench/profiles/librewolf
+core:
+  workloads:
+  - static
+  tab_counts:
+  - 1
+  - 5
+  - 15
+  - 30
+  repetitions: 3
+  warmup_seconds: 20
+  measure_seconds: 120
+  cooldown_seconds: 20
+  sample_interval_seconds: 1.0
+lifecycle:
+  workloads:
+  - static
+  - javascript
+  tab_count: 30
+  repetitions: 5
+  warmup_seconds: 15
+  active_measure_seconds: 30
+  idle_checkpoints_seconds:
+  - 30
+  - 120
+  - 300
+  cooldown_seconds: 30
+  sample_interval_seconds: 1.0
+work_units:
+  workloads:
+  - compute
+  tab_counts:
+  - 1
+  - 5
+  - 15
+  repetitions: 5
+  compute_units: 8
+  measure_seconds: 45
+  warmup_seconds: 8
+  cooldown_seconds: 25
+  sample_interval_seconds: 0.5
+safety:
+  hard_max_tabs: 40
+  max_trial_seconds: 420
+  minimum_available_memory_percent: 20
+  minimum_free_disk_gb: 20
+  require_ac_power: true
+  abort_on_thermal_pressure: true
+  max_retries: 1
+energy:
+  enabled: false
+  require_primed_sudo: true
+  sample_interval_ms: 1000
+collection:
+  save_per_process_samples: true
+  collect_uss: false
+  save_browser_console_metrics: true
+  block_idle_baseline_seconds: 8
