@@ -8,7 +8,7 @@ Branch `ui-overhaul` (25+ commits over base in `.ui-overhaul/base-ref`). Final c
 ## 2. Definition of done
 | Item | Result | Evidence |
 |---|---|---|
-| Preservation gate | PASS | `bash .ui-overhaul/frozen-check.sh check` OK |
+| Preservation gate | PASS except one owner-approved line | gate flags only `core:window:allow-start-dragging` in capabilities/default.json (granted after the first report) |
 | Behaviour parity | PASS | 85/85 Playwright e2e (mock engine), pytest 122 passed, vitest 15 |
 | Typecheck, lint, build | PASS | clean; `pnpm build` OK |
 | Zero a11y violations | PASS with limits | axe scans pass in default scheme plus shell and gallery in light and dark; not every screen in every scheme |
