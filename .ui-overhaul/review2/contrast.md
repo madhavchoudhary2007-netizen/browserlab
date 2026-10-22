@@ -61,10 +61,10 @@ Hex fallback tokens from `app/src/ds/tokens.css`. Thresholds: text 4.5, UI/disab
 | text | --fg | --raised | 13.86:1 | 4.5 | pass |
 | text | --fg | --sunk | 16.27:1 | 4.5 | pass |
 | text | --fg | --pen-soft | 11.07:1 | 4.5 | pass |
-| text | --fg-muted | --sheet | 7.56:1 | 4.5 | pass |
-| text | --fg-muted | --raised | 6.75:1 | 4.5 | pass |
-| text | --fg-muted | --sunk | 7.93:1 | 4.5 | pass |
-| text | --fg-muted | --pen-soft | 5.39:1 | 4.5 | pass |
+| text | --fg-muted | --sheet | 9.30:1 | 4.5 | pass |
+| text | --fg-muted | --raised | 8.31:1 | 4.5 | pass |
+| text | --fg-muted | --sunk | 9.75:1 | 4.5 | pass |
+| text | --fg-muted | --pen-soft | 6.64:1 | 4.5 | pass |
 | text | --warn | --sheet | 9.88:1 | 4.5 | pass |
 | text | --warn | --raised | 8.83:1 | 4.5 | pass |
 | text | --warn | --sunk | 10.36:1 | 4.5 | pass |
@@ -87,9 +87,9 @@ Hex fallback tokens from `app/src/ds/tokens.css`. Thresholds: text 4.5, UI/disab
 | disabled | enabled/disabled ratio | --raised | 3.09x | 1.3 | pass |
 | disabled | --fg @50% (#7B8287) | --sheet | 4.67:1 | 3 | pass |
 | disabled | enabled/disabled ratio | --sheet | 3.32x | 1.3 | pass |
-| disabled | --fg-muted (primary disabled) | --sheet | 7.56:1 | 3 | pass |
+| disabled | --fg-muted (primary disabled) | --sheet | 9.30:1 | 3 | pass |
 | disabled | --edge dashed outline | --sheet | 4.74:1 | 3 | pass |
-| disabled | --fg-muted (primary disabled) | --raised | 6.75:1 | 3 | pass |
+| disabled | --fg-muted (primary disabled) | --raised | 8.31:1 | 3 | pass |
 | disabled | --edge dashed outline | --raised | 4.24:1 | 3 | pass |
 | focus | --pen ring | --sheet | 8.67:1 | 3 | pass |
 | focus | --pen ring | --raised | 7.74:1 | 3 | pass |
@@ -99,7 +99,7 @@ Hex fallback tokens from `app/src/ds/tokens.css`. Thresholds: text 4.5, UI/disab
 | border | --edge | --raised | 4.24:1 | 3 | pass |
 | border | --edge | --sunk | 4.98:1 | 3 | pass |
 | border | --edge | --pen-soft | 3.39:1 | 3 | pass |
-| grid | --grid | --sheet | 1.39:1 | info | - |
-| grid | --grid | --raised | 1.24:1 | info | - |
-| grid | --grid | --sunk | 1.46:1 | info | - |
-| grid | --grid | --pen-soft | 1.01:1 | info | - |
+| grid | --grid | --sheet | 1.76:1 | info | - |
+| grid | --grid | --raised | 1.57:1 | info | - |
+| grid | --grid | --sunk | 1.85:1 | info | - |
+| grid | --grid | --pen-soft | 1.26:1 | info | - |

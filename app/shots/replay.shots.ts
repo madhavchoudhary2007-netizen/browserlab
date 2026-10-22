@@ -14,5 +14,5 @@ test("replay sweep", async ({ page }) => {
   if (process.env.THROTTLE) { const c = await page.context().newCDPSession(page); await c.send("Emulation.setCPUThrottlingRate", { rate: Number(process.env.THROTTLE) }); }
   const tag = `${process.env.SCHEME ?? "dark"}${process.env.THROTTLE ? `-x${process.env.THROTTLE}` : ""}`;
   await btn.click();
-  for (let i = 0; i < 12; i++) { await page.waitForTimeout(i === 0 ? 100 : 700); await page.screenshot({ path: `${OUT}/replay-${tag}-${String(i).padStart(2, "0")}.png` }); }
+  for (let i = 0; i < 12; i++) { await page.waitForTimeout(i === 0 ? 100 : 700); await page.locator(".trace-replay").screenshot({ path: `${OUT}/replay-${tag}-${String(i).padStart(2, "0")}.png` }); }
 });

@@ -120,7 +120,7 @@ export class PenRig {
     const e = this.engine, s = this.scale;
     const u = e ? e.u : 0, v = e ? e.v : 0;
     const x = this.x(u), y = this.y(v), tilt = e ? Math.max(-10, Math.min(10, e.tilt * 3)) : 0;
-    const rot = 35 + tilt, off = lifted ? 14 : 5, offy = lifted ? 20 : 7;
+    const rot = 35 + tilt, off = lifted ? 9 : 5, offy = lifted ? 12 : 7;
     this.o.pen.style.transform = `translate3d(${x}px,${y - (lifted ? 6 : 0)}px,0) rotate(${rot}deg) scale(${s})`;
     this.o.shadow.style.transform = `translate3d(${x + off * (this.o.mini ? 0.4 : 1)}px,${y + offy * (this.o.mini ? 0.4 : 1)}px,0) rotate(${rot}deg) scale(${s})`;
     this.o.pen.style.visibility = this.o.shadow.style.visibility = this.W ? "visible" : "hidden";
@@ -230,7 +230,7 @@ export class PenRig {
     this.o.ink.style.transition = `opacity ${RETURN_MS}ms linear`; this.o.ink.style.opacity = "0";
     const s = this.scale, x = this.x(0), y = this.y(this.px(sampleAt(this.pts, performance.now() / 1000 - DELAY)));
     this.o.pen.style.transform = `translate3d(${x}px,${y - 6}px,0) rotate(35deg) scale(${s})`;
-    this.o.shadow.style.transform = `translate3d(${x + 14}px,${y + 14}px,0) rotate(35deg) scale(${s})`;
+    this.o.shadow.style.transform = `translate3d(${x + 9}px,${y + 10}px,0) rotate(35deg) scale(${s})`;
     this.timer = window.setTimeout(() => { this.timer = 0; this.phase = "idle"; this.engine = null; this.startLiveSheet(); }, RETURN_MS + 30);
   }
 

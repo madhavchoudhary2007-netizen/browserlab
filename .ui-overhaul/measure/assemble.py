@@ -34,6 +34,6 @@ def strip(prefix, name, w=700):
     p = f"{out}/motion-{name}.png"; sheet.save(p); manifest.append(p)
 for t in ("light", "dark"):
     strip(f"live-{t}-1280x800", f"live-{t}"); strip(f"live-{t}-x6-1280x800", f"live-{t}-throttled-6x"); strip(f"replay-{t}", f"replay-{t}")
-strip("replay-dark-x6", "replay-dark-throttled-6x")
+strip("replay-dark-x6", "replay-dark-throttled-6x"); strip("replay-light-x6", "replay-light-throttled-6x")
 open(f"{out}/MANIFEST.txt", "w").write("\n".join(os.path.basename(m) for m in manifest) + "\n")
 print(len(manifest), "manifest files ->", out)

@@ -31,7 +31,7 @@ function TrialTable({ trials, unit }: { trials: TrialStats[]; unit: string }) {
         </tr></thead>
         <tbody>{trials.map((t) => (
           <tr key={t.trial_id}>
-            <td><span style={{ color: colorFor(t.browser) }}>●</span> {t.browser} <span style={{ color: "var(--muted)" }}>{t.workload}, {t.tabs} tabs</span></td>
+            <td><span style={{ color: colorFor(t.browser) }}>●</span> {t.browser} <span style={{ color: "var(--muted)" }}>{t.workload}, {t.tabs} {t.tabs === 1 ? "tab" : "tabs"}</span></td>
             <td>{fmtNum(t.mean)}</td><td>{fmtNum(t.median)}</td><td>{fmtNum(t.sd)}</td><td>{fmtNum(t.cv_pct)}</td>
             <td>{fmtNum(t.min)}</td><td>{fmtNum(t.p95)}</td><td>{fmtNum(t.max)}</td>
             <td>{fmtNum(t.drift_pct)}</td><td>{fmtNum(t.slope_mb_per_min)}</td>
@@ -93,6 +93,8 @@ export function ReportView({ selected }: { selected: Selected }) {
         </details>
       </div>
 
+      <TraceReplay report={d} />
+
       <div role="note" className="report-verdict">
         <strong>What this data supports</strong>
         <p>{d.inference.reason}</p>
@@ -101,8 +103,6 @@ export function ReportView({ selected }: { selected: Selected }) {
         {d.problems.missing_trials.length > 0 && <p style={{ color: "var(--danger)" }}>Missing trials: {d.problems.missing_trials.join(", ")}. {d.problems.attempt_failures.length} failed attempt(s) are recorded in logs/errors.jsonl.</p>}
       </div>
 
-
-      <TraceReplay report={d} />
 
       <div className="report-section">
         <h3>Over time</h3>

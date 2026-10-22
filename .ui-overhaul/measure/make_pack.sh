@@ -10,4 +10,5 @@ for t in light dark; do
   OUT="$S/pen" SCHEME=$t pnpm exec playwright test -c playwright.shots.config.ts replay.shots >/dev/null
 done
 OUT="$S/pen" SCHEME=dark THROTTLE=6 pnpm exec playwright test -c playwright.shots.config.ts replay.shots >/dev/null
+OUT="$S/pen" SCHEME=light THROTTLE=6 pnpm exec playwright test -c playwright.shots.config.ts replay.shots >/dev/null
 python3 "$ROOT/.ui-overhaul/measure/assemble.py" "$S" "$OUTD"
