@@ -75,7 +75,7 @@ safety:
   max_trial_seconds: 420
   minimum_available_memory_percent: 20
   minimum_free_disk_gb: 20
-  require_ac_power: true
+  require_ac_power: false
   abort_on_thermal_pressure: true
   max_retries: 1
 energy:

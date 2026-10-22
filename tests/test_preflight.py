@@ -57,3 +57,18 @@ def test_video_asset_only_required_for_video(tmp_path):
     c = cfg(tmp_path, b); (tmp_path / "workloads/assets/test_1080p.mp4").unlink()
     r = run_preflight(c, ("chrome",), ("static",), tmp_path / "o", snapshot_fn=lambda p: SNAP, running_fn=lambda b: [], version_fn=lambda b: "v")
     assert all(x["id"] != "video_asset" for x in r["checks"])
+
+
+def test_battery_blocks_only_when_required_otherwise_warns(tmp_path):
+    b = tmp_path / "chrome"; b.write_text("")
+    assert status(go(tmp_path, b, {"ac_power": False}), "power") == "fail"  # config still requires AC
+    c = cfg(tmp_path, b); c["safety"]["require_ac_power"] = False
+    r = run_preflight(c, ("chrome",), ("video",), tmp_path / "out", snapshot_fn=lambda p: {**SNAP, "ac_power": False, "battery_pct": 60},
+                      running_fn=lambda b: [], version_fn=lambda b: "v1")
+    assert status(r, "power") == "warn" and r["can_start"] and r["has_warnings"]
+
+
+def test_protocol_base_does_not_require_ac():
+    import yaml
+    from browserlab.rpc import BASE
+    assert yaml.safe_load(BASE.read_text())["safety"]["require_ac_power"] is False

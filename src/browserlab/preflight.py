@@ -61,9 +61,13 @@ def run_preflight(
     checks.append(Check("memory", "Available memory", PASS if mem >= min_mem else FAIL, f"{mem:.1f}% available (min {min_mem:.0f}%)"))
     disk, min_disk = snap["free_disk_gb"], float(safety["minimum_free_disk_gb"])
     checks.append(Check("disk", "Free disk", PASS if disk >= min_disk else FAIL, f"{disk:.1f} GB free (min {min_disk:.0f} GB)"))
-    if safety.get("require_ac_power", False):
-        checks.append(Check("power", "AC power", PASS if snap["ac_power"] else FAIL,
-                            "Connected" if snap["ac_power"] else "On battery: connect the charger for repeatable results"))
+    if snap["ac_power"]:
+        checks.append(Check("power", "AC power", PASS, "Connected"))
+    elif safety.get("require_ac_power", False):
+        checks.append(Check("power", "AC power", FAIL, "On battery: connect the charger for repeatable results"))
+    else:
+        pct = snap.get("battery_pct")
+        checks.append(Check("power", "AC power", WARN, f"On battery{f' ({pct}%)' if pct is not None else ''}: allowed, but power management can make results less repeatable"))
     th = snap["thermal_pressure"]
     checks.append(Check("thermal", "Thermal state", FAIL if th in ("serious", "critical") else PASS if th in ("nominal", "fair") else WARN,
                         f"{th}" + (" (sensor state not determinable)" if th == "unknown" else "")))
