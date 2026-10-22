@@ -1,6 +1,5 @@
 import { call } from "../engine";
 import { useLab, type RunState } from "../store";
-import { LiveChart } from "./LiveChart";
 
 const LABEL: Record<RunState, string> = {
   idle: "Idle", running: "Running", pausing: "Pausing after current trial", paused: "Paused",
@@ -23,7 +22,6 @@ export function RunPanel() {
         className="run-bar">
         <div style={{ transform: `scaleX(${pct / 100})` }} />
       </div>
-      <LiveChart />
       <div className="run-actions">
         <button disabled={state !== "running"} onClick={() => act("run.pause")}>Pause after trial</button>
         <button disabled={state !== "paused" && state !== "stopped" && state !== "incomplete"} onClick={() => act("run.resume")}>Resume</button>

@@ -44,15 +44,5 @@ kbd { font: var(--w-reg) var(--t-0) var(--font-num); color: var(--fg-muted); }
 @media (min-width: 2400px) { html { font-size: 125%; } }
 .shell-main > div { max-inline-size: min(64rem, 1100px); }
 
-.pen-trace { block-size: var(--s-7); }
-.shell-aside { display: none; }
-@media (min-width: 1600px) {
-  .shell-main { display: grid; grid-template-columns: minmax(0, 1100px) 18rem; justify-content: center; align-items: start; gap: var(--s-7); }
-  .shell-main > div { margin-inline: 0; max-inline-size: none; }
-  .shell-aside { display: grid; gap: var(--s-2); position: sticky; inset-block-start: var(--s-6); padding-block-start: var(--s-3); border-block-start: 4px solid var(--pen); }
-  .aside-state { margin: 0; font: var(--w-strong) var(--t-3)/1.1 var(--font-ui); }
-  .aside-count { margin: 0; color: var(--fg-muted); }
-  .pen-trace-large { block-size: 8rem; }
-  .aside-reading { margin: 0; font: var(--w-strong) var(--t-2) var(--font-num); }
-  .aside-reading span { font: var(--w-reg) var(--t-0) var(--font-ui); color: var(--fg-muted); margin-inline-start: var(--s-2); }
-}
+@media (min-width: 1600px) { .shell-main > div { max-inline-size: 90rem; } }
+.rail-pen { block-size: 3.25rem; border: 1px solid var(--grid); border-radius: var(--r-1); overflow: hidden; }

@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Icon, type IconName } from "../ds/Icon";
 import { useLab } from "../store";
-import { PenTrace } from "./PenTrace";
+import { PenSheet } from "../pen/PenSheet";
 
 export type ViewId = "run" | "library" | "results" | "compare" | "settings";
 export const VIEWS: { id: ViewId; label: string; icon: IconName }[] = [
@@ -41,8 +41,8 @@ export function Rail({ view, setView, showCompare, openPalette }: { view: ViewId
         <button className="rail-palette" onClick={openPalette} aria-keyshortcuts="Control+K Meta+K">
           <span>Commands</span><kbd>⌘K</kbd>
         </button>
+        {view !== "run" && <div className="rail-pen"><PenSheet variant="mini" source="live" label="Live memory trace" /></div>}
         <div className="rail-status" role="status" aria-live="polite">
-          <PenTrace />
           {state === "running" && <span className="rail-caption">Live memory (RSS)</span>}
           <span>{STATE_TEXT[state] ?? state}{active && progress.total > 0 ? ` · ${progress.completed}/${progress.total}` : ""}</span>
         </div>

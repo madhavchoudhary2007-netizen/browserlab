@@ -4,6 +4,7 @@ import { useRemote } from "../useRemote";
 import { call, type Mode, type PlanResult } from "../engine";
 import { Preflight, type PreflightResult } from "../components/Preflight";
 import { RunPanel } from "../components/RunPanel";
+import { PenPanel } from "../pen/PenPanel";
 import "./run.css";
 import { attachEngineEvents, useLab, type RunState } from "../store";
 
@@ -71,7 +72,9 @@ export function RunView() {
   };
 
   return (
-    <div className="run">
+    <div className="run" data-show={runState !== "idle"} data-busy={busy}>
+      <div className="run-main"><PenPanel /></div>
+      <div className="run-side">
       <div role="radiogroup" aria-label="Test mode" className="run-modes">
         {MODES.map((m, i) => (
           <button key={m.id} ref={(el) => { radioRefs.current[i] = el; }} role="radio" tabIndex={(advanced ? i === 0 : mode === m.id) ? 0 : -1} onKeyDown={(e) => moveMode(e, i)} aria-checked={!advanced && mode === m.id} disabled={busy} onClick={() => { setAdvanced(false); setMode(m.id); }}
@@ -112,7 +115,6 @@ export function RunView() {
       </section>
       {!busy && (
         <>
-          <Preflight state={pre} onRetry={retryPre} />
           <div className="run-launch" data-ready={ready && confirmed}>
             <h2 className="run-launch-title">{ready && confirmed ? "Ready to launch" : "Before you launch"}</h2>
             <label className="run-check">
@@ -123,11 +125,13 @@ export function RunView() {
             <Button variant="primary" pending={starting} disabled={!ready || !confirmed} onClick={() => void start()}>
               {starting ? "Starting…" : "Start experiment"}
             </Button>
-            {(!ready || !confirmed) && <p className="start-reason">{!ready ? "Fix the blocked checks above to start." : "Tick the confirmation above to enable Start."}</p>}
+            {(!ready || !confirmed) && <p className="start-reason">{!ready ? "Fix the blocked checks below to start." : "Tick the confirmation to enable Start."}</p>}
           </div>
+          <Preflight state={pre} onRetry={retryPre} />
         </>
       )}
       {runState !== "idle" && <RunPanel />}
+      </div>
     </div>
   );
 }

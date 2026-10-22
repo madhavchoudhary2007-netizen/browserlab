@@ -54,3 +54,15 @@ button.run-stop.run-stop.run-stop:not(:disabled):not(.ds-btn) { color: var(--dan
 .live-chart { block-size: clamp(9rem, 30vh, 15rem); }
 .run-launch { background: var(--raised); box-shadow: inset 0 0 0 1px var(--edge); }
 .run-launch[data-ready="true"] { background: var(--pen-soft); box-shadow: inset 0 0 0 2px var(--pen); }
+
+/* Pass 2: the pen sheet is the main surface while a run is active; at >=1600 px it is the left column. */
+.run-side { display: grid; gap: var(--s-5); min-inline-size: 0; align-content: start; }
+.run-main { display: none; min-inline-size: 0; }
+.run[data-show="true"] .run-main { display: block; order: -1; }
+.run[data-busy="true"] .run-side .run-modes, .run[data-busy="true"] .run-side .run-controls, .run[data-busy="true"] .run-side .run-check { display: none; }
+.preflight { max-inline-size: none; grid-template-columns: repeat(auto-fit, minmax(min(20rem, 100%), 1fr)); gap: var(--s-3) var(--s-5); }
+@media (min-width: 1600px) {
+  .run { grid-template-columns: minmax(0, 1fr) minmax(26rem, 32rem); align-items: start; gap: var(--s-6); }
+  .run-main { display: block; position: sticky; inset-block-start: var(--s-5); order: 0; }
+  .run-main .pen-frame { block-size: clamp(24rem, 64vh, 46rem); }
+}

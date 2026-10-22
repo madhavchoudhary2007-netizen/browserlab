@@ -10,7 +10,6 @@ import { CommandPalette, type Command } from "./shell/CommandPalette";
 import { Dialog, Button } from "./ds/primitives";
 import { restoreThemePreference, setThemePreference } from "./ds/theme";
 import { Arrival } from "./shell/Arrival";
-import { Aside } from "./shell/Aside";
 import "./shell/shell.css";
 
 function AppShell() {
@@ -67,7 +66,6 @@ function AppShell() {
           {view === "settings" && <SettingsView />}
           {view === "results" && <Arrival token={arrival}><ResultsView key={`${selected?.id}|${selected?.suite}`} selected={selected} /></Arrival>}
         </div>
-      <Aside />
       </main>
       <CommandPalette open={palette} onClose={() => setPalette(false)} commands={commands} />
       <Dialog open={help} title="Keyboard shortcuts" onClose={() => setHelp(false)}>

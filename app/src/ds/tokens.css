@@ -108,3 +108,9 @@
   :root { --dur-1: 1ms; --dur-2: 100ms; --dur-3: 150ms; --ease-spring: linear; }
 }
 :root[data-theme="light"] { color-scheme: light; }
+
+/* Pen illustration colours: the orange exists only on the pen object (never on buttons, links, text or status). */
+:root { --pen-body: #D9691F; --pen-trim: #33414B; }
+:root[data-theme="dark"] { --pen-body: #F08A3C; --pen-trim: #8FA2AE; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --pen-body: #F08A3C; --pen-trim: #8FA2AE; } }
+@media (forced-colors: active) { :root { --pen-body: Highlight; --pen-trim: CanvasText; } }
