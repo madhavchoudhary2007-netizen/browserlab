@@ -99,3 +99,6 @@
 - Recurring: Analysis charts look like a stock chart library (break identity); Run left-aligned vs Library/Compare/Settings centred; 900x600 idle/ready has no pen sheet; Compare table clips columns and palette list clipped at 900; idle readout dash; readout jitter; raw 'version_changed'; replay pen tip past plot edge.
 - Fixes: pen x clamped to plot edge; Settings state text humanised; readout tabular-nums and wider min width; idle sheet from 880 px; palette higher and taller; Compare table tighter at <=1100 px. Tried 'Replay' constant label but legend.spec asserts 'Replay again' after finish, so label reverted (assertion unchanged).
 - Stop rule: cycle 1->2 +0.15, 2->3 -0.175. One more cycle under +0.1 triggers escalation.
+
+## Critique cycle 4 result (pack cycle5): G 3.5, H 3.3 (mean 3.40; +0.075 vs cycle 3)
+- Second consecutive cycle with less than +0.1 improvement: stop rule fired, verdict ESCALATED (FINAL_REPORT_2.md).
