@@ -1,5 +1,5 @@
 # UI overhaul log
-Branch: ui-overhaul (from perfection-loop @ base-ref). Phase: U0 (in progress). Cycle: 0.
+Branch: ui-overhaul (from perfection-loop @ base-ref). Phase: U3 next (U0-U2 done). Cycle: 0.
 
 ## Decisions
 - App lives in `app/`; gate uses UI_DIRS="app/src", TAURI_DIR="app/src-tauri" (brief paths adjusted).
@@ -12,4 +12,8 @@ Branch: ui-overhaul (from perfection-loop @ base-ref). Phase: U0 (in progress). 
 1. inventory.md  2. parity suite check on existing Playwright suite  3. baseline screenshots  4. baseline metrics  5. webview-support.md  6. U1 discovery
 
 ## Baselines / metrics
-(pending)
+See baselines.md (bundle JS 1011 kB/328 gz; nav p95 57 ms; startup/idle CPU NOT RUN yet).
+
+## Concept decision (U2)
+Chose A 'chart recorder / the pen' (score 25 vs B 21, C 19). Rejected B (skeuomorphic, off-subject), C (near-black+warm accent default, dashboard fatigue). Fonts to bundle via @fontsource (Instrument Sans, Spline Sans Mono) - add as dependency in U3 and log why.
+Next queue: U3 tokens + fonts, primitives, motion utils, gallery route; then U4 shell + Report slice.

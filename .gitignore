@@ -28,3 +28,5 @@ profiles/
 
 # Local BrowserBench baseline profiles
 .browserbench/
+
+.ui-overhaul/shots/
