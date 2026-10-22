@@ -1,0 +1,26 @@
+{
+  "throttle": 1,
+  "sweeps": 10,
+  "frames": 3279,
+  "interval_ms": {
+    "p50": 16.7,
+    "p95": 16.7,
+    "p99": 16.8
+  },
+  "dropped_frames_over_25ms": 0,
+  "long_tasks_over_50ms": 0,
+  "script_share_pct": 1.24,
+  "main_thread_share_pct": 3.49,
+  "heap_mb": {
+    "early": 17.96,
+    "late": 18.56
+  },
+  "dom_nodes": {
+    "early": 306,
+    "late": 306
+  },
+  "listeners": {
+    "early": 202,
+    "late": 202
+  }
+}

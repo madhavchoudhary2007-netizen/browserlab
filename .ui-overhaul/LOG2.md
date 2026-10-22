@@ -87,3 +87,9 @@
 - Fixes made (cycle 1 -> pack cycle3): root 140 % at >=2400 px and content centred at >=1600 (width-cap test now relative to root font size); compact library rows at narrow widths, hint hidden when no rows, labelled meta text instead of 'a, b / c'; all middle dots removed from copy (plan sentence, report title and facts, compare, settings, analysis; e2e edits: report heading regex and journeys plan text); Resume shown only when it can act, Stop is the filled danger button; rail mini-pen only while a run is shown or a trace exists; idle sheet strip at >=1000 px (mounted after first paint); axis unit label moved; selects restyled with a drawn chevron; contact sheets at one scale.
 - Not addressed: stock pencil look of the pen (shape fixed by BRIEF2 spec); Compare table of dashes comes from sample data.
 - Gates after fixes: typecheck/lint, e2e 97/97, contrast OK, frozen gate OK.
+
+## Critique cycle 2 result (pack cycle3): C 3.45, D 3.55 (mean 3.50; +0.15 vs cycle 1)
+- D: Distinctiveness 3, Subject fit 4, Hierarchy 3.5, Typography 3, Color 3.5, Motion 4, Craft 3, Usability 3.5, Signature 4, Consistency 4. C: 3, 4, 3, 3, 3.5, 4, 3, 3.5, 4, 3.5.
+- Common complaints: small low-contrast secondary text; wide-window emptiness for list screens; clipping at 900x600/1280x800; report replay below the fold; '1 tabs' copy bug; library no-match header with no rows; heavy lifted-pen shadow; replay strips cropped, no light x6 strip.
+- Fixes (commit c3aac15, pack cycle4): secondary text --t-0 0.875-0.9375 rem; dark --fg-muted/--grid lightened (contrast script passes); tab/tabs plural; Library/Compare/Settings capped at 72 rem when >=1600; library no-match hides the empty header; TraceReplay placed before the verdict in reports; lifted pen shadow offset reduced; replay strips are element crops, light x6 strip added; Settings profile rows wrap (flex) so 200 % text does not overflow.
+- Gates: typecheck/lint/vitest 18/e2e 97/97/contrast/frozen all green.
