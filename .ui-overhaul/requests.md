@@ -1,0 +1,2 @@
+# Requests for frozen areas (not edited)
+1. Window chrome: an overlay title bar with traffic-light inset and a `data-tauri-drag-region` needs the permission `core:window:allow-start-dragging` in `app/src-tauri/capabilities/default.json`, which is frozen. Design response: keep the native macOS title bar (no tauri.conf.json change); the rail brand keeps `data-tauri-drag-region` so dragging works the day the permission is granted. If wanted later: add that permission plus `"titleBarStyle": "Overlay", "hiddenTitle": true` in tauri.conf.json and a 28 px top inset on the rail.

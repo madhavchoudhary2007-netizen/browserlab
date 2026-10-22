@@ -1,5 +1,5 @@
 .report { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-6); min-inline-size: 0; }
-.report-head { display: grid; gap: var(--s-3); }
+.report-head { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-3); }
 .report-title { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s-2) var(--s-4); }
 .report-title h3 { margin: 0; font: var(--w-strong) var(--t-3)/1.1 var(--font-ui); letter-spacing: -0.01em; overflow-wrap: anywhere; }
 .report-state { font: var(--w-strong) var(--t-1) var(--font-ui); }
@@ -11,7 +11,7 @@
 .report-verdict { margin: 0; padding-inline-start: var(--s-4); border-inline-start: 4px solid var(--pen); display: grid; gap: var(--s-1); max-inline-size: 70ch; }
 .report-verdict strong { font: var(--w-strong) var(--t-2)/1.25 var(--font-ui); }
 .report-verdict p { margin: 0; }
-.report-section { display: grid; gap: var(--s-2); min-inline-size: 0; }
+.report-section { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-2); min-inline-size: 0; }
 .report-section h3 { margin: 0; font: var(--w-strong) var(--t-2)/1.2 var(--font-ui); }
 .report-controls { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3) var(--s-4); }
 .report-note { margin: 0; color: var(--fg-muted); max-inline-size: 75ch; }

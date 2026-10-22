@@ -62,3 +62,11 @@ Next: U6 signature moment, U7 window chrome + packaged WKWebView check + startup
 - Performance: idle main-thread busy 0.01 % of one core on Run (idle) and on an open Report (perf/idle.perf.ts, Chrome headless, mock engine); nav p95 59.2 ms (baseline 57.1), heap +1.6 MB over 400 navs (baseline +1.5). JS bundle unchanged ~1,011 kB; CSS growth small.
 - Not verified: 60 fps of the arrival in the real WKWebView (needs packaged app, U7).
 - Bundle after U6: JS 1,021.59 kB (+1.0 %), CSS 32.46 kB (was 13.01), fonts 98 kB. JS+CSS 1,054 vs 1,024 kB baseline (+2.9 %); with fonts about +12.5 %, inside the +-20 % gate. Tailwind utilities still in use by legacy markup; CSS will shrink only if they are removed (not required).
+
+## U7 platform polish (in progress)
+- Window chrome: NOT changed. Overlay title bar + drag region need core:window:allow-start-dragging in frozen capabilities/default.json; logged in requests.md, native title bar kept. Min window 960x640 already set in tauri.conf.json.
+- Start now has a pending state (aria-busy, 'Starting…') and a re-entry guard (no duplicate run.start); e2e dblclick test.
+- e2e/platform.spec.ts: min window 960x640 x {ltr, rtl} x text {100,150,200 %} across Run/Library/Settings/Report/Analysis (page and main scroll overflow), 120-char unbroken id, forced-colors focus ring. Found and fixed 205 px overflow at 200 % text (grid tracks without minmax(0,1fr) on .report-section/.report-head).
+- e2e total 85/85, typecheck, lint green, gate OK.
+- Listener cleanup: engine-event listener, palette/shortcut key listener, theme observers all unsubscribe on unmount (reviewed in code; heap +1.6 MB over 400 navs).
+- Packaged WKWebView check: build started (pre-overhaul release bundle copied to ~/BrowserLab-backups/BrowserLab-release-pre-overhaul.app first; known-good -dirty backup untouched).

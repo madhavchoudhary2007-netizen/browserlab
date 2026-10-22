@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Button } from "../ds/primitives";
 import { useRemote } from "../useRemote";
 import { call, type Mode, type PlanResult } from "../engine";
 import { Preflight, type PreflightResult } from "../components/Preflight";
@@ -28,6 +29,7 @@ export function RunView() {
   const runState = useLab((s) => s.state);
   const setRunId = useLab((s) => s.setRunId);
   const [startError, setStartError] = useState<string | null>(null);
+  const [starting, setStarting] = useState(false);
 
   const [advanced, setAdvanced] = useState(false);
   const radioRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -55,12 +57,16 @@ export function RunView() {
   const ready = pre.kind === "ready" && pre.value.can_start && plan.kind === "ready";
 
   const start = async () => {
+    if (starting) return;
     setStartError(null);
+    setStarting(true);
     try {
       const r = await call<{ run_id: string; state: RunState }>("run.start", sel);
       setRunId(r.run_id, r.state, advanced ? "lifecycle" : "core");
     } catch (e) {
       setStartError(String(e));
+    } finally {
+      setStarting(false);
     }
   };
 
@@ -112,9 +118,9 @@ export function RunView() {
             I understand this launches real browsers for the full duration and I will not use this Mac meanwhile.
           </label>
           {startError && <p role="alert">{startError}</p>}
-          <button className="btn-primary" disabled={!ready || !confirmed} onClick={() => void start()}>
-            Start experiment
-          </button>
+          <Button variant="primary" pending={starting} disabled={!ready || !confirmed} onClick={() => void start()}>
+            {starting ? "Starting…" : "Start experiment"}
+          </Button>
           {(!ready || !confirmed) && <p className="start-reason">{!ready ? "Fix the blocked checks above to start." : "Tick the confirmation above to enable Start."}</p>}
         </>
       )}
