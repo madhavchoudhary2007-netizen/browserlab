@@ -71,8 +71,8 @@ export function ReportView({ selected }: { selected: Selected }) {
           <h3>{d.mode ?? "Experiment"} · {d.id}</h3>
           <span className="report-state" style={{ color: STATUS_COLOR[d.status] ?? "var(--fg)" }}>{d.status}</span>
           <span className="report-count">{d.completed_trials}/{d.scheduled_trials} trials</span>
+          <span className="report-export"><ExportBar id={selected.id} suite={selected.suite} /></span>
         </div>
-        <ExportBar id={selected.id} suite={selected.suite} />
         <dl className="report-facts">
           <Fact k="Started" v={fmtDateTime(d.started_unix)} />
           <Fact k="Finished" v={fmtDateTime(d.finished_unix)} />

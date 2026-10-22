@@ -20,15 +20,19 @@ export function TimeChart({ report, metric }: { report: Report; metric: TraceMet
     const dups = new Map<string, number>();
     const names = rows.map((r) => { const base = label(r, long); const n = (dups.get(base) ?? 0) + 1; dups.set(base, n); return n > 1 || rows.filter((x) => label(x, long) === base).length > 1 ? `${base} #${n}` : base; });
     const series: object[] = [];
+    // Tab count is encoded by dash style (colour = browser), so 1/5/15/30 tabs stay distinguishable in the legend.
+    const tabLevels = [...new Set(rows.map((x) => x.tabs))].sort((a, b) => Number(a) - Number(b));
+    const DASH = ["solid", "dashed", "dotted", [8, 3, 2, 3]] as const;
     rows.forEach((r: SeriesRow, i) => {
       const tr = r[metric];
       const color = colorFor(r.browser);
+      const dash = tabLevels.length > 1 ? DASH[Math.min(tabLevels.indexOf(r.tabs), DASH.length - 1)] : "solid";
       if (tr.lo && tr.hi && metric === "footprint") {
         series.push({ name: `__lo${i}`, type: "line", stack: `band${i}`, symbol: "none", lineStyle: { opacity: 0 }, silent: true, data: tr.t.map((t, k) => [t, tr.lo![k]]) });
         series.push({ name: `__rng${i}`, type: "line", stack: `band${i}`, symbol: "none", lineStyle: { opacity: 0 }, silent: true, areaStyle: { color, opacity: 0.12 }, data: tr.t.map((t, k) => [t, (tr.hi![k] ?? 0) - (tr.lo![k] ?? 0)]) });
       }
       series.push({
-        name: names[i], type: "line", showSymbol: false, lineStyle: { color, width: 1.8 }, itemStyle: { color },
+        name: names[i], type: "line", showSymbol: false, lineStyle: { color, width: 1.8, type: dash }, itemStyle: { color },
         data: tr.t.map((t, k) => [t, tr.v[k]]),
         ...(i === 0 && measureStart != null ? { markArea: { silent: true, itemStyle: { color: "rgba(139,148,160,0.10)" }, label: { color: "#8b94a0", position: "insideTop" }, data: [[{ name: "warm-up (not analysed)", xAxis: 0 }, { xAxis: measureStart }]] } } : {}),
       });

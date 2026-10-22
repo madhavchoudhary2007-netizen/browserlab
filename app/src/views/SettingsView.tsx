@@ -25,6 +25,7 @@ export const STATE_TEXT: Record<ProfileInfo["state"], string> = {
 };
 export const canCreate = (p: ProfileInfo): boolean => p.installed && (p.state === "missing" || p.state === "empty");
 
+const PROFILE_TONE: Record<ProfileInfo["state"], string> = { ready: "var(--ok)", version_changed: "var(--warn)", missing: "var(--danger)", empty: "var(--warn)", unmanaged: "var(--fg-muted)" };
 const SOURCE_TEXT = { environment: "set by environment variable", saved: "saved choice", default: "default location" } as const;
 
 export function SettingsView() {
@@ -73,7 +74,7 @@ export function SettingsView() {
             <li key={p.browser} className="settings-row">
               <strong>{p.browser}</strong>
               <div className="lib-main">
-                <div className="lib-when">{p.installed ? p.version : "not installed"} · {p.state}{p.created_with ? ` (created with ${p.created_with})` : ""}</div>
+                <div className="lib-when">{p.installed ? p.version : "not installed"} · <span className="lib-status" style={{ color: PROFILE_TONE[p.state] }}>{p.state}</span>{p.created_with ? ` (created with ${p.created_with})` : ""}</div>
                 <div className="lib-meta">{STATE_TEXT[p.state]}</div>
               </div>
               {canCreate(p) && (
