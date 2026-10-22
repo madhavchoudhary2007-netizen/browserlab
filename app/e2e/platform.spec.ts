@@ -32,7 +32,7 @@ test("a 120-character unbroken string wraps instead of overflowing", async ({ pa
   await openApp(page);
   await goTo(page, "Library");
   // Inject the long id into the first row's title to exercise the real wrapping rules.
-  await page.evaluate(() => { const s = document.querySelector(".lib-title strong"); if (s) s.textContent = "x".repeat(120); });
+  await page.evaluate(() => { const s = document.querySelector(".lib-name"); if (s) s.textContent = "x".repeat(120); });
   expect(await overflowX(page)).toBeLessThanOrEqual(1);
 });
 

@@ -11,3 +11,4 @@
 .pen-note { margin: 0; color: var(--fg-muted); font-size: var(--t-0); }
 .pen-frame { position: relative; block-size: clamp(11rem, 36vh, 26rem); border: 1px solid var(--edge); border-radius: var(--r-2); overflow: hidden; background: var(--raised); }
 .pen-empty { position: absolute; inset: 0; margin: 0; display: grid; place-items: center; color: var(--fg-muted); pointer-events: none; }
+.pen-frame-report { block-size: clamp(12rem, 30vh, 20rem); }

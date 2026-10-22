@@ -66,7 +66,7 @@ export class PenRig {
     this.gctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0); this.ictx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
     const m = this.margins; this.plotH = Math.max(1, h - m.t - m.b);
     this.paintGrid();
-    if (this.pendingStart) { this.pendingStart = false; this.startLiveSheet(); return; }
+    if (this.pending) { const f = this.pending; this.pending = null; f(); return; }
     if (this.engine && oldPlot > 1) this.redraw(this.plotH / oldPlot);
     else if (this.engine) this.redraw(1);
     if (this.phase === "idle" || this.phase === "hold") this.placePen();
@@ -148,10 +148,10 @@ export class PenRig {
     if (this.reduced) { this.drawStaticLive(); return; }
     if (!this.engine && this.phase === "idle") this.startLiveSheet();
   }
-  private pendingStart = false;
+  private pending: (() => void) | null = null;
   private startLiveSheet() {
     const p = this.pts; if (p.length === 0) return;
-    if (!this.W) { this.pendingStart = true; return; } // not laid out yet (screen hidden): start when it appears
+    if (!this.W) { this.pending = () => this.startLiveSheet(); return; } // not laid out yet (screen hidden): start when it appears
     this.setScale(p.map((q) => q.v));
     this.t0 = p[0]!.t;
     const secs = (window as unknown as { __penSeconds?: number }).__penSeconds ?? SHEET_SECONDS; // test hook: shorter sheets for evidence capture
@@ -182,6 +182,7 @@ export class PenRig {
   /** Replay: ink a finished series once, start to end, then sleep. */
   replay(series: Pt[], seconds = 8) {
     if (series.length < 2) return;
+    if (!this.W) { this.pending = () => this.replay(series, seconds); return; }
     this.halt(); this.mode = "replay"; this.pts = series;
     const t0 = series[0]!.t, t1 = series[series.length - 1]!.t;
     this.setScale(series.map((q) => q.v)); this.seconds = seconds;
@@ -192,6 +193,7 @@ export class PenRig {
   /** Show the finished trace at once (reduced motion, or first paint of a report). */
   showStatic(series: Pt[]) {
     if (series.length < 2) return;
+    if (!this.W) { this.pending = () => this.showStatic(series); return; }
     this.halt(); this.mode = "static"; this.pts = series;
     const t0 = series[0]!.t, t1 = series[series.length - 1]!.t;
     this.setScale(series.map((q) => q.v)); this.seconds = t1 - t0; this.paintGrid();

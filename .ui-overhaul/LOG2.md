@@ -58,3 +58,5 @@
 - Helpers launched: Library rows (defect 7) and contrast script + tokens/light surfaces (defects 5, 6). They do not commit; lead re-verifies and commits.
 - New e2e: pen.spec.ts (ink drawn then loop stops; reduced motion static with note; loop sleeps when hidden), legend.spec.ts (legend keyboard, replay once then sleeps).
 - Measurement tooling: .ui-overhaul/measure/startup_proxy.mjs (FCP/LCP/ready over N fresh loads of a built mock-engine frontend).
+- e2e edit: journeys.spec.ts export-done text 'Saved /mock/out.pdf' -> 'Exported to /mock/out.pdf' (copy: Export then Exported); same assertion strength.
+- e2e edit: platform.spec.ts selector .lib-title strong -> .lib-name (Library row markup changed; the long-name injection test would otherwise silently skip).

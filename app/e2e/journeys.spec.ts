@@ -50,7 +50,7 @@ test("journey: exports send on-screen charts and never a path", async ({ page })
   await openExperiment(page, "data_static_scaling_v013");
   await expect(page.getByRole("img", { name: /Memory versus tab count/ })).toBeVisible();
   await exportAs(page, "PDF report");
-  await expect(page.getByText(/Saved \/mock\/out\.pdf/)).toBeVisible();
+  await expect(page.getByText(/Exported to \/mock\/out\.pdf/)).toBeVisible();
   const last = () => page.evaluate(() => (window as unknown as { __lastExport: { format: string; images: string[]; path?: string } }).__lastExport);
   const pdf = await last();
   expect(pdf.format).toBe("pdf");

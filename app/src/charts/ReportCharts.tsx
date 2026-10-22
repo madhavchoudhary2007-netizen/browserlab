@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { colorFor, uniq } from "../analysis";
 import type { Report, SeriesRow, TrialStats } from "../report";
 import { AXIS, useEChart } from "./useEChart";
@@ -10,36 +10,97 @@ const TITLE: Record<TraceMetric, string> = { footprint: "Memory footprint", cpu:
 const multi = (rows: { workload: string; tabs: number }[]) => uniq(rows.map((r) => `${r.workload}${r.tabs}`)).length > 1;
 const label = (r: { browser: string; workload: string; tabs: number }, long: boolean) => (long ? `${r.browser} · ${r.workload} · ${r.tabs} tab${r.tabs === 1 ? "" : "s"}` : r.browser);
 
-/** Every trial (or condition mean with min-max band) over time. Click the legend to hide lines, drag the slider or scroll to zoom. */
+const SHAPES = ["circle", "rect", "triangle", "diamond"] as const;
+const SHAPE_PATH: Record<(typeof SHAPES)[number], string> = {
+  circle: "M-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0Z", rect: "M-3.5 -3.5h7v7h-7Z", triangle: "M0 -4.5L4.2 3.2h-8.4Z", diamond: "M0 -4.6L4.6 0L0 4.6L-4.6 0Z",
+};
+const DASH = ["solid", "dashed", "dotted", [8, 3, 2, 3]] as const;
+const DASH_CSS = ["none", "6 3", "1.5 3", "7 3 1.5 3"] as const;
+
+interface LegendItem { key: string; name: string; browser: string; color: string; shape: (typeof SHAPES)[number]; dash: number; tabs: number }
+
+/** Legend grouped by browser. Colour = browser, marker shape = series within the browser, dash = tab count. Hover or focus highlights a series, buttons hide a series or a whole browser. */
+function SeriesLegend({ items, hidden, onToggle, onToggleBrowser, onFocus, showDash }: { items: LegendItem[]; hidden: Set<string>; onToggle: (k: string) => void; onToggleBrowser: (b: string, on: boolean) => void; onFocus: (k: string | null) => void; showDash: boolean }) {
+  const browsers = uniq(items.map((i) => i.browser));
+  return (
+    <div className="series-legend" role="group" aria-label="Chart legend: choose which lines to show">
+      {browsers.map((b) => {
+        const mine = items.filter((i) => i.browser === b);
+        const allOn = mine.every((i) => !hidden.has(i.key));
+        return (
+          <div className="series-group" key={b}>
+            <button type="button" className="series-browser" aria-pressed={allOn} onClick={() => onToggleBrowser(b, !allOn)} style={{ "--series-color": colorFor(b) } as React.CSSProperties}>{b}</button>
+            <ul>
+              {mine.map((i) => (
+                <li key={i.key}>
+                  <button type="button" className="series-item" aria-pressed={!hidden.has(i.key)} onClick={() => onToggle(i.key)}
+                    onMouseEnter={() => onFocus(i.key)} onMouseLeave={() => onFocus(null)} onFocus={() => onFocus(i.key)} onBlur={() => onFocus(null)}
+                    style={{ "--series-color": i.color } as React.CSSProperties} title={i.name}>
+                    <svg width="34" height="12" viewBox="-17 -6 34 12" aria-hidden="true" focusable="false">
+                      <line x1="-16" x2="16" y1="0" y2="0" stroke="currentColor" strokeWidth="2" strokeDasharray={DASH_CSS[i.dash]} />
+                      <path d={SHAPE_PATH[i.shape]} fill="currentColor" />
+                    </svg>
+                    <span>{showDash ? `${i.tabs} tab${i.tabs === 1 ? "" : "s"}` : i.name.replace(`${b} `, "")}</span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Every trial (or condition mean with min-max band) over time. Legend is grouped by browser and operable by keyboard; zoom with scroll or the slider. */
 export function TimeChart({ report, metric }: { report: Report; metric: TraceMetric }) {
-  const option = useMemo(() => {
+  const [hidden, setHidden] = useState<Set<string>>(() => new Set());
+  const [focus, setFocus] = useState<string | null>(null);
+  const meta = useMemo(() => {
     const rows = report.series.series;
     const long = multi(rows);
-    const unit = metric === "footprint" && report.series.metric === "rss_mb" ? "MB (RSS)" : UNIT[metric];
-    const measureStart = rows.find((r) => r.measure_start != null)?.measure_start ?? null;
     const dups = new Map<string, number>();
     const names = rows.map((r) => { const base = label(r, long); const n = (dups.get(base) ?? 0) + 1; dups.set(base, n); return n > 1 || rows.filter((x) => label(x, long) === base).length > 1 ? `${base} #${n}` : base; });
-    const series: object[] = [];
-    // Tab count is encoded by dash style (colour = browser), so 1/5/15/30 tabs stay distinguishable in the legend.
     const tabLevels = [...new Set(rows.map((x) => x.tabs))].sort((a, b) => Number(a) - Number(b));
-    const DASH = ["solid", "dashed", "dotted", [8, 3, 2, 3]] as const;
+    const perBrowser = new Map<string, number>();
+    const items: LegendItem[] = rows.map((r, i) => {
+      const k = perBrowser.get(r.browser) ?? 0; perBrowser.set(r.browser, k + 1);
+      const dash = tabLevels.length > 1 ? Math.min(tabLevels.indexOf(r.tabs), DASH.length - 1) : 0;
+      return { key: `${i}`, name: names[i]!, browser: r.browser, color: colorFor(r.browser), shape: SHAPES[k % SHAPES.length]!, dash, tabs: r.tabs };
+    });
+    return { rows, names, items, showDash: tabLevels.length > 1 };
+  }, [report]);
+
+  const option = useMemo(() => {
+    const { rows, items } = meta;
+    const unit = metric === "footprint" && report.series.metric === "rss_mb" ? "MB (RSS)" : UNIT[metric];
+    const measureStart = rows.find((r) => r.measure_start != null)?.measure_start ?? null;
+    const series: object[] = [];
+    let first = true;
     rows.forEach((r: SeriesRow, i) => {
+      const it = items[i]!;
+      if (hidden.has(it.key)) return;
       const tr = r[metric];
-      const color = colorFor(r.browser);
-      const dash = tabLevels.length > 1 ? DASH[Math.min(tabLevels.indexOf(r.tabs), DASH.length - 1)] : "solid";
-      if (tr.lo && tr.hi && metric === "footprint") {
+      const color = it.color;
+      const dim = focus != null && focus !== it.key;
+      const lastIdx = tr.t.length - 1;
+      if (tr.lo && tr.hi && metric === "footprint" && !dim) {
         series.push({ name: `__lo${i}`, type: "line", stack: `band${i}`, symbol: "none", lineStyle: { opacity: 0 }, silent: true, data: tr.t.map((t, k) => [t, tr.lo![k]]) });
         series.push({ name: `__rng${i}`, type: "line", stack: `band${i}`, symbol: "none", lineStyle: { opacity: 0 }, silent: true, areaStyle: { color, opacity: 0.12 }, data: tr.t.map((t, k) => [t, (tr.hi![k] ?? 0) - (tr.lo![k] ?? 0)]) });
       }
       series.push({
-        name: names[i], type: "line", showSymbol: false, lineStyle: { color, width: 1.8, type: dash }, itemStyle: { color },
+        name: it.name, type: "line", showSymbol: false, lineStyle: { color, width: focus === it.key ? 3 : 1.8, type: DASH[it.dash], opacity: dim ? 0.18 : 1 }, itemStyle: { color, opacity: dim ? 0.18 : 1 },
         data: tr.t.map((t, k) => [t, tr.v[k]]),
-        ...(i === 0 && measureStart != null ? { markArea: { silent: true, itemStyle: { color: "rgba(139,148,160,0.10)" }, label: { color: "#8b94a0", position: "insideTop" }, data: [[{ name: "warm-up (not analysed)", xAxis: 0 }, { xAxis: measureStart }]] } } : {}),
+        markPoint: lastIdx >= 0 ? { silent: true, symbol: it.shape, symbolSize: 9, itemStyle: { color, opacity: dim ? 0.18 : 1 }, label: { show: false }, data: [{ coord: [tr.t[lastIdx], tr.v[lastIdx]] }] } : undefined,
+        endLabel: { show: !dim, formatter: () => (meta.showDash ? `${it.browser} ${it.tabs}` : it.browser), color, fontSize: 11, distance: 10 },
+        labelLayout: { hideOverlap: true },
+        ...(first && measureStart != null ? { markArea: { silent: true, itemStyle: { color: "rgba(139,148,160,0.10)" }, label: { color: "#8b94a0", position: "insideTop" }, data: [[{ name: "warm-up (not analysed)", xAxis: 0 }, { xAxis: measureStart }]] } } : {}),
       });
+      first = false;
     });
     return {
-      animationDuration: 150, grid: { left: 64, right: 24, top: names.length > 4 ? 28 + 24 * Math.ceil(names.length / 4) : 56, bottom: 72 },
-      legend: { top: 0, type: names.length > 16 ? "scroll" : "plain", itemGap: 12, textStyle: { color: "#e6e8eb" }, data: names },
+      animationDuration: 150, grid: { left: 64, right: 96, top: 24, bottom: 72 },
+      legend: { show: false },
       tooltip: {
         trigger: "axis", confine: true,
         formatter: (ps: { seriesName: string; value: [number, number]; color: string }[]) => {
@@ -53,9 +114,16 @@ export function TimeChart({ report, metric }: { report: Report; metric: TraceMet
       dataZoom: [{ type: "inside", xAxisIndex: 0 }, { type: "slider", xAxisIndex: 0, height: 18, bottom: 6, borderColor: "#2a3039", textStyle: { color: "#8b94a0" } }],
       series,
     };
-  }, [report, metric]);
+  }, [meta, report, metric, hidden, focus]);
   const { el, props } = useEChart(option, `${TITLE[metric]} over time`);
-  return <div ref={el} {...props} style={{ height: 380 }} />;
+  const toggle = (k: string) => setHidden((h) => { const n = new Set(h); if (n.has(k)) n.delete(k); else n.add(k); return n; });
+  const toggleBrowser = (b: string, on: boolean) => setHidden((h) => { const n = new Set(h); for (const i of meta.items) if (i.browser === b) { if (on) n.delete(i.key); else n.add(i.key); } return n; });
+  return (
+    <div className="time-chart">
+      <SeriesLegend items={meta.items} hidden={hidden} onToggle={toggle} onToggleBrowser={toggleBrowser} onFocus={setFocus} showDash={meta.showDash} />
+      <div ref={el} {...props} style={{ height: 380 }} />
+    </div>
+  );
 }
 
 const trialName = (t: TrialStats, long: boolean, idx: number, all: TrialStats[]) => {

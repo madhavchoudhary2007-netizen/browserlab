@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { fmtDateTime, fmtDuration } from "../format";
+import { fmtDateTime } from "../format";
 import { useRemote } from "../useRemote";
 import { Button } from "../ds/primitives";
 import { useAfter } from "../ds/useAfter";
@@ -59,9 +59,14 @@ export function LibraryView({ onOpen, onCompare }: { onOpen: (s: Selected) => vo
         {filtered && <Button variant="quiet" onClick={() => { setQ(""); setStatus("all"); }}>Clear filters</Button>}
       </div>
       {shown.length === 0 && <p>No experiments match the current filters.</p>}
+      <div className="lib-head" aria-hidden="true">
+        <span /><span>Session</span><span>Status</span><span>Finished</span><span>Trials</span><span />
+      </div>
       <ul className="lib-list">
         {shown.map((e) => {
           const key = `${e.id}/${e.suite}`;
+          const detail = [e.browsers.join(", "), e.workloads.join(", ")].filter(Boolean).join(" / ");
+          const when = fmtDateTime(e.finished_unix ?? e.started_unix);
           return (
             <li key={key} className="lib-row">
               <label className="lib-check">
@@ -69,16 +74,14 @@ export function LibraryView({ onOpen, onCompare }: { onOpen: (s: Selected) => vo
                   onChange={(ev) => setCmp(ev.target.checked ? [...cmp, key].slice(-2) : cmp.filter((k) => k !== key))} />
               </label>
               <div className="lib-main">
-                <div className="lib-title"><strong>{e.id}</strong>
-                  <span className="lib-status" style={{ color: STATUS_TONE[e.status] ?? "var(--fg-muted)" }}>{e.status}</span></div>
-                <div className="lib-when"><time dateTime={e.finished_unix ? new Date(e.finished_unix * 1000).toISOString() : undefined}>{fmtDateTime(e.finished_unix ?? e.started_unix)}</time>
-                  {e.started_unix && e.finished_unix ? ` · ran ${fmtDuration(e.finished_unix - e.started_unix)}` : ""}</div>
-                <div className="lib-meta">
-                  {e.mode ? `${e.mode} · ` : ""}{e.source === "app" ? "BrowserLab run" : "imported folder"} · {e.completed_trials}/{e.scheduled_trials} trials · {e.browsers.join(", ")} · {e.workloads.join(", ")} · tabs {e.tab_levels.join(",")} · warm-up {e.warmup_seconds}s / measure {e.measure_seconds}s
-                </div>
-                {e.warnings.map((w) => <div key={w} className="lib-warn">{w}</div>)}
+                <strong className="lib-name" title={e.id}>{e.id}</strong>
+                {detail && <span className="lib-sub" title={detail}>{detail}</span>}
               </div>
+              <span className="lib-status" style={{ color: STATUS_TONE[e.status] ?? "var(--fg-muted)" }}>{e.status}</span>
+              <time className="lib-date" title={when} dateTime={e.finished_unix ? new Date(e.finished_unix * 1000).toISOString() : undefined}>{when}</time>
+              <span className="lib-trials">{e.completed_trials} of {e.scheduled_trials} trials</span>
               <Button onClick={() => onOpen({ id: e.id, suite: e.suite })}>Open</Button>
+              {e.warnings.length > 0 && <div className="lib-warns">{e.warnings.map((w) => <div key={w} className="lib-warn">{w}</div>)}</div>}
             </li>
           );
         })}

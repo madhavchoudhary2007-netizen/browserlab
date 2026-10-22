@@ -8,6 +8,7 @@ import { useRemote } from "../useRemote";
 import type { Selected } from "./LibraryView";
 import { AnalysisView } from "./AnalysisView";
 import { Button } from "../ds/primitives";
+import { TraceReplay } from "../pen/TraceReplay";
 import { useAfter } from "../ds/useAfter";
 import "./report.css";
 
@@ -100,8 +101,11 @@ export function ReportView({ selected }: { selected: Selected }) {
       </div>
 
 
+      <TraceReplay report={d} />
+
       <div className="report-section">
         <h3>Over time</h3>
+        <ChartPngButton prefix={metric === "footprint" ? "Memory footprint over time" : metric === "cpu" ? "CPU over time" : "Process count over time"} id={selected.id} suite={selected.suite} />
         <div className="report-controls">
           <label>Metric{" "}
             <select className="min-h-11" value={metric} onChange={(e) => setMetric(e.target.value as TraceMetric)}>
@@ -112,7 +116,6 @@ export function ReportView({ selected }: { selected: Selected }) {
             <label>Workload{" "}<select className="min-h-11" value={wl} onChange={(e) => setWl(e.target.value)}><option value="all">all</option>{d.workloads.map((w) => <option key={w}>{w}</option>)}</select></label>
             <label>Tabs{" "}<select className="min-h-11" value={tb} onChange={(e) => setTb(e.target.value)}><option value="all">all</option>{d.tab_levels.map((t) => <option key={t}>{t}</option>)}</select></label>
           </>}
-          <ChartPngButton prefix={metric === "footprint" ? "Memory footprint over time" : metric === "cpu" ? "CPU over time" : "Process count over time"} id={selected.id} suite={selected.suite} />
         </div>
         {filtered && <p className="report-note" role="status">Showing {timeReport?.series.series.length ?? 0} of {d.series.series.length} {d.series.mode === "trial" ? "trials" : "conditions"}. <Button variant="quiet" onClick={() => { setWl("all"); setTb("all"); }}>Clear filters</Button></p>}
         <p className="report-note">

@@ -1,8 +1,8 @@
 /* Design tokens: chart-recorder direction. Hex values are the fallback; OKLCH overrides where supported. */
 :root {
-  --sheet: #F0F3F4;
+  --sheet: #EDF1F2;
   --raised: #FFFFFF;
-  --sunk: #E3E9EB;
+  --sunk: #DAE2E5;
   --fg: #0E1A22;
   --fg-muted: #3E4C57;
   --grid: #D0D9DD;
@@ -33,7 +33,7 @@
 }
 @supports (color: oklch(0% 0 0)) {
   :root {
-    --sheet: oklch(96.2% 0.004 211);
+    --sheet: oklch(95.4% 0.004 211);
     --raised: oklch(100% 0 0);
     --fg: oklch(21.1% 0.023 239);
     --fg-muted: oklch(40.9% 0.026 242);
@@ -49,7 +49,7 @@
   --fg: #E6EEF2;
   --fg-muted: #9AA9B4;
   --grid: #26323B;
-  --edge: #5B6E7A;
+  --edge: #72858F;
   --pen: #3CC4CF;
   --pen-fg: #06191B;
   --pen-hover: #62D6E0;
@@ -79,7 +79,7 @@
   --fg: #E6EEF2;
   --fg-muted: #9AA9B4;
   --grid: #26323B;
-  --edge: #5B6E7A;
+  --edge: #72858F;
   --pen: #3CC4CF;
   --pen-fg: #06191B;
   --pen-hover: #62D6E0;
