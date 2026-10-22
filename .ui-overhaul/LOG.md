@@ -1,5 +1,5 @@
 # UI overhaul log
-Branch: ui-overhaul (from perfection-loop @ base-ref). Phase: U7 next (U0-U6 done; critique cycle 1 fixes applied, review 2 pending in U8). Cycle: 1. Cycle: 0.
+Branch: ui-overhaul (from perfection-loop @ base-ref). Phase: U8 next (U0-U7 done; critique cycle 1 fixes applied, review 2 pending in U8). Cycle: 1. Cycle: 0.
 
 ## Decisions
 - App lives in `app/`; gate uses UI_DIRS="app/src", TAURI_DIR="app/src-tauri" (brief paths adjusted).
@@ -70,3 +70,8 @@ Next: U6 signature moment, U7 window chrome + packaged WKWebView check + startup
 - e2e total 85/85, typecheck, lint green, gate OK.
 - Listener cleanup: engine-event listener, palette/shortcut key listener, theme observers all unsubscribe on unmount (reviewed in code; heap +1.6 MB over 400 navs).
 - Packaged WKWebView check: build started (pre-overhaul release bundle copied to ~/BrowserLab-backups/BrowserLab-release-pre-overhaul.app first; known-good -dirty backup untouched).
+
+## U7 packaged-app check (done)
+- Built with `pnpm tauri build --bundles app` + scripts/sign_app.sh (same signature as before). Launched the release bundle and captured only its own window (screencapture -l): WKWebView renders bundled Instrument Sans, OKLCH colours (system dark scheme), rail with icons, segmented mode control, plan readout and the real preflight list correctly. Native title bar kept. A first full-screen capture showed unrelated personal windows; it was deleted and not used.
+- scripts/perf_packaged.py, new vs pre-overhaul copy (same machine, 20 s idle): app-tree RSS 283.2 vs 278.3 MB (+1.8 %), idle CPU 0.0 vs 0.0 %, sidecar spawn 1.63 vs 1.40 s (backend-bound, unchanged code). window_visible probe reports ~0 s for both and is NOT a valid UI-startup measure; first-paint startup time is NOT MEASURED. The +-10 % startup gate is therefore unproven.
+- Not checked in WKWebView: arrival animation smoothness, light theme, 150 % scale (only dark at 100 % seen).
