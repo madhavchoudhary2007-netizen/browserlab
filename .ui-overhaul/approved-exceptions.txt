@@ -1,0 +1,3 @@
+# Owner-approved exceptions to the frozen paths. Format: <path>|<-/+>|<exact line content>. The gate accepts a diff of that file only if its changed lines equal exactly these.
+app/src-tauri/capabilities/default.json|-|  "permissions": ["core:default", "dialog:allow-save"]
+app/src-tauri/capabilities/default.json|+|  "permissions": ["core:default", "dialog:allow-save", "core:window:allow-start-dragging"]

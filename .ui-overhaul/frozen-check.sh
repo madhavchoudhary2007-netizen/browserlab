@@ -20,9 +20,17 @@ case "${1:-}" in
     [ -f "$base_file" ] && [ -f "$frozen_file" ] && [ -f "$contract" ] || { echo "run U0 first" >&2; exit 2; }
     base=$(cat "$base_file"); git rev-parse --verify -q "$base^{commit}" >/dev/null || { echo "bad base-ref" >&2; exit 2; }
     paths=$(sed '/^[[:space:]]*#/d; /^[[:space:]]*$/d' "$frozen_file")
-    if [ -n "$paths" ] && ! git diff --quiet "$base" -- $paths; then echo "FROZEN paths changed:"; git diff --stat "$base" -- $paths; bad=1; fi
+    exc_file=$B/approved-exceptions.txt; exc_paths=""
+    [ -f "$exc_file" ] && exc_paths=$(grep -v '^#' "$exc_file" | cut -d'|' -f1 | sort -u)
+    excl=""; for f in $exc_paths; do excl="$excl :(exclude)$f"; done
+    if [ -n "$paths" ] && ! git diff --quiet "$base" -- $paths $excl; then echo "FROZEN paths changed:"; git diff --stat "$base" -- $paths $excl; bad=1; fi
+    for f in $exc_paths; do   # approved exception files: changed lines must equal the approved lines exactly
+      got=$(git diff -U0 "$base" -- "$f" | grep -E '^[+-]' | grep -Ev '^(\+\+\+|---)' | sed -E 's/^([+-])/\1|/' | LC_ALL=C sort)
+      want=$(grep -F "$f|" "$exc_file" | cut -d'|' -f2- | LC_ALL=C sort)
+      [ "$got" = "$want" ] || { echo "FROZEN: $f differs from approved exception"; echo "$got"; bad=1; }
+    done
     if [ -d "$TAURI_DIR" ]; then
-      changed=$( (git diff --name-only "$base" -- "$TAURI_DIR"; git ls-files -o --exclude-standard -- "$TAURI_DIR") | sed '/^$/d' | grep -Ev "^$TAURI_DIR/(tauri\.conf\.json5?|Tauri\.toml)$" || true)
+      changed=$( (git diff --name-only "$base" -- "$TAURI_DIR"; git ls-files -o --exclude-standard -- "$TAURI_DIR") | sed '/^$/d' | grep -Ev "^$TAURI_DIR/(tauri\.conf\.json5?|Tauri\.toml)$" | grep -Fvx -f <(echo "$exc_paths") || true)
       [ -n "$changed" ] && { echo "FROZEN: $TAURI_DIR changed outside window config:"; echo "$changed"; bad=1; }
     fi
     diff <(contract_now) "$contract" >/dev/null || { echo "IPC CONTRACT changed:"; diff <(contract_now) "$contract"; bad=1; }
