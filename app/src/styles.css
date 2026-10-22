@@ -1,6 +1,4 @@
 @import "tailwindcss";
-@import "@fontsource-variable/instrument-sans/wght.css";
-@import "@fontsource-variable/spline-sans-mono/wght.css";
 @import "./ds/tokens.css";
 @import "./ds/ds.css";
 

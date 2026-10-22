@@ -1,0 +1,6 @@
+{"label":"base","runs":20,"fcp":{"p50":60,"p95":64},"lcp":{"p50":60,"p95":64},"ready":{"p50":60.8,"p95":65.2}}
+{"label":"new","runs":20,"fcp":{"p50":76,"p95":80},"lcp":{"p50":76,"p95":80},"ready":{"p50":88.2,"p95":92.8}}
+{"label":"base","runs":20,"fcp":{"p50":60,"p95":64},"lcp":{"p50":60,"p95":64},"ready":{"p50":60.9,"p95":67.1}}
+{"label":"new","runs":20,"fcp":{"p50":72,"p95":76},"lcp":{"p50":72,"p95":84},"ready":{"p50":86,"p95":88.8}}
+-- after fix (system fonts, lazy pen), two alternating rounds, p50 ready ms:
+base 60.3 / 59.7 ; pass2 62.8 / 64.3 ; (pass 1 final: 81.4)

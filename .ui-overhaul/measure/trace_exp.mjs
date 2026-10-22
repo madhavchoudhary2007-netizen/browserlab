@@ -1,0 +1,13 @@
+import http from "node:http"; import fs from "node:fs"; import path from "node:path"; import { createRequire } from "node:module";
+const APP="/Users/madhavchoudhary/Downloads/browser_research_suite 2/app"; const { chromium } = createRequire(APP+"/package.json")("@playwright/test");
+const dist=process.argv[2];
+const types={".html":"text/html",".js":"text/javascript",".css":"text/css",".woff2":"font/woff2",".json":"application/json"};
+const srv=http.createServer((req,res)=>{const f=path.join(dist,new URL(req.url,"http://x").pathname);const file=fs.existsSync(f)&&fs.statSync(f).isFile()?f:path.join(dist,"index.html");res.writeHead(200,{"content-type":types[path.extname(file)]??"x"});fs.createReadStream(file).pipe(res);}).listen(0);
+const b=await chromium.launch({channel:"chrome"}); const page=await b.newPage({viewport:{width:1280,height:800}});
+await b.startTracing(page,{categories:["devtools.timeline","disabled-by-default-devtools.timeline"]});
+if (process.env.EXP) await page.addInitScript((css)=>{document.addEventListener("DOMContentLoaded",()=>{const s=document.createElement("style");s.textContent=css;document.head.append(s);});}, process.env.EXP); await page.goto(`http://localhost:${srv.address().port}/`); await page.waitForSelector('[role="radiogroup"]'); await page.waitForTimeout(500);
+const buf=await b.stopTracing(); const ev=JSON.parse(buf.toString()).traceEvents;
+const L=ev.filter(e=>e.name==="Layout"&&e.ph==="X").sort((a,c)=>c.dur-a.dur).slice(0,6);
+console.log(ev.filter(e=>e.name==="Layout"&&e.ph==="X").length,"layouts total", (ev.filter(e=>e.name==="Layout"&&e.ph==="X").reduce((s,e)=>s+e.dur,0)/1000).toFixed(1),"ms");
+for(const e of L) console.log((e.dur/1000).toFixed(1)+"ms", JSON.stringify(e.args?.beginData??{}).slice(0,160), JSON.stringify(e.args?.endData??{}).slice(0,100));
+await b.close(); srv.close();

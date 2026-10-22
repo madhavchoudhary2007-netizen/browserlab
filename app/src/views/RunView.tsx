@@ -22,7 +22,15 @@ function fmtDuration(s: number): string {
   return h ? `${h} h ${m} min` : `${m} min`;
 }
 
+function useWide(): boolean {
+  const q = "(min-width: 1600px)";
+  const [w, setW] = useState(() => typeof matchMedia === "function" && matchMedia(q).matches);
+  useEffect(() => { const mq = matchMedia(q); const f = () => setW(mq.matches); mq.addEventListener("change", f); return () => mq.removeEventListener("change", f); }, []);
+  return w;
+}
+
 export function RunView() {
+  const wide = useWide(); // the pen sheet mounts only when it can be seen: a run is shown, or the window is wide enough for the side-by-side layout
   const [mode, setMode] = useState<Mode>("quick");
   const [workload, setWorkload] = useState<(typeof WORKLOADS)[number]>("javascript");
   const [tabs, setTabs] = useState<(typeof TABS)[number]>(5);
@@ -73,7 +81,7 @@ export function RunView() {
 
   return (
     <div className="run" data-show={runState !== "idle"} data-busy={busy}>
-      <div className="run-main"><PenPanel /></div>
+      <div className="run-main">{(wide || runState !== "idle") && <PenPanel />}</div>
       <div className="run-side">
       <div role="radiogroup" aria-label="Test mode" className="run-modes">
         {MODES.map((m, i) => (

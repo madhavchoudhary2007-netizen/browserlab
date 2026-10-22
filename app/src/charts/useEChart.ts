@@ -28,7 +28,7 @@ export function useEChart(option: echarts.EChartsCoreOption, label: string) {
     ro.observe(el.current);
     return () => { ro.disconnect(); c.dispose(); chart.current = null; };
   }, []);
-  useEffect(() => { chart.current?.setOption(withMotionPreference({ textStyle: { fontFamily: "Instrument Sans Variable, system-ui, sans-serif" }, ...themeOption(option, scheme) }, prefersReducedMotion()), true); }, [option, scheme]);
+  useEffect(() => { chart.current?.setOption(withMotionPreference({ textStyle: { fontFamily: "-apple-system, BlinkMacSystemFont, system-ui, sans-serif" }, ...themeOption(option, scheme) }, prefersReducedMotion()), true); }, [option, scheme]);
   const png = () => chart.current?.getDataURL({ type: "png", pixelRatio: 2, backgroundColor: scheme === "light" ? "#e8edee" : "#0e1013" });
   useEffect(() => registerChart(label, png), [label, scheme]);
   return { el, png, props: { role: "img", "aria-label": label } as const };

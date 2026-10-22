@@ -60,3 +60,8 @@
 - Measurement tooling: .ui-overhaul/measure/startup_proxy.mjs (FCP/LCP/ready over N fresh loads of a built mock-engine frontend).
 - e2e edit: journeys.spec.ts export-done text 'Saved /mock/out.pdf' -> 'Exported to /mock/out.pdf' (copy: Export then Exported); same assertion strength.
 - e2e edit: platform.spec.ts selector .lib-title strong -> .lib-name (Library row markup changed; the long-name injection test would otherwise silently skip).
+
+## P4 startup (measured; found a pass-1 regression)
+- Method: .ui-overhaul/measure/startup_proxy.mjs on built mock-engine frontends of base-ref, ui-overhaul-final and the current tree (20 loads, 2 warm-ups, 1280x800). FCP/LCP/ready p50: base 60/60/60 ms; pass 1 72/72/81; pass 2 before fix 72-76/72-76/86-88.
+- Cause (trace.mjs): two full layouts of ~8 ms each from web-font load; with system fonts total layout 2.6 ms. Preload and static instances did not help. Fix: system font stacks, removed both @fontsource deps (net -98 kB fonts), pen sheet lazily mounted. After: ready 62.8/64.3 vs base 60.3/59.7 (+4-7 %). Recorded in the ADR amendment.
+- Real packaged-window startup: still NOT RUN (no valid probe).

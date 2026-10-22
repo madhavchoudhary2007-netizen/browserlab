@@ -41,3 +41,6 @@ Reasons: (1) the avoid list bans decorating every surface (identical cards, glas
 - Copy: sentence case, one name per action (Export, Exported; Save PNG, Saved).
 - The pen is an original flat vector per BRIEF2 section 7.
 - Remove one decoration before finishing (candidate: the arrival tear-off line, replaced by the pen replay).
+
+## Amendment: typeface (measured, pass 2 P4)
+Startup proxy (mock engine, built frontend, Chrome headless, p50 of 20 loads): base-ref ready 60 ms; pass 1 (bundled Instrument Sans + Spline Sans Mono) ready 81-88 ms (+35-45 %), almost all of it two full layouts at about 8 ms each caused by loading the web fonts (system font: 2.6 ms total, same as base). A preload link and static (non-variable) font instances did not help. Decision: the UI and mono faces are now the macOS system fonts (SF Pro / SF Mono via -apple-system, ui-monospace); both @fontsource packages are removed; the pen sheet mounts only when visible. Result: ready 63-64 ms vs 60 ms (+4-7 %), within the 10 % budget. The identity now rests on the pen, not on a typeface.
