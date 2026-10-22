@@ -5,7 +5,7 @@ import { goTo, openApp } from "../e2e/helpers";
 const OUT = process.env.OUT ?? "../.ui-overhaul/shots/compare";
 test("compare states", async ({ page }) => {
   await page.emulateMedia({ colorScheme: (process.env.SCHEME as "light" | "dark") ?? "light" });
-  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.setViewportSize({ width: Number(process.env.W ?? 1280), height: Number(process.env.H ?? 800) });
   await openApp(page);
   await page.getByRole("navigation", { name: "Primary" }).getByRole("button", { name: "Compare" }).click({ force: true });
   await page.waitForTimeout(400);

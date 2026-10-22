@@ -54,8 +54,8 @@
 .lib-empty { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3); padding-block: var(--s-6); color: var(--fg-muted); }
 .settings-row > strong { flex: 0 0 8rem; }
 .settings-row > .lib-main { flex: 1 1 14rem; }
-@media (max-width: 1100px) { .cmp-table th, .cmp-table td { padding-inline: var(--s-2); } .cmp-table { font-size: var(--t-0); } }
-.cmp-needs { white-space: normal; text-align: start; color: var(--fg-muted); }
+@media (max-width: 1100px) { .cmp-table th, .cmp-table td { padding-inline: var(--s-2); } .cmp-table { font-size: var(--t-0); } .cmp-bars { inline-size: 4.5rem; } }
+.cmp-table td.cmp-needs, .cmp-table td:not(:first-child).cmp-needs { white-space: normal; text-align: start; color: var(--fg-muted); font-family: var(--font-ui); line-height: 1.25; min-inline-size: 9rem; }
 .cmp-bars { inline-size: 9rem; }
 .cmp-bars span { display: grid; gap: 2px; }
 .cmp-bars i { display: block; block-size: 6px; border: 1px solid var(--fg-muted); background: transparent; }

@@ -4,7 +4,7 @@ import type { Selected } from "./LibraryView";
 import { Button } from "../ds/primitives";
 import { useAfter } from "../ds/useAfter";
 import { PageHeader } from "../ds/PageHeader";
-import { ErrorState } from "../ds/States";
+import { EmptyState, ErrorState } from "../ds/States";
 import "./library.css";
 
 const fmt = (v: number | null | undefined, d = 1): string => (v == null ? "n/a" : v.toFixed(d));
@@ -14,8 +14,7 @@ export function CompareEmpty({ onOpenLibrary }: { onOpenLibrary: () => void }) {
   return (
     <section className="cmp" aria-label="Session comparison">
       <PageHeader title="Compare" purpose="See how two finished experiments differ, condition by condition." />
-      <div className="cmp-block"><p><strong>Compare needs two finished experiments.</strong> Tick two experiments in the Library, then choose Compare sessions.</p></div>
-      <div><Button variant="primary" onClick={onOpenLibrary}>Open Library</Button></div>
+      <EmptyState action={<Button variant="primary" onClick={onOpenLibrary}>Open Library</Button>}><strong>Compare needs two finished experiments.</strong> Tick two experiments in the Library, then choose Compare sessions.</EmptyState>
     </section>
   );
 }
@@ -57,7 +56,7 @@ function CompareBody({ a, b }: { a: Selected; b: Selected }) {
               <tr key={`${x.browser}${x.workload}${x.tabs}`}><td>{x.browser}, {x.workload}, {x.tabs} {x.tabs === 1 ? "tab" : "tabs"}</td><td>{x.n_a}/{x.n_b}</td><td>{fmt(x.mean_a)}</td><td>{fmt(x.mean_b)}</td>
                 <td className="cmp-bars">{x.mean_a != null && x.mean_b != null && top > 0 ? <span role="img" aria-label={`Mean A ${fmt(x.mean_a)}, mean B ${fmt(x.mean_b)}`}><i className="a" style={{ inlineSize: `${(x.mean_a / top) * 100}%` }} /><i className="b" style={{ inlineSize: `${(x.mean_b / top) * 100}%` }} /></span> : null}</td>
                 {untested
-                  ? <td colSpan={4} className="cmp-needs" title="A statistical test needs at least 2 trials on each side. This condition has fewer, so only the means are shown.">Needs 2 or more trials on each side for a test</td>
+                  ? <td colSpan={4} className="cmp-needs" title="A statistical test needs at least 2 trials on each side. This condition has fewer, so only the means are shown.">Needs 2+ trials per side</td>
                   : <><td>{x.mean_diff == null ? "n/a" : fmt(-x.mean_diff)}</td><td>{x.ci_lo == null ? "n/a" : `${fmt(-(x.ci_hi as number))} – ${fmt(-x.ci_lo)}`}</td><td>{fmtP(x.p_holm)}</td><td>{x.hedges_g == null ? "n/a" : fmt(-x.hedges_g)}</td></>}
               </tr>
             );

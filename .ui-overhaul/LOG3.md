@@ -116,3 +116,24 @@
 ## Q7 F8 cycle 1: pack built
 - make_pack.sh now takes REVIEW=review3 (output .ui-overhaul/review3/cycle<N>/, copies the pen perf JSONs); capture sizes are 960x640, 1280x800, 1920x1080, 2560x1440 (no 900x600) and a compare-empty state was added; pen.perf.ts and contrast.mjs write to review3. Pack: review3/cycle1 (30 PNG in the manifest plus pen-perf-x1.json and x6.json).
 - Two fresh reviewers launched (K, L) with only rubric, manifest and images.
+
+## F8 cycle 1 result (not rerun, not cherry-picked)
+- Reviewer K mean 3.35: Dist 3, Fit 3.5, Hier 3, Type 3.5, Color 3, Motion 4, Craft 3, Usab 3.5, Pen 4, Cons 3.
+- Reviewer L mean 3.40: Dist 3, Fit 3.5, Hier 3, Type 3.5, Color 3.5, Motion 4, Craft 3, Usab 3.5, Pen 3.5, Cons 3.5.
+- Cycle mean 3.375; reviewer difference 0.05. Bar (every line >=4, mean >=4.3) NOT met. Both listed all 32 files. Both noted contact sheets are 50% downscaled and that report/analysis sheets are cropped.
+- Findings with evidence (turned into fix tasks T1-T6):
+  T1 Compare table clips the 95% CI / p / g columns at 960x640 (compare shots, both reviewers).
+  T2 Library/Compare/Settings leave 55-60% empty at 1920/2560 (both).
+  T3 Pen: idle pen overlaps axis zeros; light shadow reads as smudge; dark sprite looks different from light (both).
+  T4 Compare-empty (orange bar + filled button) and Library no-match (plain text) differ (both).
+  T5 Orange used for warnings/'exploratory' and the 'brave' chart series dilutes pen-only orange; four-hue rainbow chart palette (both).
+  T6 Run running: big stat and Stop/progress are two focal points; 960 Run clipped at bottom (K).
+
+## F8 cycle-1 fixes (gates green: typecheck, lint, vitest 20, build, e2e 129, contrast, frozen-check OK; no e2e edits)
+- T1 done: Compare "no test" cell reads "Needs 2+ trials per side" (full sentence in title), wraps in UI font, bars narrower at <=1100px; clipping gone at 960x640 (only the last 'g' header sits in the scroll area).
+- T3 partly: checked the idle pen at real size 1920x1080 (light and dark): it sits inside the plot and does not touch the axis labels, so the 'overlap' finding came from the 50% contact sheet. Light shadow softened (opacity 0.16 -> 0.10).
+- T4 done: Library no-match and Compare empty both use the shared EmptyState (neutral edge, action inside); Compare's amber bar removed.
+- T5 not fixed: series colours come from frozen analysis.ts (brave orange); changing needs an adapter, skipped; warn colour left as is (amber text only on warnings, never on the pen).
+- T2 not fixed: short pages at 1920/2560 are content-driven; no content added.
+- T6 not fixed (Run running two-column layout kept; 960 Run scrolls, Start visible).
+- shots/compare-states.shots.ts now reads W/H env (default 1280x800).

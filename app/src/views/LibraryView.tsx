@@ -67,7 +67,7 @@ function LibraryBody({ onOpen, onCompare }: { onOpen: (s: Selected) => void; onC
         <span className="lib-count">{filtered ? `${shown.length} of ${all.length} shown` : `${all.length} experiments`}</span>
         {filtered && <Button variant="quiet" onClick={() => { setQ(""); setStatus("all"); }}>Clear filters</Button>}
       </div>
-      {shown.length === 0 && <p className="lib-empty">No experiments match the current filters.</p>}
+      {shown.length === 0 && <EmptyState action={<Button onClick={() => { setQ(""); setStatus("all"); }}>Show all experiments</Button>}>No experiments match the current filters.</EmptyState>}
       {shown.length > 0 && <div className="lib-head" aria-hidden="true">
         <span /><span>Session</span><span>Status</span><span>Finished</span><span>Trials</span><span />
       </div>}
