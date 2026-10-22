@@ -57,7 +57,7 @@ export function RunView() {
     setStartError(null);
     try {
       const r = await call<{ run_id: string; state: RunState }>("run.start", sel);
-      setRunId(r.run_id, r.state);
+      setRunId(r.run_id, r.state, advanced ? "lifecycle" : "core");
     } catch (e) {
       setStartError(String(e));
     }

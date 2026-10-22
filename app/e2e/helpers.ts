@@ -13,10 +13,11 @@ export async function goTo(page: Page, view: View): Promise<void> {
 }
 
 /** Library -> open the n-th experiment in Results. */
-export async function openExperiment(page: Page, id: string): Promise<void> {
+export async function openExperiment(page: Page, id: string, tab: "Analysis" | "Report" = "Analysis"): Promise<void> {
   await goTo(page, "Library");
   const row = page.getByRole("listitem").filter({ hasText: id });
   await row.getByRole("button", { name: "Open" }).click();
+  if (tab === "Analysis") await page.getByRole("tab", { name: "Analysis" }).click(); // Results opens on the Report tab
 }
 
 export async function axeViolations(page: Page): Promise<string[]> {

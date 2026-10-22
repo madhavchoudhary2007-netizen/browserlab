@@ -23,10 +23,10 @@ test("journey: choose mode, review plan, preflight, confirm, start", async ({ pa
 test("journey: library search, filter and empty result", async ({ page }) => {
   await openApp(page);
   await goTo(page, "Library");
-  await expect(page.getByRole("listitem")).toHaveCount(5);
+  await expect(page.getByRole("listitem")).toHaveCount(6);
   await page.getByLabel("Search", { exact: true }).fill("video");
   await expect(page.getByRole("listitem")).toHaveCount(1);
-  await expect(page.getByText("1 of 5 shown")).toBeVisible();
+  await expect(page.getByText("1 of 6 shown")).toBeVisible();
   await page.getByLabel("Search", { exact: true }).fill("zzz");
   await expect(page.getByText("No experiments match the current filters.")).toBeVisible();
   await page.getByLabel("Search", { exact: true }).fill("");

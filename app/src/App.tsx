@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useLab } from "./store";
 import { CompareView } from "./views/CompareView";
 import { LibraryView, type Selected } from "./views/LibraryView";
 import { ResultsView } from "./views/ResultsView";
@@ -18,6 +19,17 @@ export function App() {
   const [view, setView] = useState<ViewId>("run");
   const [selected, setSelected] = useState<Selected | null>(null);
   const [pair, setPair] = useState<[Selected, Selected] | null>(null);
+  const { runId, suite, state: runState, progress } = useLab();
+  const shown = useRef("");
+  // A run that has produced data opens its full report immediately: no trip through the Library.
+  useEffect(() => {
+    const ended = runState === "completed" || runState === "incomplete" || runState === "stopped" || runState === "failed";
+    const key = `${runId}|${runState}`;
+    if (!runId || !ended || progress.completed < 1 || shown.current === key) return;
+    shown.current = key;
+    setSelected({ id: runId, suite });
+    setView("results");
+  }, [runId, suite, runState, progress.completed]);
   return (
     <div className="grid h-full grid-cols-1 grid-rows-[auto_1fr] md:grid-cols-[176px_1fr] md:grid-rows-1">
       <nav aria-label="Primary" className="flex flex-row items-center gap-1 overflow-x-auto p-2 md:flex-col md:items-stretch md:p-4" style={{ background: "var(--graphite)", borderBottom: "1px solid var(--line)" }}>
@@ -37,7 +49,7 @@ export function App() {
           {view === "library" && <LibraryView onOpen={(s) => { setSelected(s); setView("results"); }} onCompare={(a, b) => { setPair([a, b]); setView("compare"); }} />}
           {view === "compare" && pair && <CompareView a={pair[0]} b={pair[1]} />}
           {view === "settings" && <SettingsView />}
-          {view === "results" && <ResultsView selected={selected} />}
+          {view === "results" && <ResultsView key={`${selected?.id}|${selected?.suite}`} selected={selected} />}
         </div>
       </main>
     </div>

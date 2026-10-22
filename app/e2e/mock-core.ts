@@ -4,8 +4,10 @@ const TOTAL = 120_000;
 const exp = (id: string, status: string, key: string) => ({
   id, suite: "core", status, scheduled_trials: 48, completed_trials: 48, browsers: ["chrome", "brave"],
   workloads: ["static"], tab_levels: [1, 30], repetitions: 2, warmup_seconds: 20, measure_seconds: 105,
-  protocol_key: key, warnings: [],
+  protocol_key: key, warnings: [], started_unix: 1792400000, finished_unix: 1792409000, source: "folder" as string, mode: null as string | null,
 });
+const MOCK_RUN = { ...exp("mock-run", "completed", "kQ"), scheduled_trials: 4, completed_trials: 4, browsers: ["chrome", "brave", "firefox", "librewolf"], tab_levels: [1], repetitions: 1,
+  measure_seconds: 30, started_unix: 1792654000, finished_unix: 1792654300, source: "app", mode: "Quick" };
 export async function invoke(cmd: string, args: { method: string; params: Record<string, number | string> } & { images?: string[]; format?: string }) {
   if (cmd === "export_save") {
     (window as unknown as { __lastExport: unknown }).__lastExport = { format: args.format, images: (args.images ?? []).map((i) => i.slice(0, 22) + "…" + i.length) };
@@ -19,12 +21,19 @@ export async function invoke(cmd: string, args: { method: string; params: Record
   if (q.get("fail") === method) throw new Error("mock failure: " + method);
   if (q.get("empty") === method) return [];
   if (method === "run.start") return { run_id: "mock-run", state: "running" };
-  if (method === "library.scan") return ["data_static_scaling_v013", "data_video_policy_smoke", "data_performance_instrumentation_5tab", "data_javascript_core_rep23"].map((id, i) => exp(id, i ? "pilot" : "exploratory", "k" + i)).concat([{ ...exp("lifecycle_fixture", "pilot", "kL"), suite: "lifecycle" }]);
+  if (method === "library.scan") return ["data_static_scaling_v013", "data_video_policy_smoke", "data_performance_instrumentation_5tab", "data_javascript_core_rep23"].map((id, i) => exp(id, i ? "pilot" : "exploratory", "k" + i)).concat([{ ...exp("lifecycle_fixture", "pilot", "kL"), suite: "lifecycle" }, MOCK_RUN]);
   if (method === "library.table") {
     const off = Number(params.offset), lim = Number(params.limit);
     const rows = [];
     for (let i = off; i < Math.min(TOTAL, off + lim); i++) rows.push([`trial-${Math.floor(i / 3000)}`, String(i), String(800 + (i % 97) * 1.2345), i % 7 === 0 ? null : String(i * 0.01), "measure"]);
     return { columns: COLS, rows, total: TOTAL, offset: off };
+  }
+  if (method === "report.run") {
+    const id = String(params.id);
+    const file = id === "mock-run" ? "data_video_policy_smoke" : id;
+    const real = await fetch(`/e2e-report-${file}.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null);
+    if (!real) throw new Error("mock: no report fixture for " + id);
+    return id === "mock-run" ? { ...real, id: "mock-run", mode: "Quick", source: "app" } : real;
   }
   if (method === "stats.run") {
     const real = await fetch(`/e2e-analysis-${String(params.id)}.json`).then((r) => (r.ok ? r.json() : null)).catch(() => null);

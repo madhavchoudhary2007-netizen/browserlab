@@ -22,6 +22,7 @@ const ALLOWED: &[&str] = &[
     "library.scan",
     "library.table",
     "stats.run",
+    "report.run",
     "compare.run",
     "lifecycle.plan",
     "lifecycle.analyze",

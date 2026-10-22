@@ -17,6 +17,7 @@ sys.path.insert(0, str(ROOT / "tests"))
 from browserlab.analysis import analyze  # noqa: E402
 from browserlab.compare import compare_sessions  # noqa: E402
 from browserlab.lifecycle import analyze_lifecycle  # noqa: E402
+from browserlab.report import build_report  # noqa: E402
 from browserlab.library import scan  # noqa: E402
 from test_lifecycle import lifecycle_csv  # noqa: E402
 
@@ -33,6 +34,8 @@ def main() -> None:
         c = ROOT / d / "core"
         dump(f"e2e-analysis-{d}.json", analyze(c / "processed/trial_summary_core.csv", d, c / "raw/page_metrics.csv"))
     infos = {i.id: i for i in scan(ROOT)}
+    for d in ("data_video_policy_smoke", "data_static_scaling_v013"):
+        dump(f"e2e-report-{d}.json", build_report(Path(infos[d].path), asdict(infos[d])))
     a, b = infos["data_javascript_boundary_rep2"], infos["data_javascript_scaling_smoke"]
     dump("e2e-compare.json", compare_sessions(asdict(a), Path(a.path) / "processed/trial_summary_core.csv",
                                               asdict(b), Path(b.path) / "processed/trial_summary_core.csv"))

@@ -4,7 +4,7 @@ import { formatCell } from "../components/VirtualTable";
 
 const mk = (id: string, status: string, key = "k"): ExperimentInfo => ({
   id, suite: "core", status, scheduled_trials: 1, completed_trials: 1, browsers: [], workloads: [], tab_levels: [],
-  repetitions: 1, warmup_seconds: 1, measure_seconds: 1, protocol_key: key, warnings: [],
+  repetitions: 1, warmup_seconds: 1, measure_seconds: 1, protocol_key: key, warnings: [], started_unix: 1, finished_unix: 2, source: "folder", mode: null,
 });
 
 describe("library helpers", () => {

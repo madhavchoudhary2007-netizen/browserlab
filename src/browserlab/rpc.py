@@ -20,6 +20,7 @@ from .paths import default_project_root, workloads_dir
 from .preflight import run_preflight
 from . import tables
 from .analysis import analyze
+from .report import build_report
 from .compare import compare_sessions
 from .lifecycle import analyze_lifecycle, plan_lifecycle
 from .export import ExportError, FORMATS, validate_dest, write_export
@@ -102,8 +103,11 @@ class Server:
             "trials": [c.to_dict() for c in sched],
         }
 
+    def _scan(self):
+        return scan(self.project_root, self.home)
+
     def m_library_scan(self, p: dict[str, Any]) -> Any:
-        return json.loads(to_json(scan(self.project_root)))
+        return json.loads(to_json(self._scan()))
 
     TABLE_FILES = {
         "summary": "processed/trial_summary_{suite}.csv",
@@ -116,7 +120,7 @@ class Server:
         """Page of a dataset table. Paths come from a library scan, never from the caller."""
         table = _enum(p, "table", tuple(self.TABLE_FILES))
         suite = p.get("suite", "core")
-        info = next((i for i in scan(self.project_root) if i.id == p.get("id") and i.suite == suite), None)
+        info = next((i for i in self._scan() if i.id == p.get("id") and i.suite == suite), None)
         if info is None:
             raise RpcError("not_found", "unknown experiment")
         path = Path(info.path) / self.TABLE_FILES[table].format(suite=suite)
@@ -135,7 +139,7 @@ class Server:
 
     def m_stats_run(self, p: dict[str, Any]) -> Any:
         suite = p.get("suite", "core")
-        info = next((i for i in scan(self.project_root) if i.id == p.get("id") and i.suite == suite), None)
+        info = next((i for i in self._scan() if i.id == p.get("id") and i.suite == suite), None)
         if info is None:
             raise RpcError("not_found", "unknown experiment")
         path = Path(info.path) / "processed" / f"trial_summary_{suite}.csv"
@@ -143,11 +147,21 @@ class Server:
             raise RpcError("not_found", "no trial summary for this experiment")
         return analyze(path, info.protocol_key, Path(info.path) / "raw" / "page_metrics.csv")
 
+    def m_report_run(self, p: dict[str, Any]) -> Any:
+        """Descriptive report page for one dataset (any design, including Quick)."""
+        suite = p.get("suite", "core")
+        info = next((i for i in self._scan() if i.id == p.get("id") and i.suite == suite), None)
+        if info is None:
+            raise RpcError("not_found", "unknown experiment")
+        if not (Path(info.path) / "processed" / f"trial_summary_{suite}.csv").exists():
+            raise RpcError("not_found", "no trial summary for this experiment")
+        return build_report(Path(info.path), asdict(info))
+
     def m_export_write(self, p: dict[str, Any]) -> Any:
         """Write one export. Reached only from the native save dialog, never directly from the UI."""
         fmt = _enum(p, "format", tuple(FORMATS))
         suite = p.get("suite", "core")
-        infos = scan(self.project_root)
+        infos = self._scan()
         info = next((i for i in infos if i.id == p.get("id") and i.suite == suite), None)
         if info is None:
             raise RpcError("not_found", "unknown experiment")
@@ -226,7 +240,7 @@ class Server:
         return self._end_setup(False)
 
     def m_compare_run(self, p: dict[str, Any]) -> Any:
-        infos = scan(self.project_root)
+        infos = self._scan()
         picked = []
         for key in ("a", "b"):
             ref = p.get(key)
@@ -243,7 +257,7 @@ class Server:
         return plan_lifecycle(self._base(), _browsers(p))
 
     def m_lifecycle_analyze(self, p: dict[str, Any]) -> Any:
-        info = next((i for i in scan(self.project_root) if i.id == p.get("id") and i.suite == "lifecycle"), None)
+        info = next((i for i in self._scan() if i.id == p.get("id") and i.suite == "lifecycle"), None)
         csv_path = Path(info.path) / "processed" / "trial_summary_lifecycle.csv" if info else None
         if info is None or not csv_path.exists():
             raise RpcError("not_found", "no lifecycle experiment with that id")

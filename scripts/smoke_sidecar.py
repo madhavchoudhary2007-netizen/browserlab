@@ -27,6 +27,7 @@ def main() -> int:
         {"id": 8, "method": "settings.get"},
         {"id": 9, "method": "compare.run", "params": {"a": {"id": "data_static_scaling_v013"}, "b": {"id": "data_javascript_core_rep23"}}},
         {"id": 10, "method": "lifecycle.plan"},
+        {"id": 11, "method": "report.run", "params": {"id": "data_video_policy_smoke"}},
     ]
     p = subprocess.run([exe], input="\n".join(map(json.dumps, reqs)) + "\n", capture_output=True, text=True, env=env, timeout=180)
     res = {r["id"]: r for r in map(json.loads, p.stdout.splitlines())}
@@ -40,6 +41,8 @@ def main() -> int:
         "preflight has checks": len(res[7]["result"]["checks"]) > 5,
         "compare refuses mismatched protocols": res[9]["result"]["compatible"] is False and res[9]["result"]["rows"] == [],
         "lifecycle plan discloses 40 trials": res[10]["result"]["trial_count"] == 40,
+        "library records are timestamped": all(i.get("finished_unix") or i.get("started_unix") for i in res[3]["result"]),
+        "report: trials, series, integrity": len(res[11]["result"]["trials"]) > 0 and res[11]["result"]["series"]["series"] and all(c["ok"] for c in res[11]["result"]["integrity"]),
         "settings reports 4 profiles": len(res[8]["result"]["profiles"]) == 4,
     }
     bench = subprocess.run([exe, "--bench", "--config", str(root / "config.yaml"), "schedule", "--suite", "core", "--repetitions", "1"],

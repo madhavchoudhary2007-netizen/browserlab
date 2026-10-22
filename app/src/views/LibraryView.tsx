@@ -1,14 +1,16 @@
 import { useMemo, useState } from "react";
+import { fmtDateTime, fmtDuration } from "../format";
 import { useRemote } from "../useRemote";
 
 export interface ExperimentInfo {
   id: string; suite: string; status: string; scheduled_trials: number; completed_trials: number;
   browsers: string[]; workloads: string[]; tab_levels: number[]; repetitions: number | null;
   warmup_seconds: number | null; measure_seconds: number | null; protocol_key: string; warnings: string[];
+  started_unix: number | null; finished_unix: number | null; source: "app" | "folder"; mode: string | null;
 }
 export interface Selected { id: string; suite: string }
 
-const STATUSES = ["all", "pilot", "exploratory", "instrumentation-validation", "incomplete", "unclassified"] as const;
+const STATUSES = ["all", "completed", "pilot", "exploratory", "instrumentation-validation", "incomplete", "unclassified"] as const;
 
 export function filterExperiments(list: ExperimentInfo[], q: string, status: string): ExperimentInfo[] {
   const needle = q.trim().toLowerCase();
@@ -59,7 +61,10 @@ export function LibraryView({ onOpen, onCompare }: { onOpen: (s: Selected) => vo
                   onChange={(ev) => setCmp(ev.target.checked ? [...cmp, key].slice(-2) : cmp.filter((k) => k !== key))} />
               </label>
               <div>
-                <div><strong>{e.id}</strong> <span className="num" style={{ color: "var(--signal)" }}>{e.status}</span></div>
+                <div><strong>{e.id}</strong> <span className="num" style={{ color: "var(--signal)" }}>{e.status}</span>
+                  {e.mode && <span className="num" style={{ color: "var(--muted)" }}> · {e.mode}</span>} <span className="num" style={{ color: "var(--muted)" }}>· {e.source === "app" ? "BrowserLab run" : "imported folder"}</span></div>
+                <div className="num"><time dateTime={e.finished_unix ? new Date(e.finished_unix * 1000).toISOString() : undefined}>{fmtDateTime(e.finished_unix ?? e.started_unix)}</time>
+                  {e.started_unix && e.finished_unix ? ` · ran ${fmtDuration(e.finished_unix - e.started_unix)}` : ""}</div>
                 <div className="num" style={{ color: "var(--muted)" }}>
                   {e.completed_trials}/{e.scheduled_trials} trials · {e.browsers.join(", ")} · {e.workloads.join(", ")} · tabs {e.tab_levels.join(",")} ·
                   warm-up {e.warmup_seconds}s / measure {e.measure_seconds}s

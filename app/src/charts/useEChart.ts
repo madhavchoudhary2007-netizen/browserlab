@@ -2,11 +2,11 @@ import { useEffect, useRef } from "react";
 import { withMotionPreference, prefersReducedMotion } from "./motion";
 import { registerChart } from "./registry";
 import * as echarts from "echarts/core";
-import { BoxplotChart, CustomChart, HeatmapChart, LineChart, ScatterChart } from "echarts/charts";
-import { GridComponent, LegendComponent, TooltipComponent, VisualMapComponent, ToolboxComponent, DataZoomComponent } from "echarts/components";
+import { BarChart, BoxplotChart, CustomChart, HeatmapChart, LineChart, ScatterChart } from "echarts/charts";
+import { GridComponent, LegendComponent, MarkAreaComponent, TooltipComponent, VisualMapComponent, ToolboxComponent, DataZoomComponent } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
 
-echarts.use([BoxplotChart, CustomChart, HeatmapChart, LineChart, ScatterChart, GridComponent, LegendComponent,
+echarts.use([BarChart, MarkAreaComponent, BoxplotChart, CustomChart, HeatmapChart, LineChart, ScatterChart, GridComponent, LegendComponent,
   TooltipComponent, VisualMapComponent, ToolboxComponent, DataZoomComponent, CanvasRenderer]);
 
 /** Leaves headroom so the last tab level is not clipped at the plot edge. */

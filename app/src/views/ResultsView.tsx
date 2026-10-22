@@ -2,10 +2,12 @@ import { useCallback, useState } from "react";
 import { call } from "../engine";
 import { VirtualTable, type Page } from "../components/VirtualTable";
 import { AnalysisView } from "./AnalysisView";
+import { ReportView } from "./ReportView";
 import { LifecycleView } from "./LifecycleView";
 import type { Selected } from "./LibraryView";
 
 const TABLES = [
+  { id: "report", label: "Report" },
   { id: "analysis", label: "Analysis" },
   { id: "summary", label: "Trial summary" },
   { id: "samples", label: "Resource time series" },
@@ -14,7 +16,7 @@ const TABLES = [
 ] as const;
 
 export function ResultsView({ selected }: { selected: Selected | null }) {
-  const [table, setTable] = useState<(typeof TABLES)[number]["id"]>("analysis");
+  const [table, setTable] = useState<(typeof TABLES)[number]["id"]>("report");
   const [trial, setTrial] = useState("");
   const sel = selected;
   const tid = trial.trim() || undefined;
@@ -36,13 +38,16 @@ export function ResultsView({ selected }: { selected: Selected | null }) {
           </button>
         ))}
       </div>
+      {table === "report" && (sel.suite === "lifecycle"
+        ? <LifecycleView key={`${sel.id}|lifecycle`} selected={sel} />
+        : <ReportView key={`${sel.id}|${sel.suite}`} selected={sel} />)}
       {table === "analysis" && (sel.suite === "lifecycle"
         ? <LifecycleView key={`${sel.id}|lifecycle`} selected={sel} />
         : <AnalysisView key={`${sel.id}|${sel.suite}`} selected={sel} />)}
-      {table !== "summary" && table !== "analysis" && (
+      {table !== "summary" && table !== "analysis" && table !== "report" && (
         <label>Trial ID filter <input value={trial} onChange={(e) => setTrial(e.target.value)} className="num min-h-11 px-2" style={{ width: 360 }} placeholder="e.g. core-b001-o001-brave-static-t1" /></label>
       )}
-      {table !== "analysis" && <VirtualTable key={`${sel.id}|${table}|${tid ?? ""}`} fetchPage={fetchPage} label={label} filterLabel={table !== "summary" ? tid : undefined} />}
+      {table !== "analysis" && table !== "report" && <VirtualTable key={`${sel.id}|${table}|${tid ?? ""}`} fetchPage={fetchPage} label={label} filterLabel={table !== "summary" ? tid : undefined} />}
     </section>
   );
 }

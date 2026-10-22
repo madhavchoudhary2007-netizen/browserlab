@@ -19,11 +19,12 @@ const MAX_WARN = 50;
 
 interface LabStore {
   runId: string | null;
+  suite: string;
   state: RunState;
   progress: Progress;
   live: LiveSample[];
   warnings: string[];
-  setRunId: (id: string | null, state?: RunState) => void;
+  setRunId: (id: string | null, state?: RunState, suite?: string) => void;
   apply: (e: EngineEvent) => void;
 }
 
@@ -31,11 +32,12 @@ const emptyProgress: Progress = { index: 0, total: 0, trial_id: null, completed:
 
 export const useLab = create<LabStore>((set) => ({
   runId: null,
+  suite: "core",
   state: "idle",
   progress: emptyProgress,
   live: [],
   warnings: [],
-  setRunId: (runId, state = "idle") => set({ runId, state, progress: emptyProgress, live: [], warnings: [] }),
+  setRunId: (runId, state = "idle", suite = "core") => set({ runId, suite, state, progress: emptyProgress, live: [], warnings: [] }),
   apply: (e) =>
     set((s) => {
       switch (e.event) {
