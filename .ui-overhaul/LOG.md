@@ -107,3 +107,10 @@ Scores: Distinctiveness 3, Subject fit 3, Hierarchy 3, Typography 3.5, Color 3.5
 Means by cycle: 2.6, 3.3, 3.1, 3.4, 3.3 (plateau; reviewer variance about +-0.3). Cycles used 5 of 6.
 Open defects: report legend (16 series, 4 hues), run-running shows the same trace 3x and controls fall below the chart at 900x600, run-idle low-contrast panel/empty space, Compare all dashes (sample data) and Settings status words without chips, report header Export placement, 900 px wrapping.
 Conclusion: DONE bar (all lines >=4, mean >=4.3 from two reviews) is not reached and the means have plateaued around 3.3 across three consecutive cycles. Recommendation: write FINAL_REPORT.md with Verdict: ESCALATED (stop rule), with next steps = (1) add a human design pass / Figma-level direction for identity (current direction is competent but not distinctive), (2) per-browser colour + dash encoding for chart legends and a sparkline-style Run view.
+
+## U8 cycle 6 (final, owner-approved): independent review 6 = mean 3.6 / 5
+Changes: dash-encoded tab counts in report legend, Run panel first with Stop outlined in danger, launch panel lighter surface, Settings state colours, Export beside title, trial count in UI font. 85/85 e2e green.
+Scores (fresh agent; viewed all screens at 1280 both themes, other sizes partially): Distinctiveness 3, Subject fit 4, Hierarchy 3, Typography 4, Color 4, Motion NOT JUDGEABLE, Craft 3, Usability 3, Signature 4, Consistency 4. Mean of 9 judged = 3.6.
+Means by cycle: 2.6, 3.3, 3.1, 3.4, 3.3, 3.6. Cycles used 6 of 6. Only one review in this cycle; DONE needs two with every line >=4 and mean >=4.3. Not met.
+Open defects: wide windows leave content stranded; 16-entry legend hard to decode; 1280 Run view cramped with 80 px rail thumbnail; Export styled differently on Report vs Analysis; low-contrast disabled/meta text; light surfaces blur; Library rows (Open far from metadata, unlabeled checkboxes); Save PNG buttons heavy, tabs wrap at 900.
+Verdict: ESCALATED (cycle limit reached).
