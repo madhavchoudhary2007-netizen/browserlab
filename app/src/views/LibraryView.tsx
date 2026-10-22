@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { fmtDateTime } from "../format";
-import { useRemote } from "../useRemote";
+import { useSwr } from "./useSwr";
 import { Button } from "../ds/primitives";
 import { useAfter } from "../ds/useAfter";
 import "./library.css";
@@ -28,7 +28,7 @@ export function compareNote(a: ExperimentInfo, b: ExperimentInfo): string {
 }
 
 export function LibraryView({ onOpen, onCompare }: { onOpen: (s: Selected) => void; onCompare: (a: Selected, b: Selected) => void }) {
-  const [state, retry] = useRemote<ExperimentInfo[]>("library.scan", {}, { swr: true });
+  const [state, retry] = useSwr<ExperimentInfo[]>("library.scan", {});
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<string>("all");
   const [cmp, setCmp] = useState<string[]>([]);

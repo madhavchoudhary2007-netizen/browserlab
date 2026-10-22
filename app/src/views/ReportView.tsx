@@ -4,7 +4,7 @@ import { ChartPngButton, ExportBar } from "../components/ExportBar";
 import { CompositionChart, CpuMemChart, MeanBars, TimeChart, type TraceMetric } from "../charts/ReportCharts";
 import { fmtDateTime, fmtDuration, fmtNum } from "../format";
 import type { Report, TrialStats } from "../report";
-import { useRemote } from "../useRemote";
+import { useSwr } from "./useSwr";
 import type { Selected } from "./LibraryView";
 import { AnalysisView } from "./AnalysisView";
 import { Button } from "../ds/primitives";
@@ -45,7 +45,7 @@ function TrialTable({ trials, unit }: { trials: TrialStats[]; unit: string }) {
 }
 
 export function ReportView({ selected }: { selected: Selected }) {
-  const [state, retry] = useRemote<Report>("report.run", { id: selected.id, suite: selected.suite }, { swr: true });
+  const [state, retry] = useSwr<Report>("report.run", { id: selected.id, suite: selected.suite });
   const [metric, setMetric] = useState<TraceMetric>("footprint");
   const [wl, setWl] = useState("all");
   const [tb, setTb] = useState("all");

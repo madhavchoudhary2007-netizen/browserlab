@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { call } from "../engine";
-import { useRemote } from "../useRemote";
+import { useSwr } from "./useSwr";
 import { Button } from "../ds/primitives";
 import { useAfter } from "../ds/useAfter";
 import "./library.css";
@@ -29,7 +29,7 @@ const PROFILE_TONE: Record<ProfileInfo["state"], string> = { ready: "var(--ok)",
 const SOURCE_TEXT = { environment: "set by environment variable", saved: "saved choice", default: "default location" } as const;
 
 export function SettingsView() {
-  const [state, retry] = useRemote<SettingsInfo>("settings.get", {}, { swr: true });
+  const [state, retry] = useSwr<SettingsInfo>("settings.get", {});
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 

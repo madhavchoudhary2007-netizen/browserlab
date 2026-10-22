@@ -3,3 +3,6 @@
 
 ## Resolved (owner granted permission after the final report)
 Added `core:window:allow-start-dragging` to `app/src-tauri/capabilities/default.json` and `"titleBarStyle": "Overlay", "hiddenTitle": true` to tauri.conf.json (window config only). The frozen-path gate now reports exactly that one capability line as an owner-approved exception; nothing else under `app/src-tauri` changed. Rail gets a 2.25 rem top inset plus a drag strip (`.rail-drag`, >=768 px only).
+
+## pass 3 (P0): view-layer stale-while-revalidate
+- Wanted: useRemote with stale-while-revalidate. useRemote.ts is frozen, so app/src/views/useSwr.ts wraps the same `call` and is used by Settings, Library, Report, Analysis and Compare. Same engine calls, order and count.
