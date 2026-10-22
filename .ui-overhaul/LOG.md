@@ -61,3 +61,4 @@ Next: U6 signature moment, U7 window chrome + packaged WKWebView check + startup
 - Tests: e2e/arrival.spec.ts (only transform/opacity keyframes; reduced = opacity only; no replay on manual open). e2e total 76/76.
 - Performance: idle main-thread busy 0.01 % of one core on Run (idle) and on an open Report (perf/idle.perf.ts, Chrome headless, mock engine); nav p95 59.2 ms (baseline 57.1), heap +1.6 MB over 400 navs (baseline +1.5). JS bundle unchanged ~1,011 kB; CSS growth small.
 - Not verified: 60 fps of the arrival in the real WKWebView (needs packaged app, U7).
+- Bundle after U6: JS 1,021.59 kB (+1.0 %), CSS 32.46 kB (was 13.01), fonts 98 kB. JS+CSS 1,054 vs 1,024 kB baseline (+2.9 %); with fonts about +12.5 %, inside the +-20 % gate. Tailwind utilities still in use by legacy markup; CSS will shrink only if they are removed (not required).
