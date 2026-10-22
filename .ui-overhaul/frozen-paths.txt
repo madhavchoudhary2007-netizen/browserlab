@@ -1,0 +1,16 @@
+# Frontend data layer (stores, engine/IPC wrappers, hooks, analysis/report/format logic, types) - never edit
+app/src/store.ts
+app/src/engine.ts
+app/src/useRemote.ts
+app/src/analysis.ts
+app/src/report.ts
+app/src/format.ts
+app/src/main.tsx
+app/src/*.test.ts
+app/e2e/mock-core.ts
+app/e2e/mock-event.ts
+app/src-tauri/src
+app/src-tauri/capabilities
+app/src-tauri/Cargo.toml
+app/src-tauri/Cargo.lock
+app/src-tauri/build.rs

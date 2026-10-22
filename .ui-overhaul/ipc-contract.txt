@@ -1,0 +1,8 @@
+command:  pub async fn export_save( app: AppHandle, state: State<'_, Engine>, format: String, id: String, suite: String, images: Vec<String>, ) -> Result<Value, String>
+command:  pub async fn settings_choose_folder( app: AppHandle, state: State<'_, Engine>, ) -> Result<Value, String>
+command:  pub fn engine_call( app: AppHandle, state: State<Engine>, method: String, params: Value, ) -> Result<Value, String>
+event-listen: engine-event
+event-rust: engine-event
+invoke: engine_call
+invoke: export_save
+invoke: settings_choose_folder

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# ripgrep shim: the Claude Code binary embeds rg and acts as it when ARGV0=rg.
+c="${CLAUDE_CODE_EXECPATH:-$HOME/.local/bin/claude}"
+ARGV0=rg exec "$c" "$@"
