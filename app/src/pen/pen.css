@@ -13,3 +13,5 @@
 .pen-empty { position: absolute; inset: 0; margin: 0; display: grid; place-items: center; color: var(--fg-muted); pointer-events: none; }
 .pen-frame-report { block-size: clamp(12rem, 30vh, 20rem); }
 .pen-reading output[data-empty] { color: var(--fg-muted); }
+.pen-idle { margin: 0; font: var(--w-strong) var(--t-3)/1.1 var(--font-ui); color: var(--fg); }
+.pen-reading output { margin-inline-end: var(--s-2); }

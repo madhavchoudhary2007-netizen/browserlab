@@ -52,3 +52,4 @@
 .export-status { color: var(--fg-muted); font-size: var(--t-0); }
 .export-status[data-kind="error"] { color: var(--danger); }
 .png-save { flex-wrap: wrap; justify-content: end; }
+.chart-sheet { border: 1px solid var(--edge); border-radius: var(--r-2); background: var(--raised); overflow: hidden; }
