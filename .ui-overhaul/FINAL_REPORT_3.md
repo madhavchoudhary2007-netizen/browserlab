@@ -53,3 +53,10 @@ Run the app: `cd app && pnpm tauri dev`.
 Gates from `app/`: `pnpm typecheck && pnpm lint && pnpm test && pnpm build && pnpm e2e`, then `node scripts/contrast.mjs`. From the repo root: `bash .ui-overhaul/frozen-check.sh check`.
 Review pack: `cd app && REVIEW=review3 bash ../.ui-overhaul/measure/make_pack.sh <N>`.
 Merge is the owner's decision: `git merge ui-overhaul` from a release branch after human sign-off; the agent did not merge.
+
+## Addendum: layout pass and cycle 3 (owner-requested; commit after the tag)
+`ui-overhaul-3-final` still marks the commit with the report above; the layout pass (bfe0710) and the cycle-3 pack (`review3/cycle3/`) come after it, and no tag was moved. Verdict unchanged: ESCALATED.
+- Layout pass: quiet Stop, stable Run heading row, taller stacked chart at 960x640, quiet Library Open, filled Replay. Gates green (e2e 129, contrast, frozen-check OK).
+- Cycle 3: Q 3.65, P 3.45, mean 3.55 (cycle 2 3.40). Both reviewers listed every file. Lowest lines: Craft 3 (both), Color 3-3.5, Typography 3-3.5. Cycle means rose 3.375 -> 3.40 -> 3.55 but no line set reached 4 on every line.
+- Pen perf: 1x 0 dropped frames, script 1.16%; 6x 1 dropped frame over 25 ms (cycle 2: 0), script 2.22%. Startup and bundle were not re-measured after the layout pass.
+- Not addressed: orange 'brave' series (frozen analysis.ts), dead space at wide sizes, 6-8px chart text, teal vs ink-blue accent, pen touching the plot edge at replay end, Results chart below the fold at 960/1280.

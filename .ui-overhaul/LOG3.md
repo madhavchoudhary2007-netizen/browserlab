@@ -150,3 +150,10 @@
 - Run: "Memory trace" heading always shown and the readout row keeps its height idle/ready/running (visibility, not hidden); run-panel head aligned; stacked (<1000 px) run chart now clamp(12rem, 36vh, 22rem), so at 960x640 the running state (progress, Pause/Stop, readout, chart) fits in the first view.
 - Library "Open" is quiet; Replay (Results) is the filled primary; Compare sessions stays primary when two rows are ticked.
 - Gates: typecheck, lint, vitest, build, e2e 129, contrast, frozen-check OK. Pen perf and startup not re-measured (CSS/markup-only change on the Run heading); the FINAL_REPORT_3 numbers refer to the commit before this pass.
+
+## Cycle 3 (owner-requested after the layout pass; not rerun)
+- Reviewer Q mean 3.65: Dist 3.5, Fit 4, Hier 3.5, Type 3.5, Color 3.5, Motion 4.5, Craft 3, Usab 3.5, Pen 4, Cons 3.5.
+- Reviewer P mean 3.45: Dist 3.5, Fit 4, Hier 3.5, Type 3, Color 3, Motion 4, Craft 3, Usab 3.5, Pen 3.5, Cons 3.5.
+- Cycle mean 3.55 (cycle 2: 3.40; cycle 1: 3.375); reviewer difference 0.20. Bar not met; verdict stays ESCALATED.
+- Pen perf at this commit: 1x p95 16.8 ms, 0 dropped, 0 long tasks, script 1.16%; 6x p95 16.8 ms, 1 dropped frame over 25 ms (cycle 2: 0), 0 long tasks, script 2.22%. Heap/DOM/listeners flat.
+- Remaining weakest (both reviewers): Craft 3 (960x640 clipping on Results/Library/Analysis, dead space at 1920/2560), Typography/Color 3-3.5 (6-8px chart/helper text in sheets, orange 'brave' series, teal not ink blue), pen touches plot edge at replay end, light shadow smear.

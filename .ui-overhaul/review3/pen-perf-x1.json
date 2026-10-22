@@ -1,7 +1,7 @@
 {
   "throttle": 1,
   "sweeps": 10,
-  "frames": 3280,
+  "frames": 3273,
   "interval_ms": {
     "p50": 16.7,
     "p95": 16.8,
@@ -9,15 +9,15 @@
   },
   "dropped_frames_over_25ms": 0,
   "long_tasks_over_50ms": 0,
-  "script_share_pct": 1.28,
-  "main_thread_share_pct": 3.5,
+  "script_share_pct": 1.16,
+  "main_thread_share_pct": 3.21,
   "heap_mb": {
-    "early": 18.19,
-    "late": 18.74
+    "early": 18.2,
+    "late": 18.73
   },
   "dom_nodes": {
-    "early": 321,
-    "late": 321
+    "early": 323,
+    "late": 323
   },
   "listeners": {
     "early": 201,
