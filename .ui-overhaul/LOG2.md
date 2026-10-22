@@ -80,3 +80,10 @@
 - Two fresh reviewers launched in parallel (A, B) with only the rubric, manifest and images.
 - e2e edit: report.spec heading /Quick · mock-run/ -> /Quick mock-run/ (middle-dot removed from the report title, copy rule).
 - e2e edit: journeys.spec plan text /4 trials · at least/ -> /4 trials, at least/ (middle-dot removed).
+
+## Critique cycle 1 result (pack cycle2): A 3.4, B 3.3 (mean 3.35)
+- A: Distinctiveness 3, Subject fit 3.5, Hierarchy 3.5, Typography 3, Color 3.5, Motion 4, Craft 2.5, Usability 3.5, Signature 4, Consistency 3.5. B: 3, 3.5, 3, 3, 3.5, 3.5, 2.5, 3.5, 3.5, 3.5. Both opened all 27 images + 2 JSON.
+- Weakest (common): (1) wide windows: content small and pinned top-left, half the window empty (partly a contact-sheet artifact: cells were drawn at different scales, 900 upscaled and 2560 shrunk; fixed: all cells at 50 %); (2) 900x600 library rows 4-line stacks with big Open; (3) generic chrome: stock selects, middle-dot meta strings, same-weight Run buttons; (4) rail mini-pen thumbnail unexplained; no idle sheet at 1280; axis label collided with top tick; library 'tick two' hint shown with no rows.
+- Fixes made (cycle 1 -> pack cycle3): root 140 % at >=2400 px and content centred at >=1600 (width-cap test now relative to root font size); compact library rows at narrow widths, hint hidden when no rows, labelled meta text instead of 'a, b / c'; all middle dots removed from copy (plan sentence, report title and facts, compare, settings, analysis; e2e edits: report heading regex and journeys plan text); Resume shown only when it can act, Stop is the filled danger button; rail mini-pen only while a run is shown or a trace exists; idle sheet strip at >=1000 px (mounted after first paint); axis unit label moved; selects restyled with a drawn chevron; contact sheets at one scale.
+- Not addressed: stock pencil look of the pen (shape fixed by BRIEF2 spec); Compare table of dashes comes from sample data.
+- Gates after fixes: typecheck/lint, e2e 97/97, contrast OK, frozen gate OK.
