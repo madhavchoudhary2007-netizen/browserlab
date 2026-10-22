@@ -124,7 +124,7 @@ export function ReportView({ selected }: { selected: Selected }) {
         <TrialTable trials={d.trials} unit={unit} /></div>
 
       {d.has_replication
-        ? <div><h3 className="text-lg font-semibold">Inferential statistics</h3><AnalysisView key={`${selected.id}|${selected.suite}`} selected={selected} /></div>
+        ? <div><h3 className="text-lg font-semibold">Inferential statistics</h3><AnalysisView key={`${selected.id}|${selected.suite}`} selected={selected} hideExport /></div>
         : <p style={{ color: "var(--muted)" }}>Inferential statistics (confidence intervals, ANOVA, post-hoc tests) need repeated trials per condition. This run has one, so none are computed. Standard and Full runs unlock them.</p>}
     </section>
   );

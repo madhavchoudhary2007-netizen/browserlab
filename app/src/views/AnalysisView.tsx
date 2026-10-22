@@ -50,7 +50,7 @@ function PostHoc({ rows, workload, tabs }: { rows: AnalysisWithInference["postho
   );
 }
 
-export function AnalysisView({ selected }: { selected: Selected }) {
+export function AnalysisView({ selected, hideExport = false }: { selected: Selected; hideExport?: boolean }) {
   const [state, retry] = useRemote<AnalysisWithInference>("stats.run", { id: selected.id, suite: selected.suite });
   const [workload, setWorkload] = useState<string | null>(null);
   const [tabs, setTabs] = useState<number | null>(null);
@@ -76,7 +76,7 @@ export function AnalysisView({ selected }: { selected: Selected }) {
         {d.inference.caveat && <p style={{ color: "var(--muted)" }}>{d.inference.caveat}</p>}
         {d.notes.map((n) => <p key={n} style={{ color: "var(--signal)" }}>{n}</p>)}
       </div>
-      <ExportBar id={selected.id} suite={selected.suite} />
+      {!hideExport && <ExportBar id={selected.id} suite={selected.suite} />}
       <div className="flex flex-wrap gap-4">
         <label>Workload <select className="min-h-11" value={wl} onChange={(e) => setWorkload(e.target.value)}>{workloads.map((w) => <option key={w}>{w}</option>)}</select></label>
         <label>Tabs (distribution) <select className="min-h-11" value={tb} onChange={(e) => setTabs(Number(e.target.value))}>{tabLevels.map((t) => <option key={t}>{t}</option>)}</select></label>

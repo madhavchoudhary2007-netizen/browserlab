@@ -112,7 +112,7 @@ export function RunView() {
             I understand this launches real browsers for the full duration and I will not use this Mac meanwhile.
           </label>
           {startError && <p role="alert">{startError}</p>}
-          <button className="min-h-11 rounded-md px-6 font-semibold" disabled={!ready || !confirmed} onClick={() => void start()}
+          <button className="btn-primary min-h-11 rounded-md px-6 font-semibold" disabled={!ready || !confirmed} onClick={() => void start()}
             style={{ background: "var(--signal)", color: "#1a1204", opacity: ready && confirmed ? 1 : 0.4 }}>
             Start experiment
           </button>
