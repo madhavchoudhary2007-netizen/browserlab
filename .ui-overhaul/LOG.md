@@ -1,5 +1,5 @@
 # UI overhaul log
-Branch: ui-overhaul (from perfection-loop @ base-ref). Phase: U8 cycle 3 next (U0-U7 done, cycle 2 reviewed; critique cycle 1 fixes applied, review 2 pending in U8). Cycle: 1. Cycle: 0.
+Branch: ui-overhaul (from perfection-loop @ base-ref). Phase: U8 cycle 3 reviewed, decision pending (U0-U7 done; critique cycle 1 fixes applied, review 2 pending in U8). Cycle: 1. Cycle: 0.
 
 ## Decisions
 - App lives in `app/`; gate uses UI_DIRS="app/src", TAURI_DIR="app/src-tauri" (brief paths adjusted).
@@ -88,3 +88,9 @@ Defects -> cycle 3 tasks, by impact:
 6. 900 px: tab strip clipped without cue, JSON orphan -> fade/edge affordance or wrap tabs; export menu.
 7. Library rows: add sort/group and visible compare hint; Settings/Compare sparse.
 Cycle counter: 2 of 6 used.
+
+## U8 cycle 3 (done): independent review 3 = mean 3.1 / 5 (cycle 2: 3.3, cycle 1: 2.6)
+Fixes before review: compact Start (ring when enabled, dashed when disabled), light theme off-white/white, report header compacted (Run details disclosure), chart UI font, wrapping tabs, library compare hint.
+Scores: Distinctiveness 3, Subject fit 4, Hierarchy 3, Typography 3, Color 3, Motion NOT JUDGEABLE, Craft 3, Usability 3, Signature 3, Consistency 3.
+Defects: (1) Compare nav item appears only after a pair is chosen, shifting Settings (design choice kept from original app; could show always-disabled) (2) wide windows: narrow column, tiny UI (limited by existing responsive test <=1100px) (3) report first view still chrome before data (4) Run idle flat, OK column detached (5) running controls undifferentiated, rail trace cramped; chart in screenshot is synthetic sine from the test harness (6) library repetitive (mock data identical) (7) compare all dashes (mock single-trial data) (8) light theme depth, 900px export wrap, palette backdrop.
+Status vs brief section 8: cycles 2 and 3 both ended with the same failing check (reviewers' rubric lines <4, means 3.3 and 3.1; reviewer variance is about +-0.3). Stop rule 'two cycles in a row with the same failing checks' is met -> brief says write FINAL_REPORT.md with Verdict: ESCALATED unless the owner overrides. Cycles used: 3 of 6. Waiting for owner decision.
