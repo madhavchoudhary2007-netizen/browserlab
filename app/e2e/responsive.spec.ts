@@ -45,7 +45,8 @@ for (const w of WIDTHS) {
     test("content width is controlled", async ({ page }) => {
       await openApp(page);
       const width = await page.locator("main > div").first().evaluate((e) => e.getBoundingClientRect().width);
-      expect(width).toBeLessThanOrEqual(w >= 1600 ? 1800 : 1100); // pass 2: wide windows use a two-column layout up to 90rem
+      const rootPx = await page.evaluate(() => parseFloat(getComputedStyle(document.documentElement).fontSize));
+      expect(width).toBeLessThanOrEqual(w >= 1600 ? 90 * rootPx + 1 : 1100); // pass 2: wide windows use a two-column layout up to 90rem
       expect(width).toBeGreaterThanOrEqual(Math.min(w - 32, 280));
     });
   });

@@ -24,7 +24,7 @@ export function RunPanel() {
       </div>
       <div className="run-actions">
         <button disabled={state !== "running"} onClick={() => act("run.pause")}>Pause after trial</button>
-        <button disabled={state !== "paused" && state !== "stopped" && state !== "incomplete"} onClick={() => act("run.resume")}>Resume</button>
+        {(state === "paused" || state === "stopped" || state === "incomplete") && <button onClick={() => act("run.resume")}>Resume</button>}
         <button className="run-stop" disabled={!active && state !== "paused"} onClick={() => act("run.stop")}>Stop after trial</button>
       </div>
       {warnings.length > 0 && (

@@ -6,7 +6,7 @@ const calls = (page: import("@playwright/test").Page) =>
 
 test("journey: choose mode, review plan, preflight, confirm, start", async ({ page }) => {
   await openApp(page);
-  await expect(page.getByText(/4 trials · at least/)).toBeVisible();
+  await expect(page.getByText(/4 trials, at least/)).toBeVisible();
   await page.getByRole("radio", { name: /Standard/ }).click();
   await expect(page.getByRole("radio", { name: /Standard/ })).toHaveAttribute("aria-checked", "true");
   await page.getByRole("radio", { name: /Quick/ }).click();

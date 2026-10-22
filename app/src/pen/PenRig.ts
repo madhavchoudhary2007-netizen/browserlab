@@ -52,7 +52,7 @@ export class PenRig {
 
   /** Pen size: 0.62 per the spec on a normal sheet, growing on tall sheets so it stays in proportion. */
   private get scale(): number { return this.o.mini ? 0.3 : 0.62 * Math.max(1, Math.min(1.7, this.plotH / 320)); }
-  get margins() { return this.o.mini ? { l: 4, r: 18, t: 4, b: 4 } : { l: 56, r: 44, t: 28, b: 24 }; }
+  get margins() { return this.o.mini ? { l: 4, r: 18, t: 4, b: 4 } : { l: 56, r: 44, t: 40, b: 24 }; }
   private x(u: number) { const m = this.margins; return m.l + u * (this.W - m.l - m.r); }
   private y(px: number) { const m = this.margins; return this.H - m.b - px; }
   private px(val: number) { return Math.max(0, Math.min(1.04, (val - this.lo) / (this.hi - this.lo))) * this.plotH; }
@@ -93,7 +93,7 @@ export class PenRig {
     for (let r = 0; r <= rows; r++) { const val = this.lo + ((this.hi - this.lo) * r) / rows; g.fillText(Math.round(val).toLocaleString(), x0 - 8, yb - (r / rows) * (yb - yt)); }
     g.textAlign = "center"; g.textBaseline = "top";
     for (let s = 0; s <= 4; s++) g.fillText(`${Math.round((s / 4) * this.seconds)} s`, x0 + (s / 4) * (x1 - x0), yb + 6);
-    g.textAlign = "left"; g.textBaseline = "alphabetic"; g.fillText(this.o.unit, 4, yt - 10);
+    g.textAlign = "left"; g.textBaseline = "alphabetic"; g.fillText(this.o.unit, 4, 14);
   }
 
   private setScale(vals: number[]) {

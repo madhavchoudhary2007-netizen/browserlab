@@ -82,7 +82,7 @@ export function AnalysisView({ selected, hideExport = false }: { selected: Selec
   return (
     <section className="report" aria-label="Analysis">
       <div className="report-verdict">
-        <p><strong>{d.metric_label}</strong> · <span className="num">{d.n_trials} trials · {d.min_reps_per_cell} min repetitions per cell</span></p>
+        <p><strong>{d.metric_label}</strong>: <span className="num">{d.n_trials} trials, at least {d.min_reps_per_cell} repetitions per cell</span></p>
         <p style={{ color: d.inference.allowed ? "var(--signal)" : "var(--text)" }}>{d.inference.reason}</p>
         {d.inference.caveat && <p className="report-note">{d.inference.caveat}</p>}
         {d.notes.map((n) => <p key={n} style={{ color: "var(--signal)" }}>{n}</p>)}

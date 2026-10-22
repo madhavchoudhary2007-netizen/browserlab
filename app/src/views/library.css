@@ -22,10 +22,13 @@
 .lib-row button:focus-visible, .lib-check input:focus-visible { outline: 3px solid var(--pen); outline-offset: 2px; }
 @container (max-width: 56rem) {
   .lib-head { display: none; }
-  .lib-row { grid-template-columns: var(--target) minmax(0, 1fr) auto; row-gap: var(--s-1); }
+  .lib-row { grid-template-columns: var(--target) minmax(0, 1fr) auto; row-gap: 0; }
   .lib-main { grid-column: 2 / 3; }
-  .lib-row > button { grid-column: 3; grid-row: 1; }
-  .lib-status, .lib-date, .lib-trials { grid-column: 2 / -1; }
+  .lib-row > button { grid-column: 3; grid-row: 1 / span 2; min-block-size: var(--target); }
+  .lib-status, .lib-date, .lib-trials { grid-column: 2; font-size: var(--t-0); }
+  .lib-row { grid-template-rows: auto auto auto; }
+  .lib-status { display: inline; } 
+  .lib-date, .lib-trials { color: var(--fg-muted); }
 }
 .lib-bar { position: sticky; inset-block-end: 0; display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-3) var(--s-4); padding: var(--s-3) var(--s-4); background: var(--raised); border: 1px solid var(--edge); border-radius: var(--r-3); box-shadow: var(--shadow-2); }
 .lib-bar p { margin: 0; flex: 1 1 16rem; }

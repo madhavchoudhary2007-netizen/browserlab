@@ -53,7 +53,7 @@ export function SettingsView() {
       <div className="report-section">
         <h2>Project folder</h2>
         <p className="settings-path">{s.project_root}</p>
-        <p className="report-note">{SOURCE_TEXT[s.source]} · {s.datasets} experiment folder{s.datasets === 1 ? "" : "s"} found. Holds data_*/ results and .browserbench/profiles.</p>
+        <p className="report-note">{SOURCE_TEXT[s.source]}. {s.datasets} experiment folder{s.datasets === 1 ? "" : "s"} found. Holds data_*/ results and .browserbench/profiles.</p>
         <div><Button disabled={busy || s.source === "environment" || !!s.setup_active}
           onClick={() => void act(() => invoke("settings_choose_folder"))}>Choose folder…</Button></div>
       </div>
@@ -74,7 +74,7 @@ export function SettingsView() {
             <li key={p.browser} className="settings-row">
               <strong>{p.browser}</strong>
               <div className="lib-main">
-                <div className="lib-when">{p.installed ? p.version : "not installed"} · <span className="lib-status" style={{ color: PROFILE_TONE[p.state] }}>{p.state}</span>{p.created_with ? ` (created with ${p.created_with})` : ""}</div>
+                <div className="lib-when">{p.installed ? p.version : "not installed"}, <span className="lib-status" style={{ color: PROFILE_TONE[p.state] }}>{p.state}</span>{p.created_with ? ` (created with ${p.created_with})` : ""}</div>
                 <div className="lib-meta">{STATE_TEXT[p.state]}</div>
               </div>
               {canCreate(p) && (

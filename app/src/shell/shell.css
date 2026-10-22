@@ -41,8 +41,8 @@ kbd { font: var(--w-reg) var(--t-0) var(--font-num); color: var(--fg-muted); }
 .rail nav button:disabled { opacity: 0.5; cursor: not-allowed; }
 .palette::backdrop { background: rgb(0 0 0 / 0.6); }
 @media (min-width: 1920px) { html { font-size: 112.5%; } }
-@media (min-width: 2400px) { html { font-size: 125%; } }
+@media (min-width: 2400px) { html { font-size: 140%; } }
 .shell-main > div { max-inline-size: min(64rem, 1100px); }
 
-@media (min-width: 1600px) { .shell-main > div { max-inline-size: 90rem; } }
+@media (min-width: 1600px) { .shell-main > div { max-inline-size: 90rem; margin-inline: auto; } }
 .rail-pen { block-size: 3.25rem; border: 1px solid var(--grid); border-radius: var(--r-1); overflow: hidden; }

@@ -15,7 +15,7 @@ async function startAndFinish(page: Page, completed = 4, state = "completed") {
 test("a finished run opens its full report immediately, without visiting the Library", async ({ page }) => {
   await startAndFinish(page);
   await expect(page.getByRole("region", { name: "Run report" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: /Quick · mock-run/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Quick mock-run/ })).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Primary" }).getByRole("button", { name: "Results" })).toHaveAttribute("aria-current", "page");
   const lib = (await page.evaluate(() => (window as unknown as { __calls: { method: string }[] }).__calls)).filter((c) => c.method === "library.scan");
   expect(lib).toHaveLength(0);

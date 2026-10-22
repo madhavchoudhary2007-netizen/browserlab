@@ -11,15 +11,17 @@ def label(img, text):
     # header band above the image so the label never covers content
     out = Image.new("RGB", (img.width, img.height + 22), (0, 0, 0)); out.paste(img, (0, 22)); ImageDraw.Draw(out).text((6, 5), text, fill=(255, 255, 255)); return out
 manifest = []
+SCALE = 0.5  # every window size is drawn at the same scale (50 % of real pixels) so relative sizes are honest
 for theme in ("light", "dark"):
     for s in SCREENS:
         ims = []
         for z in SIZES:
             f = f"{src}/{theme}/{s}-{z}-1x.png"
-            im = Image.open(f).convert("RGB"); r = CELL / im.width; im = im.resize((CELL, round(im.height * r)), Image.LANCZOS); ims.append(label(im, f"{s} {z} {theme}"))
+            im = Image.open(f).convert("RGB"); im = im.resize((round(im.width * SCALE), round(im.height * SCALE)), Image.LANCZOS); ims.append(label(im, f"{s} {z} {theme} (drawn at 50 %)"))
         row1 = max(ims[0].height, ims[1].height); row2 = max(ims[2].height, ims[3].height)
-        sheet = Image.new("RGB", (CELL * 2 + 10, row1 + row2 + 10), (128, 128, 128))
-        sheet.paste(ims[0], (0, 0)); sheet.paste(ims[1], (CELL + 10, 0)); sheet.paste(ims[2], (0, row1 + 10)); sheet.paste(ims[3], (CELL + 10, row1 + 10))
+        W = max(ims[0].width + ims[1].width, ims[2].width + ims[3].width) + 10
+        sheet = Image.new("RGB", (W, row1 + row2 + 10), (128, 128, 128))
+        sheet.paste(ims[0], (0, 0)); sheet.paste(ims[1], (ims[0].width + 10, 0)); sheet.paste(ims[2], (0, row1 + 10)); sheet.paste(ims[3], (ims[2].width + 10, row1 + 10))
         p = f"{out}/screen-{theme}-{s}.png"; sheet.save(p); manifest.append(p)
 def strip(prefix, name, w=700):
     fs = sorted(glob.glob(f"{src}/pen/{prefix}-*.png"))[:12]

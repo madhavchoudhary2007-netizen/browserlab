@@ -66,3 +66,11 @@ button.run-stop.run-stop.run-stop:not(:disabled):not(.ds-btn) { color: var(--dan
   .run-main { display: block; position: sticky; inset-block-start: var(--s-5); order: 0; }
   .run-main .pen-frame { block-size: clamp(24rem, 64vh, 46rem); }
 }
+
+/* Idle sheet strip at medium widths; full sheet while a run is shown and at >=1600 px */
+@media (min-width: 1000px) {
+  .run-main { display: block; order: -1; }
+  .run[data-show="false"] .run-main .pen-frame { block-size: clamp(8rem, 19vh, 11rem); }
+}
+@media (min-width: 1600px) { .run-main { order: 0; } .run[data-show="true"] .run-main { order: 0; } .run[data-show="false"] .run-main .pen-frame { block-size: clamp(24rem, 64vh, 46rem); } }
+button.run-stop.run-stop.run-stop:not(:disabled):not(.ds-btn) { background: var(--danger); color: var(--sheet); border-color: var(--danger); }

@@ -22,15 +22,23 @@ function fmtDuration(s: number): string {
   return h ? `${h} h ${m} min` : `${m} min`;
 }
 
+/** True once the browser is idle after first paint, so the idle sheet never delays startup. */
+function useAfterIdle(): boolean {
+  const [ready, setReady] = useState(false);
+  useEffect(() => { const t = window.setTimeout(() => setReady(true), 250); return () => window.clearTimeout(t); }, []);
+  return ready;
+}
+
 function useWide(): boolean {
-  const q = "(min-width: 1600px)";
+  const q = "(min-width: 1000px)";
   const [w, setW] = useState(() => typeof matchMedia === "function" && matchMedia(q).matches);
   useEffect(() => { const mq = matchMedia(q); const f = () => setW(mq.matches); mq.addEventListener("change", f); return () => mq.removeEventListener("change", f); }, []);
   return w;
 }
 
 export function RunView() {
-  const wide = useWide(); // the pen sheet mounts only when it can be seen: a run is shown, or the window is wide enough for the side-by-side layout
+  const isWide = useWide(), idle = useAfterIdle();
+  const wide = isWide && idle; // the pen sheet mounts only when it can be seen: a run is shown, or the window is wide enough to show the idle sheet (after first paint)
   const [mode, setMode] = useState<Mode>("quick");
   const [workload, setWorkload] = useState<(typeof WORKLOADS)[number]>("javascript");
   const [tabs, setTabs] = useState<(typeof TABS)[number]>(5);
@@ -116,8 +124,7 @@ export function RunView() {
         {plan.kind === "ready" && plan.value.disclosure && <p role="note" className="run-disclosure">{plan.value.disclosure}</p>}
         {plan.kind === "ready" && (
           <p className="run-plan-line">
-            <span className="run-plan-n">{plan.value.trial_count}</span> trials · at least {fmtDuration(plan.value.min_seconds_lower_bound)} (excludes startup and cooldown) ·{" "}
-            {plan.value.inference_allowed ? "exploratory inference allowed" : "descriptive only"}
+            <span className="run-plan-n">{plan.value.trial_count}</span> trials, at least {fmtDuration(plan.value.min_seconds_lower_bound)} excluding startup and cooldown. {plan.value.inference_allowed ? "Exploratory inference is allowed." : "Results are descriptive only."}
           </p>
         )}
       </section>

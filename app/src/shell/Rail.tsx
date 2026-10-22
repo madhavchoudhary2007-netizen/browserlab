@@ -21,6 +21,7 @@ export function Rail({ view, setView, showCompare, openPalette }: { view: ViewId
   const state = useLab((s) => s.state);
   const progress = useLab((s) => s.progress);
   const active = state !== "idle";
+  const hasTrace = useLab((s) => s.live.length > 0);
   return (
     <div className="rail">
       <div className="rail-drag" data-tauri-drag-region aria-hidden="true" />
@@ -41,10 +42,10 @@ export function Rail({ view, setView, showCompare, openPalette }: { view: ViewId
         <button className="rail-palette" onClick={openPalette} aria-keyshortcuts="Control+K Meta+K">
           <span>Commands</span><kbd>⌘K</kbd>
         </button>
-        {view !== "run" && <div className="rail-pen"><PenSheet variant="mini" source="live" label="Live memory trace" /></div>}
+        {view !== "run" && (active || hasTrace) && <div className="rail-pen"><PenSheet variant="mini" source="live" label="Live memory trace" /></div>}
         <div className="rail-status" role="status" aria-live="polite">
           {state === "running" && <span className="rail-caption">Live memory (RSS)</span>}
-          <span>{STATE_TEXT[state] ?? state}{active && progress.total > 0 ? ` · ${progress.completed}/${progress.total}` : ""}</span>
+          <span>{STATE_TEXT[state] ?? state}{active && progress.total > 0 ? `: ${progress.completed} of ${progress.total}` : ""}</span>
         </div>
       </div>
     </div>

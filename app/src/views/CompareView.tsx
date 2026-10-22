@@ -32,7 +32,7 @@ export function CompareView({ a, b }: { a: Selected; b: Selected }) {
         <table className="cmp-table">
           <thead><tr><th>Condition</th><th>n (A/B)</th><th>Mean A</th><th>Mean B</th><th>B − A</th><th>95% CI</th><th>p (Holm)</th><th>g</th></tr></thead>
           <tbody>{r.rows.map((x) => (
-            <tr key={`${x.browser}${x.workload}${x.tabs}`}><td>{x.browser} · {x.workload} · {x.tabs}</td><td>{x.n_a}/{x.n_b}</td><td>{fmt(x.mean_a)}</td><td>{fmt(x.mean_b)}</td>
+            <tr key={`${x.browser}${x.workload}${x.tabs}`}><td>{x.browser}, {x.workload}, {x.tabs} tabs</td><td>{x.n_a}/{x.n_b}</td><td>{fmt(x.mean_a)}</td><td>{fmt(x.mean_b)}</td>
               <td>{x.mean_diff == null ? "—" : fmt(-x.mean_diff)}</td><td>{x.ci_lo == null ? "—" : `${fmt(-(x.ci_hi as number))} – ${fmt(-x.ci_lo)}`}</td><td>{fmtP(x.p_holm)}</td><td>{x.hedges_g == null ? "—" : fmt(-x.hedges_g)}</td></tr>
           ))}</tbody>
         </table>

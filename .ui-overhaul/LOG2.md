@@ -78,3 +78,5 @@
 - Pack build: .ui-overhaul/review2/cycle2/ (27 images: 20 screen contact sheets, each = one screen at 900x600/1280x800/1920x1080/2560x1440, light and dark; 7 motion strips of 12 frames; plus pen-perf JSON). Contact sheets instead of 160 raw images so a reviewer can open every manifest file. Raw screens are in the git-ignored .ui-overhaul/shots/c2/. (cycle1 dir is an earlier trial pack, not reviewed.)
 - Fixes before the review: pen scales with sheet height (0.62 up to 1.7x), default axis 0-2000 so the idle sheet has sane labels, muted idle readout, labels moved to a header band.
 - Two fresh reviewers launched in parallel (A, B) with only the rubric, manifest and images.
+- e2e edit: report.spec heading /Quick · mock-run/ -> /Quick mock-run/ (middle-dot removed from the report title, copy rule).
+- e2e edit: journeys.spec plan text /4 trials · at least/ -> /4 trials, at least/ (middle-dot removed).

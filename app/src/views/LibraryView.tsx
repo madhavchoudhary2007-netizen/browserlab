@@ -65,7 +65,7 @@ export function LibraryView({ onOpen, onCompare }: { onOpen: (s: Selected) => vo
       <ul className="lib-list">
         {shown.map((e) => {
           const key = `${e.id}/${e.suite}`;
-          const detail = [e.browsers.join(", "), e.workloads.join(", ")].filter(Boolean).join(" / ");
+          const detail = [e.browsers.length ? `Browsers: ${e.browsers.join(", ")}` : "", e.workloads.length ? `Workload: ${e.workloads.join(", ")}` : ""].filter(Boolean).join(". ");
           const when = fmtDateTime(e.finished_unix ?? e.started_unix);
           return (
             <li key={key} className="lib-row">
@@ -86,7 +86,7 @@ export function LibraryView({ onOpen, onCompare }: { onOpen: (s: Selected) => vo
           );
         })}
       </ul>
-      {picked.length === 0 && <p className="lib-count">Tick two experiments to compare them.</p>}
+      {picked.length === 0 && shown.length > 0 && <p className="lib-count">Tick two experiments to compare them.</p>}
       {picked.length === 1 && <p className="lib-count" role="status">Pick one more experiment to compare.</p>}
       {picked.length === 2 && (
         <div className="lib-bar">

@@ -31,7 +31,7 @@ function TrialTable({ trials, unit }: { trials: TrialStats[]; unit: string }) {
         </tr></thead>
         <tbody>{trials.map((t) => (
           <tr key={t.trial_id}>
-            <td><span style={{ color: colorFor(t.browser) }}>●</span> {t.browser} <span style={{ color: "var(--muted)" }}>{t.workload} · {t.tabs}t</span></td>
+            <td><span style={{ color: colorFor(t.browser) }}>●</span> {t.browser} <span style={{ color: "var(--muted)" }}>{t.workload}, {t.tabs} tabs</span></td>
             <td>{fmtNum(t.mean)}</td><td>{fmtNum(t.median)}</td><td>{fmtNum(t.sd)}</td><td>{fmtNum(t.cv_pct)}</td>
             <td>{fmtNum(t.min)}</td><td>{fmtNum(t.p95)}</td><td>{fmtNum(t.max)}</td>
             <td>{fmtNum(t.drift_pct)}</td><td>{fmtNum(t.slope_mb_per_min)}</td>
@@ -69,7 +69,7 @@ export function ReportView({ selected }: { selected: Selected }) {
     <section className="report" aria-label="Run report">
       <div className="report-head">
         <div className="report-title">
-          <h3>{d.mode ?? "Experiment"} · {d.id}</h3>
+          <h3>{d.mode ?? "Experiment"} <span className="report-id">{d.id}</span></h3>
           <span className="report-state" style={{ color: STATUS_COLOR[d.status] ?? "var(--fg)" }}>{d.status}</span>
           <span className="report-count">{d.completed_trials}/{d.scheduled_trials} trials</span>
           <span className="report-export"><ExportBar id={selected.id} suite={selected.suite} /></span>
@@ -79,16 +79,17 @@ export function ReportView({ selected }: { selected: Selected }) {
           <Fact k="Finished" v={fmtDateTime(d.finished_unix)} />
           <Fact k="Duration" v={d.started_unix && d.finished_unix ? fmtDuration(d.finished_unix - d.started_unix) : "—"} />
           <Fact k="Source" v={d.source === "app" ? "BrowserLab run" : "imported folder"} />
-          <Fact k="Workload · tabs" v={`${d.workloads.join(", ")} · ${d.tab_levels.join(", ")}`} />
+          <Fact k="Workloads" v={d.workloads.join(", ")} />
+          <Fact k="Tab levels" v={d.tab_levels.join(", ")} />
         </dl>
         <details className="report-details">
           <summary>Run details</summary>
           <dl className="report-facts">
             <Fact k="Per trial" v={`${d.warmup_seconds ?? "?"} s warm-up + ${d.measure_seconds ?? "?"} s measured @ ${d.sample_interval_seconds ?? "?"} s`} />
-            <Fact k="Machine" v={`${sys.chip ?? "?"} · ${sys.memory_gb ?? "?"} GB · macOS ${sys.macos_version ?? "?"}`} />
+            <Fact k="Machine" v={`${sys.chip ?? "?"}, ${sys.memory_gb ?? "?"} GB, macOS ${sys.macos_version ?? "?"}`} />
             <Fact k="Memory metric" v={d.series.metric === "rss_mb" ? "summed RSS (not footprint)" : "process-tree physical footprint"} />
           </dl>
-          <p className="report-note">{Object.values(d.browser_versions).join(" · ")}</p>
+          <p className="report-note">{Object.values(d.browser_versions).join(", ")}</p>
         </details>
       </div>
 

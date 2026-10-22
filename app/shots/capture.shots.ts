@@ -9,7 +9,7 @@ for (const [w, h] of SIZES) {
   test(`capture ${w}x${h} @${SCALE}x`, async ({ page }) => {
     await page.emulateMedia({ colorScheme: (process.env.SCHEME as "light" | "dark") ?? "dark" });
     await page.setViewportSize({ width: w, height: h });
-    const snap = async (name: string) => { await page.waitForTimeout(400); await page.screenshot({ path: `${OUT}/${name}-${w}x${h}-${SCALE}x.png` }); };
+    const snap = async (name: string) => { await page.waitForTimeout(700); await page.screenshot({ path: `${OUT}/${name}-${w}x${h}-${SCALE}x.png` }); };
     await page.addInitScript(() => { (window as unknown as { __penSeconds: number }).__penSeconds = 12; });
     await openApp(page);
     await snap("run-idle");
