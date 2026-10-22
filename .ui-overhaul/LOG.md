@@ -1,5 +1,5 @@
 # UI overhaul log
-Branch: ui-overhaul (from perfection-loop @ base-ref). Phase: U3 next (U0-U2 done). Cycle: 0.
+Branch: ui-overhaul (from perfection-loop @ base-ref). Phase: U4 next (U0-U3 done). Cycle: 0.
 
 ## Decisions
 - App lives in `app/`; gate uses UI_DIRS="app/src", TAURI_DIR="app/src-tauri" (brief paths adjusted).
@@ -17,3 +17,12 @@ See baselines.md (bundle JS 1011 kB/328 gz; nav p95 57 ms; startup/idle CPU NOT 
 ## Concept decision (U2)
 Chose A 'chart recorder / the pen' (score 25 vs B 21, C 19). Rejected B (skeuomorphic, off-subject), C (near-black+warm accent default, dashboard fatigue). Fonts to bundle via @fontsource (Instrument Sans, Spline Sans Mono) - add as dependency in U3 and log why.
 Next queue: U3 tokens + fonts, primitives, motion utils, gallery route; then U4 shell + Report slice.
+
+## U3 foundations (done)
+- Added deps @fontsource-variable/instrument-sans and spline-sans-mono: bundled same-origin woff2 (CSP has no data: font-src); vite assetsInlineLimit=0 so fonts are never inlined (vite.config.ts, not frozen). Replaces >30 lines of manual @font-face work and subsetting.
+- app/src/ds/: tokens.css (hex fallback + OKLCH, light/dark/system via data-theme, forced-colors, reduced-motion durations), ds.css, motion.ts (animate with reduced-motion collapse to <=150 ms opacity, usePageVisible), Icon.tsx (13 icons, one stroke weight; custom: pen, run, library), primitives.tsx (Button with pending, Field, Dialog on native <dialog>, Tabs, Tooltip, Menu), Gallery.tsx (dev-only at ?gallery, stripped from prod via import.meta.env.DEV).
+- Token name collision found and fixed: legacy :root defines --muted, so new token is --fg-muted. Legacy global button/input rules now exclude .ds-btn / .ds-field; legacy screens look unchanged (66/66 e2e).
+- Contrast: pen #00767F on sheet 4.56:1, white on pen 5.39, dark pen 8.67; edge tokens chosen for >=3:1 (light #6B7F89, dark #5B6E7A). Hover uses --pen-hover not opacity (axe failure fixed).
+- Bundle after U3: JS 1,011.11 kB (flat), CSS 21.57 kB (+8.5 kB), 4 woff2 files 98 kB. Fonts total is the main size increase; within the +-20% gate only if measured on JS+CSS; revisit totals at the end.
+- Tests added: e2e/gallery.spec.ts (axe light+dark, keyboard tabs/menu/dialog, pending). Not yet covered: WKWebView rendering of OKLCH/fonts (Chrome only) -> verify in packaged app before DONE.
+Next queue: U4 shell (rail with pen trace, command palette, keyboard map, window chrome via tauri.conf.json cosmetics), Report as key vertical slice, critique cycle 1.

@@ -1,0 +1,34 @@
+/* Design-system component styles (chart-recorder). New primitives use .ds-* classes; legacy views migrate onto them slice by slice. */
+.ds-btn { min-block-size: var(--target); min-inline-size: var(--target); padding-inline: var(--s-4); border-radius: var(--r-2); border: 1px solid var(--edge); background: var(--raised); color: var(--fg);
+  font: var(--w-strong) var(--t-1)/1 var(--font-ui); display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2); cursor: pointer;
+  transition: transform var(--dur-2) var(--ease-spring), background-color var(--dur-1) linear, opacity var(--dur-1) linear; }
+.ds-btn:hover:not(:disabled) { background: var(--sunk); }
+.ds-btn:active:not(:disabled) { transform: scale(0.97); transition-duration: var(--dur-1); }
+.ds-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.ds-btn-primary { background: var(--pen); color: var(--pen-fg); border-color: transparent; }
+.ds-btn-primary:hover:not(:disabled) { background: var(--pen-hover); }
+.ds-btn-quiet { background: transparent; border-color: transparent; }
+.ds-btn.is-pending { cursor: progress; animation: ds-pulse 1.1s ease-in-out infinite; }
+@keyframes ds-pulse { 50% { opacity: 0.55; } }
+:where(.ds-btn, .ds-tabs [role="tab"], .ds-menu [role="menuitem"], .ds-field input, .ds-field select):focus-visible { outline: 3px solid var(--pen); outline-offset: 2px; }
+.ds-field { display: grid; gap: var(--s-1); min-inline-size: 0; }
+.ds-field label { font: var(--w-strong) var(--t-0)/1.3 var(--font-ui); color: var(--fg-muted); }
+.ds-field :is(input, select) { min-block-size: var(--target); padding-inline: var(--s-3); border: 1px solid var(--edge); border-radius: var(--r-2); background: var(--raised); color: var(--fg); font: var(--w-reg) var(--t-1) var(--font-ui); min-inline-size: 0; }
+.ds-hint { margin: 0; color: var(--fg-muted); font-size: var(--t-0); }
+.ds-error { margin: 0; color: var(--danger); font-size: var(--t-0); }
+.ds-dialog { border: 1px solid var(--edge); border-radius: var(--r-3); background: var(--raised); color: var(--fg); padding: var(--s-5); max-inline-size: min(32rem, calc(100vw - var(--s-5))); box-shadow: var(--shadow-2); }
+.ds-dialog::backdrop { background: rgb(0 0 0 / 0.45); }
+.ds-dialog h2 { margin: 0 0 var(--s-3); font: var(--w-strong) var(--t-2)/1.2 var(--font-ui); }
+.ds-tabs [role="tablist"] { display: flex; gap: var(--s-1); border-block-end: 1px solid var(--grid); overflow-x: auto; }
+.ds-tabs [role="tab"] { min-block-size: var(--target); padding-inline: var(--s-4); background: transparent; border: 0; border-block-end: 3px solid transparent; color: var(--fg-muted); font: var(--w-strong) var(--t-1) var(--font-ui); cursor: pointer; }
+.ds-tabs [role="tab"][aria-selected="true"] { color: var(--fg); border-block-end-color: var(--pen); }
+.ds-tabs [role="tabpanel"] { padding-block-start: var(--s-4); }
+.ds-tip { position: relative; display: inline-flex; }
+.ds-tip-bubble { position: absolute; inset-block-end: calc(100% + var(--s-1)); inset-inline-start: 50%; transform: translateX(-50%); white-space: nowrap; padding: var(--s-1) var(--s-2); border-radius: var(--r-1);
+  background: var(--fg); color: var(--sheet); font-size: var(--t-0); pointer-events: none; opacity: 0; transition: opacity var(--dur-1) linear; }
+.ds-tip-bubble[data-show="true"] { opacity: 1; }
+.ds-menu { position: relative; display: inline-block; }
+.ds-menu ul { position: absolute; inset-inline-start: 0; inset-block-start: calc(100% + var(--s-1)); z-index: 10; margin: 0; padding: var(--s-1); list-style: none; min-inline-size: 12rem; background: var(--raised); border: 1px solid var(--edge); border-radius: var(--r-2); box-shadow: var(--shadow-2); }
+.ds-menu [role="menuitem"] { inline-size: 100%; min-block-size: var(--target); padding-inline: var(--s-3); text-align: start; background: transparent; border: 0; border-radius: var(--r-1); color: var(--fg); font: var(--w-reg) var(--t-1) var(--font-ui); cursor: pointer; }
+.ds-menu [role="menuitem"]:hover, .ds-menu [role="menuitem"]:focus-visible { background: var(--pen-soft); }
+@media (forced-colors: active) { .ds-btn, .ds-field :is(input, select) { border-color: ButtonText; } .ds-tabs [role="tab"][aria-selected="true"] { border-block-end-color: Highlight; } }

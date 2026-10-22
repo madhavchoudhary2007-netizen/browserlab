@@ -1,4 +1,8 @@
 @import "tailwindcss";
+@import "@fontsource-variable/instrument-sans/wght.css";
+@import "@fontsource-variable/spline-sans-mono/wght.css";
+@import "./ds/tokens.css";
+@import "./ds/ds.css";
 
 :root {
   --ink: #0e1013;
@@ -20,28 +24,28 @@ body {
 :focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
-select, input:not([type="checkbox"]):not([type="radio"]) {
+select:not(.ds-field *), input:not([type="checkbox"]):not([type="radio"]):not(.ds-field *) {
   min-height: 44px; min-width: 64px; padding: 0 8px; color: var(--text);
   background: var(--graphite); border: 1px solid var(--line); border-radius: 6px;
 }
 /* Buttons: raised surfaces that lift on hover and squash then spring back on press. */
 button { cursor: pointer; transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, background-color 0.15s ease, border-color 0.15s ease, filter 0.15s ease; }
 button:disabled { cursor: not-allowed; }
-button:not([role]):not(nav button) {
+button:not([role]):not(nav button):not(.ds-btn) {
   background: linear-gradient(180deg, #252b34 0%, #1b2027 100%); color: var(--text); font-weight: 500;
   border: 1px solid #343c47; border-radius: 10px;
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 2px 6px rgba(0, 0, 0, 0.35);
 }
-button:not([role="tab"]):not(:disabled):hover { transform: translateY(-2px); }
-button:not([role]):not(nav button):not(:disabled):hover {
+button:not([role="tab"]):not(.ds-btn):not(:disabled):hover { transform: translateY(-2px); }
+button:not([role]):not(nav button):not(.ds-btn):not(:disabled):hover {
   background: linear-gradient(180deg, #2c333d 0%, #20262e 100%); border-color: #4a5462;
   box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) inset, 0 8px 16px rgba(0, 0, 0, 0.45);
 }
-button:not([role="tab"]):not(:disabled):active { transform: translateY(1px) scale(0.95); transition-duration: 0.07s; }
-button:not([role]):not(nav button):disabled { opacity: 0.45; box-shadow: none; }
-button.btn-primary:not(:disabled) { box-shadow: 0 0 0 1px rgba(242, 169, 59, 0.5), 0 4px 14px rgba(242, 169, 59, 0.3); border: 0; }
-button.btn-primary:not(:disabled):hover { filter: brightness(1.08); box-shadow: 0 0 0 1px rgba(242, 169, 59, 0.7), 0 10px 24px rgba(242, 169, 59, 0.4); }
-@media (prefers-reduced-motion: reduce) { button:hover, button:active { transform: none !important; } }
+button:not([role="tab"]):not(.ds-btn):not(:disabled):active { transform: translateY(1px) scale(0.95); transition-duration: 0.07s; }
+button:not([role]):not(nav button):not(.ds-btn):disabled { opacity: 0.45; box-shadow: none; }
+button.btn-primary:not(.ds-btn):not(:disabled) { box-shadow: 0 0 0 1px rgba(242, 169, 59, 0.5), 0 4px 14px rgba(242, 169, 59, 0.3); border: 0; }
+button.btn-primary:not(.ds-btn):not(:disabled):hover { filter: brightness(1.08); box-shadow: 0 0 0 1px rgba(242, 169, 59, 0.7), 0 10px 24px rgba(242, 169, 59, 0.4); }
+@media (prefers-reduced-motion: reduce) { button:not(.ds-btn):hover, button:active { transform: none !important; } }
 
 .report-table th, .report-table td { padding: 6px 10px; white-space: nowrap; }
 .report-table th { color: var(--muted); font-weight: 500; }

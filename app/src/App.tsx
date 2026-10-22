@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { useLab } from "./store";
 import { CompareView } from "./views/CompareView";
 import { LibraryView, type Selected } from "./views/LibraryView";
@@ -15,7 +15,7 @@ const VIEWS = [
 ] as const;
 type ViewId = (typeof VIEWS)[number]["id"];
 
-export function App() {
+function AppShell() {
   const [view, setView] = useState<ViewId>("run");
   const [selected, setSelected] = useState<Selected | null>(null);
   const [pair, setPair] = useState<[Selected, Selected] | null>(null);
@@ -54,4 +54,12 @@ export function App() {
       </main>
     </div>
   );
+}
+
+// Dev-only design-system gallery (?gallery); stripped from production builds.
+const Gallery = import.meta.env.DEV ? lazy(() => import("./ds/Gallery").then((m) => ({ default: m.Gallery }))) : null;
+
+export function App() {
+  if (Gallery && new URLSearchParams(location.search).has("gallery")) return <Suspense fallback={null}><Gallery /></Suspense>;
+  return <AppShell />;
 }
