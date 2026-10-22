@@ -1,4 +1,4 @@
-.report { display: grid; gap: var(--s-6); min-inline-size: 0; }
+.report { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-6); min-inline-size: 0; }
 .report-head { display: grid; gap: var(--s-3); }
 .report-title { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s-2) var(--s-4); }
 .report-title h3 { margin: 0; font: var(--w-strong) var(--t-3)/1.1 var(--font-ui); letter-spacing: -0.01em; overflow-wrap: anywhere; }
@@ -21,3 +21,10 @@
 .report-skeleton div:last-child { block-size: 16rem; }
 @keyframes report-sk { 50% { opacity: 0.5; } }
 .results-crumb { margin: 0; font: var(--w-reg) var(--t-0) var(--font-ui); color: var(--fg-muted); overflow-wrap: anywhere; }
+.report-sub { margin: 0; font: var(--w-strong) var(--t-1) var(--font-ui); }
+.analysis-pair { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(18rem, 100%), 1fr)); gap: var(--s-4); }
+.report-section > span { justify-self: start; }
+.report-controls label { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); color: var(--fg-muted); font-weight: var(--w-strong); }
+.export-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); }
+.png-save { display: inline-flex; align-items: center; gap: var(--s-2); }
+.report-section h2 { margin: 0; font: var(--w-strong) var(--t-2)/1.2 var(--font-ui); }

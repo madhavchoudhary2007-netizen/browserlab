@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Button } from "../ds/primitives";
 import { saveExport, type ExportFormat } from "../engine";
 import { allChartImages, chartImage } from "../charts/registry";
 
@@ -19,7 +20,7 @@ export function ChartPngButton({ prefix, id, suite }: { prefix: string; id: stri
       setMsg("cancelled" in r ? "" : `Saved ${r.path}`);
     } catch (e) { setMsg(`Export failed: ${String(e)}`); }
   };
-  return <span><button className="min-h-11 px-3" onClick={() => void click()}>Save PNG</button> <span role="status" style={{ color: "var(--muted)" }}>{msg}</span></span>;
+  return <span className="png-save"><Button variant="quiet" onClick={() => void click()}>Save PNG</Button> <span role="status" className="report-note">{msg}</span></span>;
 }
 
 export function ExportBar({ id, suite }: { id: string; suite: string }) {
@@ -35,9 +36,9 @@ export function ExportBar({ id, suite }: { id: string; suite: string }) {
   };
   const busy = status.kind === "busy";
   return (
-    <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Export">
+    <div className="export-bar" role="group" aria-label="Export">
       {FORMATS.map((f) => (
-        <button key={f.id} className="min-h-11 px-4" disabled={busy} onClick={() => void run(f.id, f.id === "pdf" ? allChartImages() : [])}>{f.label}</button>
+        <Button key={f.id} disabled={busy} onClick={() => void run(f.id, f.id === "pdf" ? allChartImages() : [])}>{f.label}</Button>
       ))}
       <span role="status" aria-live="polite" style={{ color: status.kind === "error" ? "var(--danger)" : "var(--muted)" }}>
         {status.kind === "busy" && "Writing…"}{status.kind === "done" && status.message}{status.kind === "error" && `Export failed: ${status.message}`}

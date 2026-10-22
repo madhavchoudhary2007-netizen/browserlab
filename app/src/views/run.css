@@ -1,4 +1,4 @@
-.run { display: grid; gap: var(--s-5); min-inline-size: 0; }
+.run { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-5); min-inline-size: 0; }
 .run-modes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border: 1px solid var(--edge); border-radius: var(--r-3); overflow: hidden; background: var(--raised); }
 .run-mode { display: grid; gap: var(--s-1); align-content: center; min-block-size: var(--s-8); padding: var(--s-3) var(--s-4); border: 0; border-inline-end: 1px solid var(--grid); border-radius: 0; background: transparent; color: var(--fg); text-align: start; box-shadow: none; }
 .run-mode:last-child { border-inline-end: 0; }

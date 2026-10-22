@@ -1,5 +1,5 @@
 # UI overhaul log
-Branch: ui-overhaul (from perfection-loop @ base-ref). Phase: U5 next (U0-U4 done; critique cycle 1 in progress). Cycle: 1. Cycle: 0.
+Branch: ui-overhaul (from perfection-loop @ base-ref). Phase: U6 next (U0-U5 done; critique cycle 1 fixes applied, review 2 pending in U8). Cycle: 1. Cycle: 0.
 
 ## Decisions
 - App lives in `app/`; gate uses UI_DIRS="app/src", TAURI_DIR="app/src-tauri" (brief paths adjusted).
@@ -46,3 +46,11 @@ Remaining queue: Library, Compare, Settings, Analysis (cramped Save PNG, legend 
 - Compare: A/B session heading, factual summary line (conditions in common, how many lack a test result and why, "Differences are B minus A"), right-aligned tabular table in a keyboard-focusable scroll region, not-comparable block with warn rule, 150 ms skeleton.
 - New e2e: library-compare.spec.ts (clear filters, pick-one hint, compare path + axe). Total 73 e2e expected; gate OK.
 Remaining queue: Settings, Analysis (Save PNG weight, legend overflow, small box plots), U6 signature, U7 chrome + WKWebView, U8 cycles.
+
+## U5 slices 4-5: Settings and Analysis (done) - U5 complete
+- Settings: ruled profile list, project path in a readable mono readout, setup banner with the one primary action (Finish and save profile), skeleton, retry via Button.
+- Analysis: same report system (verdict rule, sections, controls), tables in keyboard-focusable scroll regions, PNG saves are quiet buttons, residual charts in an auto-fit pair, 150 ms skeleton.
+- Bug caught by existing responsive spec: grid items overflowed at 320/375 px (min-content of charts). Fix: grid-template-columns: minmax(0, 1fr) on .report/.lib/.cmp/.run. Spec unchanged.
+- Checks: typecheck, lint, vitest 15, e2e 73/73 green, gate OK.
+Known gaps: Report hero legend still paginates at 16 series (needs per-browser grouping, U8 task); browser colour dots in table come from frozen analysis.ts (dark-tuned); chart toolbars unlabelled (ECharts toolbox icons).
+Next: U6 signature moment, U7 window chrome + packaged WKWebView check + startup/idle CPU, U8 independent review 2.
