@@ -44,3 +44,17 @@
 ?? data_video_policy_smoke/
 ```
 - Staging rule: git add explicit paths only.
+
+## P1 direction (done)
+- ADR written: .ui-overhaul/adr/ADR-ui-pass2.md. Chosen: option B (paper and ink only on data surfaces, calm chrome) with the Run sheet as the dominant element.
+
+## P2/P3 progress (in flight)
+- Pen: src/pen/{PenEngine.ts (reference engine, 3 unit tests: same ink at 8 ms and 100 ms, done at 7 s, no NaN, under-damped overshoot), PenRig.ts (grid canvas + ink canvas + transformed pen element; rAF only while sweeping, visible, on screen; hold/return by timers; pending start until laid out), PenSheet.tsx, PenPanel.tsx (Run view main surface), TraceReplay.tsx (report Replay)}. Tokens --pen-body/--pen-trim added (orange only on the pen).
+- Defect 1 (wide): >=1600 px Run is two columns (sheet left, setup/run panel right), content cap 90rem. e2e edit: responsive.spec "content width is controlled" now allows <=1800 px at viewport >=1600 (layout change, assertion kept for <1600).
+- Defect 3 (Run at 1280): sheet first while a run is shown, setup hidden while busy, launch panel before the preflight list, preflight in an auto-fit grid.
+- Defect 2 (legend): React legend grouped by browser; colour=browser, marker shape=series, dash=tab count; hover/focus highlights and dims others; per-series and per-browser toggles (aria-pressed); end labels with hideOverlap. e2e/legend.spec.ts.
+- Defect 4: one export state machine (idle/working/done/error+Retry) for Export menu and chart PNG; PNG control sits at the heading row. Label 'Save PNG' kept.
+- Aside.tsx, PenTrace.tsx, LiveChart.tsx removed (superseded by the pen sheet).
+- Helpers launched: Library rows (defect 7) and contrast script + tokens/light surfaces (defects 5, 6). They do not commit; lead re-verifies and commits.
+- New e2e: pen.spec.ts (ink drawn then loop stops; reduced motion static with note; loop sleeps when hidden), legend.spec.ts (legend keyboard, replay once then sleeps).
+- Measurement tooling: .ui-overhaul/measure/startup_proxy.mjs (FCP/LCP/ready over N fresh loads of a built mock-engine frontend).
