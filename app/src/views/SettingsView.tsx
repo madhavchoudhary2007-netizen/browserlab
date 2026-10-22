@@ -29,7 +29,7 @@ const PROFILE_TONE: Record<ProfileInfo["state"], string> = { ready: "var(--ok)",
 const SOURCE_TEXT = { environment: "set by environment variable", saved: "saved choice", default: "default location" } as const;
 
 export function SettingsView() {
-  const [state, retry] = useRemote<SettingsInfo>("settings.get", {});
+  const [state, retry] = useRemote<SettingsInfo>("settings.get", {}, { swr: true });
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 

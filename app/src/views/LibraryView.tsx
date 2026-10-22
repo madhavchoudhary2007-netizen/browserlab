@@ -28,7 +28,7 @@ export function compareNote(a: ExperimentInfo, b: ExperimentInfo): string {
 }
 
 export function LibraryView({ onOpen, onCompare }: { onOpen: (s: Selected) => void; onCompare: (a: Selected, b: Selected) => void }) {
-  const [state, retry] = useRemote<ExperimentInfo[]>("library.scan", {});
+  const [state, retry] = useRemote<ExperimentInfo[]>("library.scan", {}, { swr: true });
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<string>("all");
   const [cmp, setCmp] = useState<string[]>([]);

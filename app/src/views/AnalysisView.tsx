@@ -59,7 +59,7 @@ function PostHoc({ rows, workload, tabs }: { rows: AnalysisWithInference["postho
 }
 
 export function AnalysisView({ selected, hideExport = false }: { selected: Selected; hideExport?: boolean }) {
-  const [state, retry] = useRemote<AnalysisWithInference>("stats.run", { id: selected.id, suite: selected.suite });
+  const [state, retry] = useRemote<AnalysisWithInference>("stats.run", { id: selected.id, suite: selected.suite }, { swr: true });
   const [workload, setWorkload] = useState<string | null>(null);
   const [tabs, setTabs] = useState<number | null>(null);
   const [scale, setScale] = useState<"raw" | "log">("raw");

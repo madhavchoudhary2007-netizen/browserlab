@@ -45,7 +45,7 @@ function TrialTable({ trials, unit }: { trials: TrialStats[]; unit: string }) {
 }
 
 export function ReportView({ selected }: { selected: Selected }) {
-  const [state, retry] = useRemote<Report>("report.run", { id: selected.id, suite: selected.suite });
+  const [state, retry] = useRemote<Report>("report.run", { id: selected.id, suite: selected.suite }, { swr: true });
   const [metric, setMetric] = useState<TraceMetric>("footprint");
   const [wl, setWl] = useState("all");
   const [tb, setTb] = useState("all");

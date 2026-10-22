@@ -54,3 +54,8 @@
 - e2e edit (layout): keyboard.spec.ts nav Tab order now Run, Library, Results, Compare, Settings (Compare is focusable by F1 design) and three Shift+Tab to return to Library; no assertion weakened.
 - Evidence: .ui-overhaul/review3/f1/ (before, empty, populated).
 - Gates: typecheck, lint, vitest 18, e2e 101 (97 + 4 new), contrast OK, frozen-check OK.
+
+## P0 screen-switch lag (owner note) done
+- Cause: every visit to Settings (and Library, Report, Analysis, Compare) re-ran its engine call and showed a skeleton until it returned; with a real engine (profile and folder probing) that is the lag. Pure UI switch cost is already about one or two frames: perf/switch.perf.ts, click to second paint, p50 28.8 ms (Settings), 29.0 (Library), 29.0 (Run) at 1x; 32.6, 51.3, 26.8 ms at 6x throttle (review3/switch-x1.json, switch-x6.json).
+- Fix: useRemote gets opt-in stale-while-revalidate (`swr`): a revisit renders the previous answer at once and the same engine call still runs in the background, so call method, params, count and order are unchanged (IPC contract kept; no prefetch added for that reason). Enabled for settings.get, library.scan, report.run, stats.run, compare.run.
+- New e2e p0-switch.spec.ts (700 ms engine delay): first visit slow, second visit content within 250 ms, call count repeats. Verified red with swr off, green with it on.

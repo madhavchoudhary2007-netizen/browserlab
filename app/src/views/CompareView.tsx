@@ -23,7 +23,7 @@ export function CompareEmpty({ onOpenLibrary }: { onOpenLibrary: () => void }) {
 }
 
 export function CompareView({ a, b }: { a: Selected; b: Selected }) {
-  const [state, retry] = useRemote<CompareResult>("compare.run", { a, b });
+  const [state, retry] = useRemote<CompareResult>("compare.run", { a, b }, { swr: true });
   const slow = useAfter(150, state.kind === "loading");
   if (state.kind === "loading") return slow
     ? <div className="report-skeleton" aria-busy="true" role="status" aria-label="Comparing sessions"><div /><div /><div /></div>
