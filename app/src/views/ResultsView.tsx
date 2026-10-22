@@ -30,9 +30,9 @@ export function ResultsView({ selected }: { selected: Selected | null }) {
   return (
     <section className="flex flex-col gap-4" aria-label="Results explorer">
       <h2 className="results-crumb">{sel.id} <span>({sel.suite})</span></h2>
-      <div role="tablist" className="flex gap-2 overflow-x-auto">
+      <div role="tablist" className="flex flex-wrap gap-x-2">
         {TABLES.map((t) => (
-          <button key={t.id} role="tab" aria-selected={table === t.id} className="min-h-11 shrink-0 whitespace-nowrap px-4"
+          <button key={t.id} role="tab" aria-selected={table === t.id} className="min-h-11 px-4"
             style={{ borderBottom: `2px solid ${table === t.id ? "var(--signal)" : "transparent"}` }} onClick={() => setTable(t.id)}>
             {t.label}
           </button>

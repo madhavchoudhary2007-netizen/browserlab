@@ -44,7 +44,7 @@ button:not([role]):not(nav button):not(.ds-btn):disabled { opacity: 0.5; box-sha
 @media (prefers-reduced-motion: reduce) { button:hover, button:active { transform: none !important; } }
 button.btn-primary:not(.ds-btn) { background: var(--pen); color: var(--pen-fg); border-color: transparent; }
 button.btn-primary:not(.ds-btn):not(:disabled):hover { background: var(--pen-hover); }
-button.btn-primary:not(.ds-btn):disabled { background: var(--grid); color: var(--fg-muted); border-color: var(--edge); opacity: 1; }
+button.btn-primary:not(.ds-btn):disabled { background: transparent; color: var(--fg-muted); border: 1px dashed var(--edge); opacity: 1; box-shadow: none; }
 
 .report-table th, .report-table td { padding: 6px 10px; white-space: nowrap; }
 .report-table th { color: var(--muted); font-weight: 500; }

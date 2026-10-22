@@ -28,3 +28,7 @@
 .export-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); }
 .png-save { display: inline-flex; align-items: center; gap: var(--s-2); }
 .report-section h2 { margin: 0; font: var(--w-strong) var(--t-2)/1.2 var(--font-ui); }
+
+.report-details summary { cursor: pointer; min-block-size: var(--target); display: flex; align-items: center; color: var(--fg-muted); font-weight: var(--w-strong); }
+.report-details summary:focus-visible { outline: 3px solid var(--pen); outline-offset: 2px; }
+.report-details[open] summary { color: var(--fg); }

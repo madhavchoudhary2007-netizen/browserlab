@@ -28,6 +28,7 @@ export function LiveChart() {
     const axis = { axisLine: { lineStyle: { color: cssVar("--edge") } }, axisLabel: { color: cssVar("--fg-muted") }, nameTextStyle: { color: cssVar("--fg-muted") }, splitLine: { lineStyle: { color: cssVar("--grid") } } };
     chart.current?.setOption({
       animation: false,
+      textStyle: { fontFamily: "Instrument Sans Variable, system-ui, sans-serif" },
       grid: { left: 56, right: 16, top: 16, bottom: 28 },
       tooltip: { trigger: "axis" },
       xAxis: { type: "value", name: "s", scale: true, ...axis },

@@ -33,3 +33,7 @@
 .preflight .pf-label { font-weight: var(--w-strong); }
 .preflight .pf-detail { grid-column: 2; color: var(--fg-muted); }
 @media (max-width: 40rem) { .run-modes { grid-template-columns: 1fr; } .run-mode { border-inline-end: 0; border-block-end: 1px solid var(--grid); } }
+
+.run > .btn-primary, .run > button { justify-self: start; min-inline-size: 14rem; }
+.run > .btn-primary:not(:disabled) { box-shadow: 0 0 0 4px var(--pen-soft), var(--shadow-1); }
+.start-reason { margin-block-start: calc(var(--s-2) * -1); }

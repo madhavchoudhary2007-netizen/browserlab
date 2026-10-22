@@ -83,6 +83,7 @@ export function LibraryView({ onOpen, onCompare }: { onOpen: (s: Selected) => vo
           );
         })}
       </ul>
+      {picked.length === 0 && <p className="lib-count">Tick two experiments to compare them.</p>}
       {picked.length === 1 && <p className="lib-count" role="status">Pick one more experiment to compare.</p>}
       {picked.length === 2 && (
         <div className="lib-bar">

@@ -79,11 +79,16 @@ export function ReportView({ selected }: { selected: Selected }) {
           <Fact k="Duration" v={d.started_unix && d.finished_unix ? fmtDuration(d.finished_unix - d.started_unix) : "—"} />
           <Fact k="Source" v={d.source === "app" ? "BrowserLab run" : "imported folder"} />
           <Fact k="Workload · tabs" v={`${d.workloads.join(", ")} · ${d.tab_levels.join(", ")}`} />
-          <Fact k="Per trial" v={`${d.warmup_seconds ?? "?"} s warm-up + ${d.measure_seconds ?? "?"} s measured @ ${d.sample_interval_seconds ?? "?"} s`} />
-          <Fact k="Machine" v={`${sys.chip ?? "?"} · ${sys.memory_gb ?? "?"} GB · macOS ${sys.macos_version ?? "?"}`} />
-          <Fact k="Memory metric" v={d.series.metric === "rss_mb" ? "summed RSS (not footprint)" : "process-tree physical footprint"} />
         </dl>
-        <p className="report-note">{Object.values(d.browser_versions).join(" · ")}</p>
+        <details className="report-details">
+          <summary>Run details</summary>
+          <dl className="report-facts">
+            <Fact k="Per trial" v={`${d.warmup_seconds ?? "?"} s warm-up + ${d.measure_seconds ?? "?"} s measured @ ${d.sample_interval_seconds ?? "?"} s`} />
+            <Fact k="Machine" v={`${sys.chip ?? "?"} · ${sys.memory_gb ?? "?"} GB · macOS ${sys.macos_version ?? "?"}`} />
+            <Fact k="Memory metric" v={d.series.metric === "rss_mb" ? "summed RSS (not footprint)" : "process-tree physical footprint"} />
+          </dl>
+          <p className="report-note">{Object.values(d.browser_versions).join(" · ")}</p>
+        </details>
       </div>
 
       <div role="note" className="report-verdict">

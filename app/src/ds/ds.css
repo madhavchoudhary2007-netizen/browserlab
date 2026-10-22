@@ -6,7 +6,7 @@
 .ds-btn:active:not(:disabled) { transform: translateY(1px) scale(0.96); transition-duration: var(--dur-1); }
 .ds-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .ds-btn-primary { background: var(--pen); color: var(--pen-fg); border-color: transparent; }
-.ds-btn-primary:disabled { background: var(--grid); color: var(--fg-muted); border-color: var(--edge); opacity: 1; }
+.ds-btn-primary:disabled { background: transparent; color: var(--fg-muted); border: 1px dashed var(--edge); opacity: 1; box-shadow: none; }
 .ds-btn-primary:hover:not(:disabled) { background: var(--pen-hover); }
 .ds-btn-quiet { background: transparent; border-color: transparent; box-shadow: none; }
 @media (prefers-reduced-motion: reduce) { .ds-btn:hover, .ds-btn:active { transform: none !important; } }
