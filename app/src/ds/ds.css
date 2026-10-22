@@ -51,3 +51,9 @@ select { appearance: none; -webkit-appearance: none; padding-inline-end: var(--s
 .state { display: grid; gap: var(--s-3); max-inline-size: 70ch; padding-inline-start: var(--s-4); border-inline-start: 4px solid var(--edge); }
 .state p { margin: 0; }
 .state-error { border-inline-start-color: var(--danger); }
+
+/* The mark under each title is a short trace the pen inks when a screen opens (stroke only, nothing else moves). */
+.page-ink { display: block; margin-block: calc(var(--s-1) * -1) 0; overflow: visible; }
+.page-ink path { fill: none; stroke: var(--pen); stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 0; animation: ink-trace 520ms var(--ease-out, ease-out) both; }
+@keyframes ink-trace { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: reduce) { .page-ink path { animation: none; } }

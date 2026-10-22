@@ -108,3 +108,7 @@
 - Not done in F7 (scope): copy audit beyond the headers, and loading skeleton unification (the existing report-skeleton style is already shared by Library, Report, Settings and Compare).
 - Evidence: review3/f7/{library,settings,compare,run-idle,results-report}-light-1280x800-before-after.png.
 - Gates: typecheck, lint, vitest 20, e2e 129, contrast OK, frozen-check OK.
+
+## Motion note (owner request: fluid, distinctive, no generic motion)
+- Each page header carries a short wavy trace under the title that the pen inks (stroke-dashoffset, 520 ms) every time a screen opens (Run re-inks too, since it goes from display none to shown). It is the only new motion: no transform or layout work, no motion with reduced motion, 72x8 px of paint. The Pen is the other motion surface. No page-transition animation was added: a switch already completes in about 29 ms at 1x (perf/switch.perf.ts p50 29.2/29.3/29.1 ms Settings/Library/Run; 35.7/53.6/28.0 ms at 6x), and adding a slide or fade would lengthen the perceived switch.
+- After this: ui.perf navigation p50 30.6 ms, p95 31.9 ms; long-session heap test green.
