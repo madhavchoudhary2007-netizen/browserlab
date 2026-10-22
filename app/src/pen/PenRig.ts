@@ -1,7 +1,8 @@
 import { PenEngine, type Ink } from "./PenEngine";
 
 export type Pt = { t: number; v: number };
-export type RigOptions = { grid: HTMLCanvasElement; ink: HTMLCanvasElement; pen: HTMLElement; shadow: HTMLElement; host: HTMLElement; mini: boolean; unit: string; onReadout?: (text: string) => void };
+export type RigOptions = { grid: HTMLCanvasElement; ink: HTMLCanvasElement; pen: HTMLElement; shadow: HTMLElement; host: HTMLElement; mini: boolean; unit: string; onReadout?: (text: string) => void; onState?: (s: PenState) => void };
+export type PenState = "idle" | "drawing" | "done";
 
 const DPR_CAP = 2, DELAY = 1, HOLD_MS = 1400, RETURN_MS = 700, SHEET_SECONDS = 60;
 const css = (n: string) => getComputedStyle(document.documentElement).getPropertyValue(n).trim() || "#888";
@@ -40,7 +41,7 @@ export class PenRig {
   frames = 0;
 
   constructor(o: RigOptions) {
-    this.o = o;
+    this.o = o; o.host.dataset.state = "idle";
     this.gctx = o.grid.getContext("2d")!; this.ictx = o.ink.getContext("2d")!;
     this.ro = new ResizeObserver(() => this.resize());
     this.ro.observe(o.host);
@@ -58,6 +59,10 @@ export class PenRig {
   private px(val: number) { return Math.max(0, Math.min(1.04, (val - this.lo) / (this.hi - this.lo))) * this.plotH; }
 
   setReduced(r: boolean) { this.reduced = r; }
+
+  /** Reported to the host as data-state and to onState: idle (nothing drawing), drawing (pen sweeping) or done (a sweep just finished). */
+  private state: PenState = "idle";
+  private setState(s: PenState) { if (s === this.state) return; this.state = s; this.o.host.dataset.state = s; this.o.onState?.(s); }
 
   resize() {
     const w = Math.round(this.o.host.clientWidth), h = Math.round(this.o.host.clientHeight);
@@ -135,7 +140,7 @@ export class PenRig {
 
   private beginSweep(target: (u: number) => number, seconds: number) {
     this.clearInk();
-    this.seconds = seconds; this.phase = "sweep";
+    this.seconds = seconds; this.phase = "sweep"; this.setState("drawing");
     this.engine = new PenEngine({ seconds, target: (u) => this.px(target(u)), onInk: (a, b) => this.segment(a, b) });
     this.o.pen.style.transition = this.o.shadow.style.transition = "none";
     this.paintGrid(); this.placePen(); this.last = 0; this.wake();
@@ -176,10 +181,10 @@ export class PenRig {
   /** Stop the live sweep (run paused, stopped or finished): the trace stays on the sheet, the pen lifts. */
   stopLive() {
     if (this.mode !== "live") return;
-    this.halt(); this.phase = "idle"; this.o.ink.style.transition = "none"; this.o.ink.style.opacity = "1"; this.placePen(true);
+    this.halt(); this.phase = "idle"; this.setState("idle"); this.o.ink.style.transition = "none"; this.o.ink.style.opacity = "1"; this.placePen(true);
   }
   /** Called when a new run starts: forget the previous sheet. */
-  reset() { this.halt(); this.engine = null; this.pts = []; this.phase = "idle"; this.clearInk(); this.mode = "live"; this.placePen(); this.o.pen.style.visibility = this.o.shadow.style.visibility = "hidden"; }
+  reset() { this.halt(); this.setState("idle"); this.engine = null; this.pts = []; this.phase = "idle"; this.clearInk(); this.mode = "live"; this.placePen(); this.o.pen.style.visibility = this.o.shadow.style.visibility = "hidden"; }
 
   /** Replay: ink a finished series once, start to end, then sleep. */
   replay(series: Pt[], seconds = 8) {
@@ -202,7 +207,7 @@ export class PenRig {
     this.clearInk();
     const e = new PenEngine({ seconds: 8, target: (u) => this.px(sampleAt(series, t0 + u * (t1 - t0))), onInk: (a, b) => this.segment(a, b) });
     while (!e.done) e.frame(1 / 30);
-    this.engine = e; this.phase = "idle"; this.placePen(true);
+    this.engine = e; this.phase = "idle"; this.setState("idle"); this.placePen(true);
   }
 
   private wake() {
@@ -215,7 +220,7 @@ export class PenRig {
     if (!e || this.phase !== "sweep" || !this.visible || !this.onScreen) return;
     const dt = this.last ? (now - this.last) / 1000 : 0; this.last = now; this.frames++;
     e.frame(dt); this.placePen(); this.readout(this.lastValue(e));
-    if (e.done) { this.phase = "hold"; this.placePen(true); this.timer = window.setTimeout(() => this.afterHold(), this.mode === "live" ? HOLD_MS : 0); return; }
+    if (e.done) { this.phase = "hold"; this.setState("done"); this.placePen(true); this.timer = window.setTimeout(() => this.afterHold(), this.mode === "live" ? HOLD_MS : 0); return; }
     this.raf = requestAnimationFrame(this.tick);
   };
   private lastValue(e: PenEngine): number { return this.lo + (e.v / this.plotH) * (this.hi - this.lo); }

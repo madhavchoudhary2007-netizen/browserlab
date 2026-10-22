@@ -1,7 +1,7 @@
 import { useEffect, useRef, type ReactNode } from "react";
 import { useLab } from "../store";
 import { useScheme } from "../ds/theme";
-import { PenRig, type Pt } from "./PenRig";
+import { PenRig, type PenState, type Pt } from "./PenRig";
 import "./pen.css";
 
 function PenSvg({ shadow = false }: { shadow?: boolean }): ReactNode {
@@ -23,7 +23,7 @@ export type RigHandle = { rig: PenRig | null };
 
 type Props =
   | { variant: "full" | "mini"; source: "live"; onReadout?: (t: string) => void; label?: string }
-  | { variant: "full" | "mini"; source: "replay"; series: Pt[]; playToken: number; unit?: string; label?: string };
+  | { variant: "full" | "mini"; source: "replay"; series: Pt[]; playToken: number; unit?: string; label?: string; onState?: (s: PenState) => void };
 
 const reducedNow = (): boolean => typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -37,10 +37,12 @@ export function PenSheet(p: Props): ReactNode {
   const onReadout = live ? p.onReadout : undefined;
   const series = live ? null : p.series;
   const token = live ? 0 : p.playToken;
+  const onState = live ? undefined : p.onState;
+  const stateRef = useRef(onState); stateRef.current = onState;
   const unit = live ? "MB (RSS)" : (p.unit ?? "MB");
 
   useEffect(() => {
-    const r = new PenRig({ grid: grid.current!, ink: ink.current!, pen: pen.current!, shadow: shadow.current!, host: host.current!, mini, unit, onReadout });
+    const r = new PenRig({ grid: grid.current!, ink: ink.current!, pen: pen.current!, shadow: shadow.current!, host: host.current!, mini, unit, onReadout, onState: (s) => stateRef.current?.(s) });
     rig.current = r;
     (window as unknown as { __penRigs?: PenRig[] }).__penRigs = [...((window as unknown as { __penRigs?: PenRig[] }).__penRigs ?? []), r];
     r.setReduced(reducedNow());

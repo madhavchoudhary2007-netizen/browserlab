@@ -10,6 +10,7 @@ import { AnalysisView } from "./AnalysisView";
 import { Button } from "../ds/primitives";
 import { TraceReplay } from "../pen/TraceReplay";
 import { useAfter } from "../ds/useAfter";
+import { Staged } from "../ds/Staged";
 import "./report.css";
 
 const STATUS_COLOR: Record<string, string> = { completed: "var(--ok)", incomplete: "var(--danger)" };
@@ -93,7 +94,7 @@ export function ReportView({ selected }: { selected: Selected }) {
         </details>
       </div>
 
-      <TraceReplay report={d} />
+      <Staged stage={1} minHeight="24rem"><TraceReplay report={d} /></Staged>
 
       <div role="note" className="report-verdict">
         <strong>What this data supports</strong>
@@ -122,26 +123,26 @@ export function ReportView({ selected }: { selected: Selected }) {
         <p className="report-note">
           {d.series.mode === "trial" ? "One line per trial, each starting at its own t = 0." : "Mean of the trials in each condition (shaded: min to max across trials)."} Shaded left area is warm-up and is excluded from every statistic. Click the legend to hide a line; scroll or drag the slider to zoom.
         </p>
-        <TimeChart report={timeReport ?? d} metric={metric} />
+        <Staged stage={2} minHeight="380px"><TimeChart report={timeReport ?? d} metric={metric} /></Staged>
       </div>
 
       <div className="report-section"><h3>Mean memory per trial</h3><ChartPngButton prefix="Mean memory by trial" id={selected.id} suite={selected.suite} />
         <p className="report-note">Bar: mean over the measurement window. Whisker: lowest to highest 1-second sample inside the trial. This spread is within one trial, not uncertainty across repetitions.</p>
-        <MeanBars report={d} /></div>
+        <Staged stage={3} minHeight="320px"><MeanBars report={d} /></Staged></div>
 
       {d.composition.length > 0 && <div className="report-section"><h3>Where the memory is</h3><ChartPngButton prefix="Memory by process class" id={selected.id} suite={selected.suite} />
         <p className="report-note">Mean physical footprint of each process class (browser, renderers, GPU, network, utility) summed within a sample, then averaged over the measurement window.</p>
-        <CompositionChart report={d} /></div>}
+        <Staged stage={4} minHeight="320px"><CompositionChart report={d} /></Staged></div>}
 
       <div className="report-section"><h3>CPU versus memory</h3><ChartPngButton prefix="CPU versus memory by trial" id={selected.id} suite={selected.suite} />
-        <CpuMemChart report={d} /></div>
+        <Staged stage={5} minHeight="300px"><CpuMemChart report={d} /></Staged></div>
 
       <div className="report-section"><h3>Per-trial statistics</h3>
         <p className="report-note">Computed from the raw 1-second samples in the measurement window. Drift compares the last third of the window with the first third; MB/min is the least-squares slope. Both are descriptive.</p>
         <TrialTable trials={d.trials} unit={unit} /></div>
 
       {d.has_replication
-        ? <div className="report-section"><h3>Inferential statistics</h3><AnalysisView key={`${selected.id}|${selected.suite}`} selected={selected} hideExport /></div>
+        ? <div className="report-section"><h3>Inferential statistics</h3><Staged stage={6} minHeight="20rem"><AnalysisView key={`${selected.id}|${selected.suite}`} selected={selected} hideExport /></Staged></div>
         : <p className="report-note">Inferential statistics (confidence intervals, ANOVA, post-hoc tests) need repeated trials per condition. This run has one, so none are computed. Standard and Full runs unlock them.</p>}
     </section>
   );
