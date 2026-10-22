@@ -1,5 +1,5 @@
 # UI overhaul log
-Branch: ui-overhaul (from perfection-loop @ base-ref). Phase: U8 cycle 4 reviewed, decision pending (U0-U7 done; critique cycle 1 fixes applied, review 2 pending in U8). Cycle: 1. Cycle: 0.
+Branch: ui-overhaul (from perfection-loop @ base-ref). Phase: U8 cycle 5 reviewed, decision pending (U0-U7 done; critique cycle 1 fixes applied, review 2 pending in U8). Cycle: 1. Cycle: 0.
 
 ## Decisions
 - App lives in `app/`; gate uses UI_DIRS="app/src", TAURI_DIR="app/src-tauri" (brief paths adjusted).
@@ -100,3 +100,10 @@ Fixes: Compare nav item always present (disabled until a pair is ticked, tooltip
 Scores (fresh agent): Distinctiveness 3, Subject fit 4, Hierarchy 3, Typography 3.5, Color 3.5, Motion NOT JUDGEABLE, Craft 3, Usability 3.5, Signature 3, Consistency 4. Means by cycle: 2.6, 3.3, 3.1, 3.4. Cycles used 4 of 6. DONE bar (all >=4, mean >=4.3) not reached.
 Remaining defects: (1) wide screens: narrow centred column (existing responsive test caps content at 1100 px; a real fix needs a multi-column wide layout, e.g. sticky side summary) (2) run-idle lacks a focal point; (3) signature rail trace small/idle-only; (4) report legend of 16 near-identical hues, chart below the fold at 1280x800 and 900x600; (5) report header clutter (five export buttons); (6) light theme depth; (7) compare/library-no-match/settings sparse (settings status chips/icons missing); (8) 900 px orphan JSON button.
 Assessment: the remaining items are structural (layout and identity), not polish; they need design decisions (wide-window layout, an export menu requiring test changes, a stronger signature) rather than another tweak round.
+
+## U8 cycle 5 (owner-approved structural round): independent review 5 = mean 3.3 / 5
+Changes: Export is now a menu (3 e2e call sites updated to open the menu first; same exports, same outcomes; helper exportAs), wide-window (>=1600 px) sticky aside with a full-size pen + live reading (hidden at idle after this fix), launch panel with 'Ready to launch' state and large Start, rail trace taller and keeps the last run's trace faded after a run, palette now centred (margin-inline:auto). A first commit went in with two failing platform specs (Run overflow at 200 % text from min-inline-size 18rem); fixed in the next commit (min(18rem,100%)); 85/85 green.
+Scores: Distinctiveness 3, Subject fit 3, Hierarchy 3, Typography 3.5, Color 3.5, Motion NOT JUDGEABLE, Craft 3, Usability 3.5, Signature 3.5, Consistency 3.5.
+Means by cycle: 2.6, 3.3, 3.1, 3.4, 3.3 (plateau; reviewer variance about +-0.3). Cycles used 5 of 6.
+Open defects: report legend (16 series, 4 hues), run-running shows the same trace 3x and controls fall below the chart at 900x600, run-idle low-contrast panel/empty space, Compare all dashes (sample data) and Settings status words without chips, report header Export placement, 900 px wrapping.
+Conclusion: DONE bar (all lines >=4, mean >=4.3 from two reviews) is not reached and the means have plateaued around 3.3 across three consecutive cycles. Recommendation: write FINAL_REPORT.md with Verdict: ESCALATED (stop rule), with next steps = (1) add a human design pass / Figma-level direction for identity (current direction is competent but not distinctive), (2) per-browser colour + dash encoding for chart legends and a sparkline-style Run view.

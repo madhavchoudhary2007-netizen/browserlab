@@ -9,6 +9,7 @@ export function Aside(): ReactNode {
   const state = useLab((s) => s.state);
   const progress = useLab((s) => s.progress);
   const last = useLab((s) => s.live[s.live.length - 1]);
+  if (state === "idle" && !last) return null; // nothing to show: no empty panel
   return (
     <aside className="shell-aside" aria-hidden="true">
       <p className="aside-state">{TEXT[state] ?? state}</p>

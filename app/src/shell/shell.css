@@ -23,7 +23,7 @@
 kbd { font: var(--w-reg) var(--t-0) var(--font-num); color: var(--fg-muted); }
 .rail-status { display: grid; gap: var(--s-1); font: var(--w-strong) var(--t-0) var(--font-ui); color: var(--fg); }
 .pen-trace { inline-size: 100%; block-size: var(--s-6); display: block; }
-.palette { padding: var(--s-3); inline-size: min(34rem, calc(100vw - var(--s-5))); margin-block-start: 12vh; }
+.palette { margin-inline: auto; padding: var(--s-3); inline-size: min(34rem, calc(100vw - var(--s-5))); margin-block-start: 12vh; }
 .palette input { inline-size: 100%; box-sizing: border-box; min-block-size: var(--target); padding-inline: var(--s-3); border: 1px solid var(--edge); border-radius: var(--r-2); background: var(--sheet); color: var(--fg); font: var(--w-reg) var(--t-1) var(--font-ui); }
 .palette ul { list-style: none; margin: var(--s-2) 0 0; padding: 0; max-block-size: 50vh; overflow: auto; }
 .palette li[role="option"] { display: flex; justify-content: space-between; align-items: center; min-block-size: var(--target); padding-inline: var(--s-3); border-radius: var(--r-1); cursor: pointer; }
