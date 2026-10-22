@@ -33,7 +33,7 @@ export class PenRig {
   private W = 0; private H = 0; private dpr = 1;
   private engine: PenEngine | null = null; private raf = 0; private last = 0; private timer = 0;
   private phase: Phase = "idle"; private visible = true; private onScreen = true; private disposed = false;
-  private seconds = SHEET_SECONDS; private lo = 0; private hi = 1; private plotH = 1;
+  private seconds = SHEET_SECONDS; private lo = 0; private hi = 2000; private plotH = 1;
   private pts: Pt[] = []; private t0 = 0; private mode: "live" | "replay" | "static" = "live";
   private lastText = ""; private lastReadout = 0; private reduced = false;
   private ro: ResizeObserver; private io: IntersectionObserver; private vis = () => { this.visible = !document.hidden; this.wake(); };
@@ -50,6 +50,8 @@ export class PenRig {
     this.resize();
   }
 
+  /** Pen size: 0.62 per the spec on a normal sheet, growing on tall sheets so it stays in proportion. */
+  private get scale(): number { return this.o.mini ? 0.3 : 0.62 * Math.max(1, Math.min(1.7, this.plotH / 320)); }
   get margins() { return this.o.mini ? { l: 4, r: 18, t: 4, b: 4 } : { l: 56, r: 44, t: 28, b: 24 }; }
   private x(u: number) { const m = this.margins; return m.l + u * (this.W - m.l - m.r); }
   private y(px: number) { const m = this.margins; return this.H - m.b - px; }
@@ -115,7 +117,7 @@ export class PenRig {
   }
 
   private placePen(lifted = false) {
-    const e = this.engine, s = this.o.mini ? 0.3 : 0.62;
+    const e = this.engine, s = this.scale;
     const u = e ? e.u : 0, v = e ? e.v : 0;
     const x = this.x(u), y = this.y(v), tilt = e ? Math.max(-10, Math.min(10, e.tilt * 3)) : 0;
     const rot = 35 + tilt, off = lifted ? 14 : 5, offy = lifted ? 20 : 7;
@@ -165,7 +167,7 @@ export class PenRig {
     c.stroke(); this.engine = null; this.placePenAt(p[p.length - 1]!.v, Math.min(1, (p[p.length - 1]!.t - t0) / this.seconds)); this.readout(p[p.length - 1]!.v);
   }
   private placePenAt(v: number, u: number) {
-    const s = this.o.mini ? 0.3 : 0.62, x = this.x(u), y = this.y(this.px(v));
+    const s = this.scale, x = this.x(u), y = this.y(this.px(v));
     this.o.pen.style.transform = `translate3d(${x}px,${y}px,0) rotate(35deg) scale(${s})`;
     this.o.shadow.style.transform = `translate3d(${x + 5}px,${y + 7}px,0) rotate(35deg) scale(${s})`;
     this.o.pen.style.visibility = this.o.shadow.style.visibility = "visible";
@@ -226,7 +228,7 @@ export class PenRig {
     const t = `transform ${RETURN_MS}ms ease-in-out`;
     this.o.pen.style.transition = this.o.shadow.style.transition = t;
     this.o.ink.style.transition = `opacity ${RETURN_MS}ms linear`; this.o.ink.style.opacity = "0";
-    const s = this.o.mini ? 0.3 : 0.62, x = this.x(0), y = this.y(this.px(sampleAt(this.pts, performance.now() / 1000 - DELAY)));
+    const s = this.scale, x = this.x(0), y = this.y(this.px(sampleAt(this.pts, performance.now() / 1000 - DELAY)));
     this.o.pen.style.transform = `translate3d(${x}px,${y - 6}px,0) rotate(35deg) scale(${s})`;
     this.o.shadow.style.transform = `translate3d(${x + 14}px,${y + 14}px,0) rotate(35deg) scale(${s})`;
     this.timer = window.setTimeout(() => { this.timer = 0; this.phase = "idle"; this.engine = null; this.startLiveSheet(); }, RETURN_MS + 30);

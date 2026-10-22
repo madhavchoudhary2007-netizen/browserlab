@@ -10,6 +10,7 @@ for (const [w, h] of SIZES) {
     await page.emulateMedia({ colorScheme: (process.env.SCHEME as "light" | "dark") ?? "dark" });
     await page.setViewportSize({ width: w, height: h });
     const snap = async (name: string) => { await page.waitForTimeout(400); await page.screenshot({ path: `${OUT}/${name}-${w}x${h}-${SCALE}x.png` }); };
+    await page.addInitScript(() => { (window as unknown as { __penSeconds: number }).__penSeconds = 12; });
     await openApp(page);
     await snap("run-idle");
     await goTo(page, "Library");
@@ -36,7 +37,7 @@ for (const [w, h] of SIZES) {
     await page.getByRole("button", { name: "Start experiment" }).click();
     const emit = (e: unknown) => page.evaluate((p) => (window as unknown as { __emit: (x: unknown) => void }).__emit(p), e);
     await emit({ event: "state", state: "running", progress: { index: 2, total: 4, trial_id: "core-b001-o001-chrome-javascript-t5", completed: 1 } });
-    for (let i = 0; i < 40; i++) await emit({ event: "live_sample", t: i, rss_mb: 900 + 120 * Math.sin(i / 6) + i * 4, cpu_pct: 20, processes: 24 });
+    for (let i = 0; i < 12; i++) { await emit({ event: "live_sample", t: i, rss_mb: 900 + 120 * Math.sin(i / 2.5) + i * 14, cpu_pct: 20, processes: 24 }); await page.waitForTimeout(500); } // real-time spacing so the pen is mid-sheet
     await snap("run-running");
   });
 }
