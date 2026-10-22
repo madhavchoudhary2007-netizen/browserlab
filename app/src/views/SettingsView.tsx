@@ -74,7 +74,7 @@ export function SettingsView() {
             <li key={p.browser} className="settings-row">
               <strong>{p.browser}</strong>
               <div className="lib-main">
-                <div className="lib-when">{p.installed ? p.version : "not installed"}, <span className="lib-status" style={{ color: PROFILE_TONE[p.state] }}>{p.state}</span>{p.created_with ? ` (created with ${p.created_with})` : ""}</div>
+                <div className="lib-when">{p.installed ? p.version : "not installed"}, <span className="lib-status" style={{ color: PROFILE_TONE[p.state] }}>{p.state.replace("_", " ")}</span>{p.created_with ? ` (created with ${p.created_with})` : ""}</div>
                 <div className="lib-meta">{STATE_TEXT[p.state]}</div>
               </div>
               {canCreate(p) && (

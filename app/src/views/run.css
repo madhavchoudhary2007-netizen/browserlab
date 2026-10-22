@@ -68,7 +68,7 @@ button.run-stop.run-stop.run-stop:not(:disabled):not(.ds-btn) { color: var(--dan
 }
 
 /* Idle sheet strip at medium widths; full sheet while a run is shown and at >=1600 px */
-@media (min-width: 1000px) {
+@media (min-width: 880px) {
   .run-main { display: block; order: -1; }
   .run[data-show="false"] .run-main .pen-frame { block-size: clamp(8rem, 19vh, 11rem); }
 }

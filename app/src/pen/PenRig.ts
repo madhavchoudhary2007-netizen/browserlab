@@ -119,7 +119,7 @@ export class PenRig {
   private placePen(lifted = false) {
     const e = this.engine, s = this.scale;
     const u = e ? e.u : 0, v = e ? e.v : 0;
-    const x = this.x(u), y = this.y(v), tilt = e ? Math.max(-10, Math.min(10, e.tilt * 3)) : 0;
+    const x = Math.min(this.x(u), this.W - this.margins.r), y = this.y(v), tilt = e ? Math.max(-10, Math.min(10, e.tilt * 3)) : 0;
     const rot = 35 + tilt, off = lifted ? 9 : 5, offy = lifted ? 12 : 7;
     this.o.pen.style.transform = `translate3d(${x}px,${y - (lifted ? 6 : 0)}px,0) rotate(${rot}deg) scale(${s})`;
     this.o.shadow.style.transform = `translate3d(${x + off * (this.o.mini ? 0.4 : 1)}px,${y + offy * (this.o.mini ? 0.4 : 1)}px,0) rotate(${rot}deg) scale(${s})`;

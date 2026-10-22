@@ -30,7 +30,7 @@ function useAfterIdle(): boolean {
 }
 
 function useWide(): boolean {
-  const q = "(min-width: 1000px)";
+  const q = "(min-width: 880px)";
   const [w, setW] = useState(() => typeof matchMedia === "function" && matchMedia(q).matches);
   useEffect(() => { const mq = matchMedia(q); const f = () => setW(mq.matches); mq.addEventListener("change", f); return () => mq.removeEventListener("change", f); }, []);
   return w;

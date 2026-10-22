@@ -93,3 +93,9 @@
 - Common complaints: small low-contrast secondary text; wide-window emptiness for list screens; clipping at 900x600/1280x800; report replay below the fold; '1 tabs' copy bug; library no-match header with no rows; heavy lifted-pen shadow; replay strips cropped, no light x6 strip.
 - Fixes (commit c3aac15, pack cycle4): secondary text --t-0 0.875-0.9375 rem; dark --fg-muted/--grid lightened (contrast script passes); tab/tabs plural; Library/Compare/Settings capped at 72 rem when >=1600; library no-match hides the empty header; TraceReplay placed before the verdict in reports; lifted pen shadow offset reduced; replay strips are element crops, light x6 strip added; Settings profile rows wrap (flex) so 200 % text does not overflow.
 - Gates: typecheck/lint/vitest 18/e2e 97/97/contrast/frozen all green.
+
+## Critique cycle 3 result (pack cycle4): E 3.4, F 3.25 (mean 3.325; -0.175 vs cycle 2, reviewer spread is about 0.15)
+- E: Dist 3, Fit 4, Hier 3, Type 3, Color 3.5, Motion 4, Craft 3.5, Usability 3, Signature 4, Consist 3. F: 3.5, 3.5, 3, 3.5, 3.5, 4, 3, 3, 4, 2.5. Both opened all manifest files (F noted the two JSON files are not in the manifest; they sit in the folder).
+- Recurring: Analysis charts look like a stock chart library (break identity); Run left-aligned vs Library/Compare/Settings centred; 900x600 idle/ready has no pen sheet; Compare table clips columns and palette list clipped at 900; idle readout dash; readout jitter; raw 'version_changed'; replay pen tip past plot edge.
+- Fixes: pen x clamped to plot edge; Settings state text humanised; readout tabular-nums and wider min width; idle sheet from 880 px; palette higher and taller; Compare table tighter at <=1100 px. Tried 'Replay' constant label but legend.spec asserts 'Replay again' after finish, so label reverted (assertion unchanged).
+- Stop rule: cycle 1->2 +0.15, 2->3 -0.175. One more cycle under +0.1 triggers escalation.
