@@ -1,6 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useLab } from "./store";
-import { CompareView } from "./views/CompareView";
+import { CompareView, CompareEmpty } from "./views/CompareView";
 import { LibraryView, type Selected } from "./views/LibraryView";
 import { ResultsView } from "./views/ResultsView";
 import { SettingsView } from "./views/SettingsView";
@@ -62,7 +62,7 @@ function AppShell() {
           {/* RunView stays mounted so an active run's controls never unmount */}
           <div hidden={view !== "run"}><RunView /></div>
           {view === "library" && <LibraryView onOpen={(s) => { setSelected(s); setView("results"); }} onCompare={(a, b) => { setPair([a, b]); setView("compare"); }} />}
-          {view === "compare" && pair && <CompareView a={pair[0]} b={pair[1]} />}
+          {view === "compare" && (pair ? <CompareView a={pair[0]} b={pair[1]} /> : <CompareEmpty onOpenLibrary={() => setView("library")} />)}
           {view === "settings" && <SettingsView />}
           {view === "results" && <Arrival token={arrival}><ResultsView key={`${selected?.id}|${selected?.suite}`} selected={selected} /></Arrival>}
         </div>

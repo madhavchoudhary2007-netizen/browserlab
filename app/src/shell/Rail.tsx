@@ -32,11 +32,12 @@ export function Rail({ view, setView, showCompare, openPalette }: { view: ViewId
       <nav aria-label="Primary">
         {VIEWS.map((v) => (
           <button key={v.id} aria-current={view === v.id ? "page" : undefined} onClick={() => setView(v.id)}
-            disabled={v.id === "compare" && !showCompare} title={v.id === "compare" && !showCompare ? "Tick two experiments in the Library to compare them" : undefined}>
+            aria-disabled={v.id === "compare" && !showCompare ? "true" : undefined} aria-describedby={v.id === "compare" && !showCompare ? "rail-compare-hint" : undefined}>
             <Icon name={v.icon} />
             <span>{v.label}</span>
           </button>
         ))}
+        {!showCompare && <span id="rail-compare-hint" className="sr-only">Needs two finished experiments. Tick two in the Library.</span>}
       </nav>
       <div className="rail-foot">
         <button className="rail-palette" onClick={openPalette} aria-keyshortcuts="Control+K Meta+K">

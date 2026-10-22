@@ -4,11 +4,12 @@ import { goTo, openApp, openExperiment } from "./helpers";
 test("nav buttons are reachable by Tab in order and activate with Enter", async ({ page }) => {
   await openApp(page);
   const seen: string[] = [];
-  for (let i = 0; i < 4; i++) {
+  for (let i = 0; i < 5; i++) {
     await page.keyboard.press("Tab");
     seen.push((await page.evaluate(() => document.activeElement?.textContent ?? "")).trim());
   }
-  expect(seen).toEqual(["Run", "Library", "Results", "Settings"]);
+  expect(seen).toEqual(["Run", "Library", "Results", "Compare", "Settings"]); // Compare is aria-disabled but stays focusable (F1)
+  await page.keyboard.press("Shift+Tab");
   await page.keyboard.press("Shift+Tab");
   await page.keyboard.press("Shift+Tab");  // back to Library
   await page.keyboard.press("Enter");

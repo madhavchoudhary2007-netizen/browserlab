@@ -53,3 +53,6 @@
 .export-status[data-kind="error"] { color: var(--danger); }
 .png-save { flex-wrap: wrap; justify-content: end; }
 .chart-sheet { border: 1px solid var(--edge); border-radius: var(--r-2); background: var(--raised); overflow: hidden; }
+.note-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s-1) var(--s-3); }
+.note-tag { font: var(--w-strong) var(--t-0) var(--font-ui); color: var(--warn); text-transform: none; border: 1px solid var(--warn); border-radius: var(--r-1); padding: 0 var(--s-2); }
+.note-warn { margin: 0; color: var(--warn); text-decoration: none; }

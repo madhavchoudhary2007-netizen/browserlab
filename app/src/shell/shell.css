@@ -38,7 +38,7 @@ kbd { font: var(--w-reg) var(--t-0) var(--font-num); color: var(--fg-muted); }
 .arrival-pen { position: absolute; inset-inline: 0; inset-block-start: 0; block-size: 3px; background: var(--pen); transform-origin: left; opacity: 0; pointer-events: none; }
 
 .rail-caption { color: var(--fg-muted); font-weight: var(--w-reg); font-size: var(--t-0); }
-.rail nav button:disabled { opacity: 0.5; cursor: not-allowed; }
+.rail nav button[aria-disabled="true"] { opacity: 0.5; }
 .palette::backdrop { background: rgb(0 0 0 / 0.6); }
 @media (min-width: 1920px) { html { font-size: 112.5%; } }
 @media (min-width: 2400px) { html { font-size: 140%; } }

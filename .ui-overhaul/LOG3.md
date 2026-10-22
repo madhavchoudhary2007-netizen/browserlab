@@ -46,3 +46,11 @@
 - Gates at start: typecheck, lint, vitest 18, build (JS 1,041.88 kB, gzip 339.02), e2e 97/97, contrast OK, frozen-check OK. pytest not run (Python unchanged).
 - Owner note recorded: app must feel very fast; switching to and from Settings lags. Decision: add task P0 (measure view-switch time, fix lag) right after F1; motion work stays on the pen and view transitions, no decoration.
 - State pointers: BRIEF3.md, pass3/F1..F8.md. Current: Q1 F1.
+
+## F1 done (commit below)
+- contrast.mjs: added dark/light "Stop after trial" (--sheet on --danger; 5.75 light, 7.98 dark) and chart axis/legend text pairs; all pass. New e2e (f1.spec.ts) measured the real page: dark Stop fg on salmon passes 4.5 (reviewers' "white on salmon" claim not reproduced; text is dark).
+- Exploratory/notes now use --warn plus a "Limited evidence"/"Note" tag instead of the teal accent; no underline.
+- Compare: h1 "Compare" + purpose line; dash cells replaced by "Needs 2 or more trials on each side for a test" (title has the reason), "n/a" for other missing values; paired A/B bars column; CompareEmpty screen with "Open Library". Decision: the Compare nav item is aria-disabled (focusable, aria-describedby hint outside the button so its name stays "Compare"); activating it opens the empty state explaining why, instead of a dead button. This is how the F1 empty-state check is reachable.
+- e2e edit (layout): keyboard.spec.ts nav Tab order now Run, Library, Results, Compare, Settings (Compare is focusable by F1 design) and three Shift+Tab to return to Library; no assertion weakened.
+- Evidence: .ui-overhaul/review3/f1/ (before, empty, populated).
+- Gates: typecheck, lint, vitest 18, e2e 101 (97 + 4 new), contrast OK, frozen-check OK.
