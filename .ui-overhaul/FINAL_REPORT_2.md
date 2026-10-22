@@ -2,7 +2,7 @@ Verdict: ESCALATED
 
 # BrowserLab UI overhaul, pass 2: final report
 
-The stop rule fired. The reviewer mean did not improve by 0.1 in two consecutive cycles (cycle 2 to 3: -0.175, cycle 3 to 4: +0.075), so I stopped polishing after four critique cycles. No cycle reached every line at 4 or above with a mean of 4.3 or more.
+The stop rule fired after four critique cycles (cycle 2 to 3: -0.175, cycle 3 to 4: +0.075). You then chose option 1 and I ran one more cycle (graph-paper charts, one left edge, idle title). It gave a mean of 3.475 (+0.075), still under the 0.1 improvement bar and far under 4.3. No cycle reached every line at 4 or above with a mean of 4.3 or more.
 
 ## 1. Branch, commit, tag
 Branch `ui-overhaul` (never merged, `main` untouched). Tag `ui-overhaul-2-final` marks the final commit. Pass-1 tag `ui-overhaul-final` is unchanged.
@@ -29,8 +29,11 @@ The identity is "a pen inking measurements on graph paper". The pen is used on t
 | 2 | cycle3 | C, D | 3.45, 3.55 | 3.50 |
 | 3 | cycle4 | E, F | 3.4, 3.25 | 3.325 |
 | 4 | cycle5 | G, H | 3.5, 3.3 | 3.40 |
+| 5 (after option 1) | cycle6 | I, J | 3.6, 3.35 | 3.475 |
 
 Weakest lines across cycles: Distinctiveness 3 to 3.5, Hierarchy 3, Typography 3 to 3.5, Craft 3, Usability 3 to 3.5, Consistency 2.5 to 3.5. Strongest: Purposeful motion 4 to 4.5, Signature moment 3.5 to 4, Subject fit 3.5 to 4. Individual reviewer spread within a cycle is about 0.15, so small differences between cycles are partly noise. Raw review notes are summarised per cycle in LOG2.md.
+
+Cycle 5 left these named by both reviewers and not fixed: empty idle chart at 1920/2560 with controls in a narrow column; Start below the fold at 900x600 (below the real 960x640 minimum); the pen sprite reads as a pencil (shape fixed by the brief's spec) and its body still crosses the plot frame at the end of a replay despite the tip clamp; Compare table mostly dashes (sample data); tiny chart legends, box plots and default zoom icons; dark-theme 'Stop after trial' contrast was questioned by several reviewers and I did not re-measure it (the contrast script does not list that pair, so treat it as unverified); Compare nav enabled state differs between screens by design (needs two finished experiments).
 
 ## 5. Baseline versus final (headless Chrome, mock engine; not the packaged app)
 - Startup proxy, ready p50: base 60 ms; pass 1 81 ms; pass 2 before fix 86-88 ms; final about 63-64 ms (+4-7 % over base). Cause of the pass-1 regression was bundled web fonts; fixed with system font stacks.
@@ -66,7 +69,8 @@ bash .ui-overhaul/measure/make_pack.sh <N>   # review pack
 Merging is your call; I did not merge.
 
 ## Needs human direction
-Four automated cycles plateaued near 3.4. Options:
-1. **Restyle Analysis charts as graph paper and unify layout** (single left edge on every screen, real hero on idle). Most likely to lift Distinctiveness and Consistency; about one more cycle; risk of chart-library constraints.
-2. **Accept the current state as a solid base** and have a human judge the pen and layout in the real app, since several complaints come from the 900 px sheet, below the 960 px minimum window.
-3. **Re-brief the reviewers on real window sizes only** (960x640 minimum and up) so the score reflects what users can reach, then run one more cycle.
+Five automated cycles plateaued near 3.4 to 3.5. Options:
+1. **Done in cycle 5, small gain.** Analysis charts, left edge and idle hero were addressed; the score moved +0.075.
+2. **Redesign the idle Run layout and the pen sprite** (reviewers keep naming the empty idle chart and the pencil look; the pen shape was fixed by the brief, so this needs your sign-off to change).
+3. **Accept the current state as a solid base** and have a human judge the pen and layout in the real app, since several complaints come from the 900 px sheet, below the 960 px minimum window.
+4. **Re-brief the reviewers on real window sizes only** (960x640 minimum and up) so the score reflects what users can reach, then run one more cycle.

@@ -102,3 +102,6 @@
 
 ## Critique cycle 4 result (pack cycle5): G 3.5, H 3.3 (mean 3.40; +0.075 vs cycle 3)
 - Second consecutive cycle with less than +0.1 improvement: stop rule fired, verdict ESCALATED (FINAL_REPORT_2.md).
+
+## Critique cycle 5 result (pack cycle6, after option 1): I 3.6, J 3.35 (mean 3.475; +0.075 vs 3.40)
+- Graph-paper charts, single left edge and idle title done. Still named: idle empty chart at wide sizes, Start below fold at 900x600, pencil look and body crossing plot frame, Compare dashes, dark Stop contrast (unmeasured). ESCALATED stands.
