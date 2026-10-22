@@ -1,5 +1,5 @@
 # UI overhaul log
-Branch: ui-overhaul (from perfection-loop @ base-ref). Phase: U8 cycle 3 reviewed, decision pending (U0-U7 done; critique cycle 1 fixes applied, review 2 pending in U8). Cycle: 1. Cycle: 0.
+Branch: ui-overhaul (from perfection-loop @ base-ref). Phase: U8 cycle 4 reviewed, decision pending (U0-U7 done; critique cycle 1 fixes applied, review 2 pending in U8). Cycle: 1. Cycle: 0.
 
 ## Decisions
 - App lives in `app/`; gate uses UI_DIRS="app/src", TAURI_DIR="app/src-tauri" (brief paths adjusted).
@@ -94,3 +94,9 @@ Fixes before review: compact Start (ring when enabled, dashed when disabled), li
 Scores: Distinctiveness 3, Subject fit 4, Hierarchy 3, Typography 3, Color 3, Motion NOT JUDGEABLE, Craft 3, Usability 3, Signature 3, Consistency 3.
 Defects: (1) Compare nav item appears only after a pair is chosen, shifting Settings (design choice kept from original app; could show always-disabled) (2) wide windows: narrow column, tiny UI (limited by existing responsive test <=1100px) (3) report first view still chrome before data (4) Run idle flat, OK column detached (5) running controls undifferentiated, rail trace cramped; chart in screenshot is synthetic sine from the test harness (6) library repetitive (mock data identical) (7) compare all dashes (mock single-trial data) (8) light theme depth, 900px export wrap, palette backdrop.
 Status vs brief section 8: cycles 2 and 3 both ended with the same failing check (reviewers' rubric lines <4, means 3.3 and 3.1; reviewer variance is about +-0.3). Stop rule 'two cycles in a row with the same failing checks' is met -> brief says write FINAL_REPORT.md with Verdict: ESCALATED unless the owner overrides. Cycles used: 3 of 6. Waiting for owner decision.
+
+## U8 cycle 4 (owner overrode the stop rule): independent review 4 = mean 3.4 / 5
+Fixes: Compare nav item always present (disabled until a pair is ticked, tooltip), launch panel (confirm + Start + reason grouped), preflight single-line rows, Stop outlined in danger, rail caption 'Live memory (RSS)', Save PNG outlined, palette backdrop, root text scale 112.5 % >=1920 px and 125 % >=2400 px (content still capped at 1100 px).
+Scores (fresh agent): Distinctiveness 3, Subject fit 4, Hierarchy 3, Typography 3.5, Color 3.5, Motion NOT JUDGEABLE, Craft 3, Usability 3.5, Signature 3, Consistency 4. Means by cycle: 2.6, 3.3, 3.1, 3.4. Cycles used 4 of 6. DONE bar (all >=4, mean >=4.3) not reached.
+Remaining defects: (1) wide screens: narrow centred column (existing responsive test caps content at 1100 px; a real fix needs a multi-column wide layout, e.g. sticky side summary) (2) run-idle lacks a focal point; (3) signature rail trace small/idle-only; (4) report legend of 16 near-identical hues, chart below the fold at 1280x800 and 900x600; (5) report header clutter (five export buttons); (6) light theme depth; (7) compare/library-no-match/settings sparse (settings status chips/icons missing); (8) 900 px orphan JSON button.
+Assessment: the remaining items are structural (layout and identity), not polish; they need design decisions (wide-window layout, an export menu requiring test changes, a stronger signature) rather than another tweak round.
