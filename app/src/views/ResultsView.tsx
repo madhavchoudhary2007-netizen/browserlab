@@ -29,7 +29,7 @@ export function ResultsView({ selected }: { selected: Selected | null }) {
   const label = TABLES.find((t) => t.id === table)?.label ?? table;
   return (
     <section className="flex flex-col gap-4" aria-label="Results explorer">
-      <h2 className="font-semibold">{sel.id} <span style={{ color: "var(--muted)" }}>({sel.suite})</span></h2>
+      <h2 className="results-crumb">{sel.id} <span>({sel.suite})</span></h2>
       <div role="tablist" className="flex gap-2">
         {TABLES.map((t) => (
           <button key={t.id} role="tab" aria-selected={table === t.id} className="min-h-11 px-4"

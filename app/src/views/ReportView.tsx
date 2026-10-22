@@ -7,11 +7,14 @@ import type { Report, TrialStats } from "../report";
 import { useRemote } from "../useRemote";
 import type { Selected } from "./LibraryView";
 import { AnalysisView } from "./AnalysisView";
+import { Button } from "../ds/primitives";
+import { useAfter } from "../ds/useAfter";
+import "./report.css";
 
 const STATUS_COLOR: Record<string, string> = { completed: "var(--ok)", incomplete: "var(--danger)" };
 
 function Fact({ k, v }: { k: string; v: string }) {
-  return <div><div style={{ color: "var(--muted)" }}>{k}</div><div className="num">{v}</div></div>;
+  return <div><dt>{k}</dt><dd>{v}</dd></div>;
 }
 
 function TrialTable({ trials, unit }: { trials: TrialStats[]; unit: string }) {
@@ -50,22 +53,27 @@ export function ReportView({ selected }: { selected: Selected }) {
   const timeReport = useMemo(() => r && {
     ...r, series: { ...r.series, series: r.series.series.filter((s) => (wl === "all" || s.workload === wl) && (tb === "all" || String(s.tabs) === tb)) },
   }, [r, wl, tb]);
+  const filtered = wl !== "all" || tb !== "all";
   const bad = useMemo(() => r?.integrity.filter((c) => !c.ok) ?? [], [r]);
 
-  if (state.kind === "loading") return <p aria-busy="true">Building report…</p>;
-  if (state.kind === "error") return <div role="alert"><p>Report failed: {state.message}</p><button className="min-h-11 px-4" onClick={retry}>Retry</button></div>;
+  const slow = useAfter(150, state.kind === "loading");
+  if (state.kind === "loading") return slow
+    ? <div className="report-skeleton" aria-busy="true" role="status" aria-label="Building report"><div /><div /><div /><span className="sr-only">Building report…</span></div>
+    : <p aria-busy="true" className="sr-only">Building report…</p>;
+  if (state.kind === "error") return <div role="alert" className="report-section"><p>Report failed: {state.message}</p><div><Button onClick={retry}>Retry</Button></div></div>;
   const d = state.value;
-  if (d.trials.length === 0) return <p>This experiment has no measured trials yet.</p>;
+  if (d.trials.length === 0) return <p>This experiment has no measured trials yet. Start a run from the Run screen and its report appears here.</p>;
   const sys = d.system as Record<string, string | number>;
   return (
-    <section className="flex flex-col gap-6" aria-label="Run report">
-      <div className="rounded-md border p-4" style={{ borderColor: "var(--line)" }}>
-        <div className="flex flex-wrap items-baseline gap-4">
-          <h3 className="text-lg font-semibold">{d.mode ?? "Experiment"} · {d.id}</h3>
-          <span className="num" style={{ color: STATUS_COLOR[d.status] ?? "var(--signal)" }}>{d.status}</span>
-          <span className="num" style={{ color: "var(--muted)" }}>{d.completed_trials}/{d.scheduled_trials} trials</span>
+    <section className="report" aria-label="Run report">
+      <div className="report-head">
+        <div className="report-title">
+          <h3>{d.mode ?? "Experiment"} · {d.id}</h3>
+          <span className="report-state" style={{ color: STATUS_COLOR[d.status] ?? "var(--fg)" }}>{d.status}</span>
+          <span className="report-count">{d.completed_trials}/{d.scheduled_trials} trials</span>
         </div>
-        <div className="mt-3 grid grid-cols-2 gap-4 md:grid-cols-4">
+        <ExportBar id={selected.id} suite={selected.suite} />
+        <dl className="report-facts">
           <Fact k="Started" v={fmtDateTime(d.started_unix)} />
           <Fact k="Finished" v={fmtDateTime(d.finished_unix)} />
           <Fact k="Duration" v={d.started_unix && d.finished_unix ? fmtDuration(d.finished_unix - d.started_unix) : "—"} />
@@ -74,23 +82,22 @@ export function ReportView({ selected }: { selected: Selected }) {
           <Fact k="Per trial" v={`${d.warmup_seconds ?? "?"} s warm-up + ${d.measure_seconds ?? "?"} s measured @ ${d.sample_interval_seconds ?? "?"} s`} />
           <Fact k="Machine" v={`${sys.chip ?? "?"} · ${sys.memory_gb ?? "?"} GB · macOS ${sys.macos_version ?? "?"}`} />
           <Fact k="Memory metric" v={d.series.metric === "rss_mb" ? "summed RSS (not footprint)" : "process-tree physical footprint"} />
-        </div>
-        <p className="num mt-3" style={{ color: "var(--muted)" }}>{Object.values(d.browser_versions).join(" · ")}</p>
+        </dl>
+        <p className="report-note">{Object.values(d.browser_versions).join(" · ")}</p>
       </div>
 
-      <div role="note" className="rounded-md border p-4" style={{ borderColor: "var(--line)" }}>
+      <div role="note" className="report-verdict">
         <strong>What this data supports</strong>
         <p>{d.inference.reason}</p>
-        {d.notes.map((n) => <p key={n} style={{ color: "var(--signal)" }}>{n}</p>)}
-        {bad.length === 0 && d.integrity.length > 0 && <p style={{ color: "var(--muted)" }}>Integrity check: memory means recomputed from the raw samples match the engine's summary for all {d.integrity.length} trials (within 0.5%).</p>}
+        {d.notes.map((n) => <p key={n}>{n}</p>)}
+        {bad.length === 0 && d.integrity.length > 0 && <p className="report-note">Integrity check: memory means recomputed from the raw samples match the engine's summary for all {d.integrity.length} trials (within 0.5%).</p>}
         {d.problems.missing_trials.length > 0 && <p style={{ color: "var(--danger)" }}>Missing trials: {d.problems.missing_trials.join(", ")}. {d.problems.attempt_failures.length} failed attempt(s) are recorded in logs/errors.jsonl.</p>}
       </div>
 
-      <ExportBar id={selected.id} suite={selected.suite} />
 
-      <div>
-        <div className="flex flex-wrap items-center gap-4">
-          <h3 className="font-semibold">Over time</h3>
+      <div className="report-section">
+        <h3>Over time</h3>
+        <div className="report-controls">
           <label>Metric{" "}
             <select className="min-h-11" value={metric} onChange={(e) => setMetric(e.target.value as TraceMetric)}>
               <option value="footprint">Memory footprint</option><option value="cpu">CPU</option><option value="procs">Process count</option>
@@ -102,30 +109,31 @@ export function ReportView({ selected }: { selected: Selected }) {
           </>}
           <ChartPngButton prefix={metric === "footprint" ? "Memory footprint over time" : metric === "cpu" ? "CPU over time" : "Process count over time"} id={selected.id} suite={selected.suite} />
         </div>
-        <p style={{ color: "var(--muted)" }}>
+        {filtered && <p className="report-note" role="status">Showing {timeReport?.series.series.length ?? 0} of {d.series.series.length} {d.series.mode === "trial" ? "trials" : "conditions"}. <Button variant="quiet" onClick={() => { setWl("all"); setTb("all"); }}>Clear filters</Button></p>}
+        <p className="report-note">
           {d.series.mode === "trial" ? "One line per trial, each starting at its own t = 0." : "Mean of the trials in each condition (shaded: min to max across trials)."} Shaded left area is warm-up and is excluded from every statistic. Click the legend to hide a line; scroll or drag the slider to zoom.
         </p>
         <TimeChart report={timeReport ?? d} metric={metric} />
       </div>
 
-      <div><h3 className="font-semibold">Mean memory per trial</h3><ChartPngButton prefix="Mean memory by trial" id={selected.id} suite={selected.suite} />
-        <p style={{ color: "var(--muted)" }}>Bar: mean over the measurement window. Whisker: lowest to highest 1-second sample inside the trial. This spread is within one trial, not uncertainty across repetitions.</p>
+      <div className="report-section"><h3>Mean memory per trial</h3><ChartPngButton prefix="Mean memory by trial" id={selected.id} suite={selected.suite} />
+        <p className="report-note">Bar: mean over the measurement window. Whisker: lowest to highest 1-second sample inside the trial. This spread is within one trial, not uncertainty across repetitions.</p>
         <MeanBars report={d} /></div>
 
-      {d.composition.length > 0 && <div><h3 className="font-semibold">Where the memory is</h3><ChartPngButton prefix="Memory by process class" id={selected.id} suite={selected.suite} />
-        <p style={{ color: "var(--muted)" }}>Mean physical footprint of each process class (browser, renderers, GPU, network, utility) summed within a sample, then averaged over the measurement window.</p>
+      {d.composition.length > 0 && <div className="report-section"><h3>Where the memory is</h3><ChartPngButton prefix="Memory by process class" id={selected.id} suite={selected.suite} />
+        <p className="report-note">Mean physical footprint of each process class (browser, renderers, GPU, network, utility) summed within a sample, then averaged over the measurement window.</p>
         <CompositionChart report={d} /></div>}
 
-      <div><h3 className="font-semibold">CPU versus memory</h3><ChartPngButton prefix="CPU versus memory by trial" id={selected.id} suite={selected.suite} />
+      <div className="report-section"><h3>CPU versus memory</h3><ChartPngButton prefix="CPU versus memory by trial" id={selected.id} suite={selected.suite} />
         <CpuMemChart report={d} /></div>
 
-      <div><h3 className="font-semibold">Per-trial statistics</h3>
-        <p style={{ color: "var(--muted)" }}>Computed from the raw 1-second samples in the measurement window. Drift compares the last third of the window with the first third; MB/min is the least-squares slope. Both are descriptive.</p>
+      <div className="report-section"><h3>Per-trial statistics</h3>
+        <p className="report-note">Computed from the raw 1-second samples in the measurement window. Drift compares the last third of the window with the first third; MB/min is the least-squares slope. Both are descriptive.</p>
         <TrialTable trials={d.trials} unit={unit} /></div>
 
       {d.has_replication
-        ? <div><h3 className="text-lg font-semibold">Inferential statistics</h3><AnalysisView key={`${selected.id}|${selected.suite}`} selected={selected} hideExport /></div>
-        : <p style={{ color: "var(--muted)" }}>Inferential statistics (confidence intervals, ANOVA, post-hoc tests) need repeated trials per condition. This run has one, so none are computed. Standard and Full runs unlock them.</p>}
+        ? <div className="report-section"><h3>Inferential statistics</h3><AnalysisView key={`${selected.id}|${selected.suite}`} selected={selected} hideExport /></div>
+        : <p className="report-note">Inferential statistics (confidence intervals, ANOVA, post-hoc tests) need repeated trials per condition. This run has one, so none are computed. Standard and Full runs unlock them.</p>}
     </section>
   );
 }
