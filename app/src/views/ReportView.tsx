@@ -11,6 +11,7 @@ import { Button } from "../ds/primitives";
 import { TraceReplay } from "../pen/TraceReplay";
 import { useAfter } from "../ds/useAfter";
 import { Staged } from "../ds/Staged";
+import { EmptyState, ErrorState } from "../ds/States";
 import "./report.css";
 
 const STATUS_COLOR: Record<string, string> = { completed: "var(--ok)", incomplete: "var(--danger)" };
@@ -62,9 +63,9 @@ export function ReportView({ selected }: { selected: Selected }) {
   if (state.kind === "loading") return slow
     ? <div className="report-skeleton" aria-busy="true" role="status" aria-label="Building report"><div /><div /><div /><span className="sr-only">Building report…</span></div>
     : <p aria-busy="true" className="sr-only">Building report…</p>;
-  if (state.kind === "error") return <div role="alert" className="report-section"><p>Report failed: {state.message}</p><div><Button onClick={retry}>Retry</Button></div></div>;
+  if (state.kind === "error") return <ErrorState what="Report failed." message={state.message} onRetry={retry} />;
   const d = state.value;
-  if (d.trials.length === 0) return <p>This experiment has no measured trials yet. Start a run from the Run screen and its report appears here.</p>;
+  if (d.trials.length === 0) return <EmptyState>This experiment has no measured trials yet. Start a run from the Run screen and its report appears here.</EmptyState>;
   const sys = d.system as Record<string, string | number>;
   return (
     <section className="report" aria-label="Run report">

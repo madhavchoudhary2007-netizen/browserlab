@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Button } from "../ds/primitives";
 import { useRemote } from "../useRemote";
+import { PageHeader } from "../ds/PageHeader";
 import { call, type Mode, type PlanResult } from "../engine";
 import { Preflight, type PreflightResult } from "../components/Preflight";
 import { RunPanel } from "../components/RunPanel";
@@ -89,6 +90,7 @@ export function RunView() {
 
   return (
     <div className="run" data-show={runState !== "idle"} data-busy={busy}>
+      <PageHeader title="Run" purpose="Launch an experiment: real browsers load a workload while memory is measured." />
       <div className="run-main">{(wide || runState !== "idle") && <PenPanel />}</div>
       <div className="run-side">
       <div role="radiogroup" aria-label="Test mode" className="run-modes">

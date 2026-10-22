@@ -11,8 +11,8 @@ import { ScalingChart } from "../charts/ScalingChart";
 import { ChartPngButton, ExportBar } from "../components/ExportBar";
 import { useSwr } from "./useSwr";
 import type { Selected } from "./LibraryView";
-import { Button } from "../ds/primitives";
 import { useAfter } from "../ds/useAfter";
+import { ErrorState } from "../ds/States";
 import "./report.css";
 import "./library.css";
 
@@ -72,7 +72,7 @@ export function AnalysisView({ selected, hideExport = false }: { selected: Selec
     ? <div className="report-skeleton" aria-busy="true" role="status" aria-label="Computing statistics"><div /><div /><div /></div>
     : <p aria-busy="true" className="sr-only">Computing statistics…</p>;
   if (state.kind === "error") {
-    return <div role="alert" className="report-section"><p>Analysis failed: {state.message}</p><div><Button onClick={retry}>Retry</Button></div></div>;
+    return <ErrorState what="Analysis failed." message={state.message} onRetry={retry} />;
   }
   const d = state.value;
   if (d.n_trials === 0) return <p>No usable trials to analyse. {d.notes.join(" ")}</p>;

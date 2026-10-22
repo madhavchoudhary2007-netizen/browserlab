@@ -43,7 +43,7 @@ test("F1: populated Compare has a title, purpose line, and explanations instead 
   await page.getByRole("checkbox", { name: /^Compare / }).nth(1).check();
   await page.getByRole("button", { name: "Compare sessions" }).click();
   await expect(page.getByRole("heading", { level: 1, name: "Compare" })).toBeVisible();
-  await expect(page.locator(".page-purpose")).toBeVisible();
+  await expect(page.locator(".page-purpose:visible")).toBeVisible();
   await expect(page.locator(".cmp-table td").filter({ hasText: /^—$/ })).toHaveCount(0);
 });
 

@@ -99,3 +99,12 @@
 - e2e f6.spec.ts: exactly one font file in public/fonts, <= 30 kB, licence present, no request leaves localhost, font applied; layout shift <= 0.05 across first paint and font arrival.
 - Gates: typecheck, lint, vitest 20, build, e2e 125, contrast OK, frozen-check OK.
 - Temp worktrees now registered: /tmp/bl_p2 (tag ui-overhaul-2-final) and /tmp/bl_base (base-ref 0cc5773); remove at the end.
+
+## F7 done
+- Shared PageHeader (ds/PageHeader.tsx): one h1, one purpose line, optional action slot, same markup and spacing on Run, Library, Results, Compare and Settings; wrapper components (LibraryView, CompareView, SettingsView, ResultsView) render the header in every state (loading, error, empty, loaded). The old results-crumb h2 became the Results purpose line. Run's header spans both columns of the stage layout. Decision: each screen keeps its primary action where its flow needs it (Start in the launch card, Compare sessions in the Library bar, Open Library in the Compare empty state); at most one per screen, enforced by test.
+- Shared ErrorState and EmptyState (ds/States.tsx) replace the hand-written error blocks in Library, Settings, Compare, Report, Analysis and the empty notes in Library, Results, Report (same role="alert", same text pattern: bold what failed, engine message, Retry).
+- Tables: numeric cells (Compare, per-trial table, Library date and trials) use the mono stack with tabular figures.
+- e2e f7.spec.ts: one h1, one purpose line and <= 1 primary action on every screen; header left and top edges equal within 1 px on Run, Library, Results, Compare and Settings at 1280x800 and 1920x1080; tabular mono figures in the Compare table. f1.spec purpose locator made `:visible` (the hidden Run view also has a purpose line).
+- Not done in F7 (scope): copy audit beyond the headers, and loading skeleton unification (the existing report-skeleton style is already shared by Library, Report, Settings and Compare).
+- Evidence: review3/f7/{library,settings,compare,run-idle,results-report}-light-1280x800-before-after.png.
+- Gates: typecheck, lint, vitest 20, e2e 129, contrast OK, frozen-check OK.

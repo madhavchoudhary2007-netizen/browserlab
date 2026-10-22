@@ -4,6 +4,8 @@ import { call } from "../engine";
 import { useSwr } from "./useSwr";
 import { Button } from "../ds/primitives";
 import { useAfter } from "../ds/useAfter";
+import { PageHeader } from "../ds/PageHeader";
+import { ErrorState } from "../ds/States";
 import "./library.css";
 import "./report.css";
 
@@ -29,6 +31,13 @@ const PROFILE_TONE: Record<ProfileInfo["state"], string> = { ready: "var(--ok)",
 const SOURCE_TEXT = { environment: "set by environment variable", saved: "saved choice", default: "default location" } as const;
 
 export function SettingsView() {
+  return (<>
+    <PageHeader title="Settings" purpose="Where BrowserLab keeps your data, and the browser profiles it uses for runs." />
+    <SettingsBody />
+  </>);
+}
+
+function SettingsBody() {
   const [state, retry] = useSwr<SettingsInfo>("settings.get", {});
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -44,7 +53,7 @@ export function SettingsView() {
     ? <div className="report-skeleton" aria-busy="true" role="status" aria-label="Loading settings"><div /><div /><div /></div>
     : <p aria-busy="true" className="sr-only">Loading settings…</p>;
   if (state.kind === "error") {
-    return <div role="alert" className="report-section"><p>Could not load settings: {state.message}</p><div><Button onClick={retry}>Retry</Button></div></div>;
+    return <ErrorState what="Could not load settings." message={state.message} onRetry={retry} />;
   }
   const s = state.value;
   const missing = s.profiles.filter((p) => p.state === "missing" || p.state === "empty").length;

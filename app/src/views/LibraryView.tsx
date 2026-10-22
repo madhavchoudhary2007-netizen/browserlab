@@ -1,8 +1,10 @@
 import { useMemo, useState } from "react";
 import { fmtDateTime } from "../format";
 import { useSwr } from "./useSwr";
+import { PageHeader } from "../ds/PageHeader";
 import { Button } from "../ds/primitives";
 import { useAfter } from "../ds/useAfter";
+import { ErrorState, EmptyState } from "../ds/States";
 import "./library.css";
 
 export interface ExperimentInfo {
@@ -27,7 +29,14 @@ export function compareNote(a: ExperimentInfo, b: ExperimentInfo): string {
     : `Protocols differ (${a.protocol_key} vs ${b.protocol_key}); do not pool these.`;
 }
 
-export function LibraryView({ onOpen, onCompare }: { onOpen: (s: Selected) => void; onCompare: (a: Selected, b: Selected) => void }) {
+export function LibraryView(props: { onOpen: (s: Selected) => void; onCompare: (a: Selected, b: Selected) => void }) {
+  return (<>
+    <PageHeader title="Library" purpose="Every experiment in your project folder. Open one to see its results, or tick two to compare them." />
+    <LibraryBody {...props} />
+  </>);
+}
+
+function LibraryBody({ onOpen, onCompare }: { onOpen: (s: Selected) => void; onCompare: (a: Selected, b: Selected) => void }) {
   const [state, retry] = useSwr<ExperimentInfo[]>("library.scan", {});
   const [q, setQ] = useState("");
   const [status, setStatus] = useState<string>("all");
@@ -40,9 +49,9 @@ export function LibraryView({ onOpen, onCompare }: { onOpen: (s: Selected) => vo
     ? <ul className="lib-list" aria-busy="true" aria-label="Scanning experiment library">{[0, 1, 2, 3].map((i) => <li key={i} className="lib-row"><span /><div className="report-skeleton"><div /></div><span /></li>)}</ul>
     : <p aria-busy="true" className="sr-only">Scanning experiment library…</p>;
   if (state.kind === "error") {
-    return <div role="alert" className="lib"><p>Library scan failed: {state.message}</p><div><Button onClick={retry}>Retry</Button></div></div>;
+    return <ErrorState what="Library scan failed." message={state.message} onRetry={retry} />;
   }
-  if (all.length === 0) return <p>No experiments found yet. Completed runs and historical data_* folders appear here; start a run from the Run screen.</p>;
+  if (all.length === 0) return <EmptyState>No experiments found yet. Completed runs and historical data_* folders appear here; start a run from the Run screen.</EmptyState>;
 
   const picked = cmp.map((k) => all.find((e) => `${e.id}/${e.suite}` === k)).filter((e): e is ExperimentInfo => !!e);
   const filtered = shown.length !== all.length;

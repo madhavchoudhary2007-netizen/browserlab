@@ -5,6 +5,7 @@ import { AnalysisView } from "./AnalysisView";
 import { ReportView } from "./ReportView";
 import { LifecycleView } from "./LifecycleView";
 import type { Selected } from "./LibraryView";
+import { PageHeader } from "../ds/PageHeader";
 
 const TABLES = [
   { id: "report", label: "Report" },
@@ -14,8 +15,16 @@ const TABLES = [
   { id: "process_samples", label: "Process measurements" },
   { id: "page_metrics", label: "Page metrics" },
 ] as const;
+import { EmptyState } from "../ds/States";
 
 export function ResultsView({ selected }: { selected: Selected | null }) {
+  return (<>
+    <PageHeader title="Results" purpose={selected ? `Report, statistics and raw measurements for ${selected.id} (${selected.suite}).` : "Report, statistics and raw measurements for one experiment."} />
+    <ResultsBody selected={selected} />
+  </>);
+}
+
+function ResultsBody({ selected }: { selected: Selected | null }) {
   const [table, setTable] = useState<(typeof TABLES)[number]["id"]>("report");
   const [trial, setTrial] = useState("");
   const sel = selected;
@@ -25,11 +34,10 @@ export function ResultsView({ selected }: { selected: Selected | null }) {
       call<Page>("library.table", { id: sel?.id, suite: sel?.suite, table, offset, limit, ...(tid && table !== "summary" ? { trial_id: tid } : {}) }),
     [sel?.id, sel?.suite, table, tid],
   );
-  if (!sel) return <p>Select an experiment in the Library to inspect its trials and raw measurements.</p>;
+  if (!sel) return <EmptyState>Select an experiment in the Library to inspect its trials and raw measurements.</EmptyState>;
   const label = TABLES.find((t) => t.id === table)?.label ?? table;
   return (
     <section className="flex flex-col gap-4" aria-label="Results explorer">
-      <h2 className="results-crumb">{sel.id} <span>({sel.suite})</span></h2>
       <div role="tablist" className="flex flex-wrap gap-x-2">
         {TABLES.map((t) => (
           <button key={t.id} role="tab" aria-selected={table === t.id} className="min-h-11 px-4"
