@@ -81,3 +81,10 @@
 - e2e f4.spec.ts (4 sizes): Start bottom edge inside the viewport at scrollTop 0; idle sheet area <= 45 % of the viewport; controls column >= 40 % of content width at >= 1600; layout shift while starting a run <= 0.05 counting every layout-shift entry including those within 500 ms of input (stricter than CLS); axe zero violations at all four sizes in light and dark. Baseline red: 960x640 Start at y=730 > 640; 1280 shift 0.059; 1920/2560 column 36 % and 35.6 %. Final: all green.
 - Evidence: review3/f4/run-idle-{1280x800,1920x1080,2560x1440}-before-after.png (left: pass-2 final, right: now).
 - Gates: typecheck, lint, vitest 20, e2e 120, contrast OK, frozen-check OK.
+
+## F5 done
+- Legend: every chart legend gets 13 px text, wider markers and spacing (applied once in useEChart paper()). Box plots: body 40 % of the category band (boxWidth bounds), 2 px outline, 20 % browser-colour fill, and a separate 3 px median line (custom series "Median"). Stock toolbox removed; ChartTools: own Zoom in / Zoom out / Reset zoom icon buttons (44 px, named, focusable) driving dataZoom (inside zoom on both axes, so wheel and drag still zoom).
+- Inspection hook: window.__charts[label] holds each live ECharts instance (read-only use in tests, like __penRigs).
+- e2e f5.spec.ts: legend font >= 12 px on every chart that has one; box body width >= 12 px at 1280 (read from the series layout) and Median series plus outline >= 1.5 px; zoom in narrows the range, reset restores it, buttons keyboard-focusable. Red before, green after. motion-targets (44 px) caught the first 36 px tool size; raised to 2.75rem.
+- Evidence: review3/f5/analysis-{light,dark}-1920x1080-before-after.png. Note: box heights stay small where trial spreads are tiny; that is the data, not a style limit.
+- Gates: typecheck, lint, vitest 20, e2e 123, contrast OK, frozen-check OK.

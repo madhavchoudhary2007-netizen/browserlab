@@ -27,8 +27,12 @@ function paper(option: echarts.EChartsCoreOption, scheme: "light" | "dark"): ech
       ...(value ? { minorTick: { show: true, splitNumber: 4 }, minorSplitLine: { show: true, lineStyle: { color: minor } } } : {}) };
   };
   const o = option as Record<string, unknown>;
-  return { ...o, ...(o.xAxis ? { xAxis: fix(o.xAxis) } : {}), ...(o.yAxis ? { yAxis: fix(o.yAxis) } : {}) } as echarts.EChartsCoreOption;
+  const legend = o.legend && !Array.isArray(o.legend) && (o.legend as { show?: boolean }).show !== false
+    ? { legend: { itemWidth: 22, itemHeight: 12, itemGap: 18, ...(o.legend as object), textStyle: { fontSize: 13, ...((o.legend as { textStyle?: object }).textStyle ?? {}) } } } : {};
+  return { ...o, ...legend, ...(o.xAxis ? { xAxis: fix(o.xAxis) } : {}), ...(o.yAxis ? { yAxis: fix(o.yAxis) } : {}) } as echarts.EChartsCoreOption;
 }
+
+const chartsOnPage = (): Record<string, echarts.ECharts> => ((window as unknown as { __charts?: Record<string, echarts.ECharts> }).__charts ??= {});
 
 /** Mounts an ECharts instance on a div ref and applies `option` whenever it changes. */
 export function useEChart(option: echarts.EChartsCoreOption, label: string) {
@@ -39,12 +43,13 @@ export function useEChart(option: echarts.EChartsCoreOption, label: string) {
     if (!el.current) return;
     const c = echarts.init(el.current);
     chart.current = c;
+    chartsOnPage()[label] = c; // inspection hook for tests and the review pack
     const ro = new ResizeObserver(() => c.resize());
     ro.observe(el.current);
-    return () => { ro.disconnect(); c.dispose(); chart.current = null; };
-  }, []);
+    return () => { ro.disconnect(); if (chartsOnPage()[label] === c) delete chartsOnPage()[label]; c.dispose(); chart.current = null; };
+  }, [label]);
   useEffect(() => { chart.current?.setOption(withMotionPreference({ textStyle: { fontFamily: "-apple-system, BlinkMacSystemFont, system-ui, sans-serif" }, ...themeOption(paper(option, scheme), scheme) }, prefersReducedMotion()), true); }, [option, scheme]);
   const png = () => chart.current?.getDataURL({ type: "png", pixelRatio: 2, backgroundColor: scheme === "light" ? "#e8edee" : "#0e1013" });
   useEffect(() => registerChart(label, png), [label, scheme]);
-  return { el, png, props: { role: "img", "aria-label": label, className: "chart-sheet" } as const };
+  return { el, chart, png, props: { role: "img", "aria-label": label, className: "chart-sheet" } as const };
 }

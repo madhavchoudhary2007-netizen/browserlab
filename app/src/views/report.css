@@ -56,3 +56,8 @@
 .note-row { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s-1) var(--s-3); }
 .note-tag { font: var(--w-strong) var(--t-0) var(--font-ui); color: var(--warn); text-transform: none; border: 1px solid var(--warn); border-radius: var(--r-1); padding: 0 var(--s-2); }
 .note-warn { margin: 0; color: var(--warn); text-decoration: none; }
+.chart-wrap { position: relative; }
+.chart-tools { position: absolute; inset-block-start: var(--s-1); inset-inline-end: var(--s-2); display: flex; gap: var(--s-1); }
+.chart-tool { display: grid; place-items: center; inline-size: 2.75rem; block-size: 2.75rem; padding: 0; border: 1px solid var(--grid); border-radius: var(--r-2); background: var(--raised); color: var(--fg-muted); cursor: pointer; }
+.chart-tool:hover { color: var(--fg); border-color: var(--edge); }
+.chart-tool:focus-visible { outline: 3px solid var(--pen); outline-offset: 2px; }

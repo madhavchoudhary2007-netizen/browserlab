@@ -1,6 +1,7 @@
 import { useMemo } from "react";
 import { colorFor, uniq, type Analysis } from "../analysis";
 import { errorBarSeries } from "./errorBars";
+import { ChartTools } from "./ChartTools";
 import { AXIS, padMax, useEChart } from "./useEChart";
 
 export function ScalingChart({ data, workload, unit }: { data: Analysis; workload: string; unit: string }) {
@@ -27,10 +28,10 @@ export function ScalingChart({ data, workload, unit }: { data: Analysis; workloa
       legend: { top: 0, textStyle: { color: "#e6e8eb" }, data: browsers },
       tooltip: { trigger: "item", valueFormatter: (v: unknown) => (typeof v === "number" ? `${v.toFixed(1)} ${unit}` : String(v)) },
       xAxis: { type: "value", name: "Tabs", min: 0, max: padMax, ...AXIS }, yAxis: { type: "value", name: unit, scale: true, ...AXIS },
-      toolbox: { right: 8, feature: { dataZoom: {}, restore: {} }, iconStyle: { borderColor: "#8b94a0" } },
+      dataZoom: [{ type: "inside", xAxisIndex: 0, filterMode: "none" }, { type: "inside", yAxisIndex: 0, filterMode: "none" }],
       series,
     };
   }, [data, workload, unit]);
-  const { el, props } = useEChart(option, `Memory versus tab count, ${workload} workload`);
-  return <div ref={el} {...props} style={{ height: 320 }} />;
+  const { el, chart, props } = useEChart(option, `Memory versus tab count, ${workload} workload`);
+  return <div className="chart-wrap"><div ref={el} {...props} style={{ height: 320 }} /><ChartTools chart={chart} /></div>;
 }

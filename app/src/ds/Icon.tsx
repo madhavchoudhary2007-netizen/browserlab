@@ -14,6 +14,9 @@ const PATHS = {
   chevron: "M7 4l6 6-6 6",
   pause: "M6 4v12M14 4v12",
   stop: "M5 5h10v10H5z",
+  zoomIn: "M9 15a6 6 0 1 0 0-12 6 6 0 0 0 0 12zM13.5 13.5L17 17M9 6.5v5M6.5 9h5",
+  zoomOut: "M9 15a6 6 0 1 0 0-12 6 6 0 0 0 0 12zM13.5 13.5L17 17M6.5 9h5",
+  reset: "M4 10a6 6 0 1 0 2-4.5M4 3.5v3.5h3.5",
   export: "M10 3v10M6 7l4-4 4 4M4 16h12",
 } as const;
 export type IconName = keyof typeof PATHS;
