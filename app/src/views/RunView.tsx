@@ -112,10 +112,10 @@ export function RunView() {
             I understand this launches real browsers for the full duration and I will not use this Mac meanwhile.
           </label>
           {startError && <p role="alert">{startError}</p>}
-          <button className="btn-primary min-h-11 rounded-md px-6 font-semibold" disabled={!ready || !confirmed} onClick={() => void start()}
-            style={{ background: "var(--signal)", color: "var(--pen-fg)", opacity: ready && confirmed ? 1 : 0.4 }}>
+          <button className="btn-primary" disabled={!ready || !confirmed} onClick={() => void start()}>
             Start experiment
           </button>
+          {(!ready || !confirmed) && <p className="start-reason">{!ready ? "Fix the blocked checks above to start." : "Tick the confirmation above to enable Start."}</p>}
         </>
       )}
       {runState !== "idle" && <RunPanel />}

@@ -1,5 +1,5 @@
 # UI overhaul log
-Branch: ui-overhaul (from perfection-loop @ base-ref). Phase: U4 next (U0-U3 done). Cycle: 0.
+Branch: ui-overhaul (from perfection-loop @ base-ref). Phase: U5 next (U0-U4 done; critique cycle 1 in progress). Cycle: 1. Cycle: 0.
 
 ## Decisions
 - App lives in `app/`; gate uses UI_DIRS="app/src", TAURI_DIR="app/src-tauri" (brief paths adjusted).
@@ -26,3 +26,11 @@ Next queue: U3 tokens + fonts, primitives, motion utils, gallery route; then U4 
 - Bundle after U3: JS 1,011.11 kB (flat), CSS 21.57 kB (+8.5 kB), 4 woff2 files 98 kB. Fonts total is the main size increase; within the +-20% gate only if measured on JS+CSS; revisit totals at the end.
 - Tests added: e2e/gallery.spec.ts (axe light+dark, keyboard tabs/menu/dialog, pending). Not yet covered: WKWebView rendering of OKLCH/fonts (Chrome only) -> verify in packaged app before DONE.
 Next queue: U4 shell (rail with pen trace, command palette, keyboard map, window chrome via tauri.conf.json cosmetics), Report as key vertical slice, critique cycle 1.
+
+## U4 (done) and critique cycle 1
+- Built: legacy vars -> tokens (all screens themed light/dark), chart theme mapping (ds/theme.ts), shell Rail + PenTrace + CommandPalette + shortcuts (Cmd/Ctrl+K, Cmd+1-5, ?), theme persistence in localStorage (try/catch), Report slice (header, verdict, filtered state "Showing N of M", 150 ms skeleton, empty-state next action).
+- Test edits (intent kept): buttons.spec accepts oklch() fill. Responsive width cap (<=1100px) kept: content max 64rem.
+- Independent review 1 (fresh agent, screenshots only, 900x600 & 1920x1080 both themes): Distinctiveness 2, Subject fit 3, Hierarchy 3, Typography 3, Color 3, Motion NOT JUDGEABLE, Craft 2, Usability 3, Signature 2, Consistency 2; mean 2.6/5. Expected: only shell + Report are migrated. Not a pass (DONE needs every line >=4, mean >=4.3).
+- Reviewer defects -> tasks: (1) Compare unstyled; (2) disabled primary unreadable + no reason -> FIXED (grey disabled style, reason line); (3) hero chart legend overflow / 16 similar lines -> U5 chart pass; (4) run-idle orphaned preflight row, selects; (5) mono on prose -> FIXED (.num now UI face; mono reserved for readouts); (6) Library identical rows; (7) Analysis tab cramped, Save PNG buttons heavy; (8) layout dead space at 1920 (capped by existing responsive test) -> consider using space for a side summary; tabs wrapping at 900 -> FIXED (scroll, nowrap). Minor: Commands box vs nav, light bg vs raised separation.
+- Signature moment not yet built beyond rail trace (U6): plan = completion 'tear-off' + live pen in Run view.
+Queue: U5 Run slice (with themed LiveChart as the pen), Library, Compare, Settings, Analysis; then U6, U7 (window chrome, WKWebView check via packaged build), U8 cycles 2+.
