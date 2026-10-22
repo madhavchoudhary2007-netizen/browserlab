@@ -34,3 +34,9 @@ Next queue: U4 shell (rail with pen trace, command palette, keyboard map, window
 - Reviewer defects -> tasks: (1) Compare unstyled; (2) disabled primary unreadable + no reason -> FIXED (grey disabled style, reason line); (3) hero chart legend overflow / 16 similar lines -> U5 chart pass; (4) run-idle orphaned preflight row, selects; (5) mono on prose -> FIXED (.num now UI face; mono reserved for readouts); (6) Library identical rows; (7) Analysis tab cramped, Save PNG buttons heavy; (8) layout dead space at 1920 (capped by existing responsive test) -> consider using space for a side summary; tabs wrapping at 900 -> FIXED (scroll, nowrap). Minor: Commands box vs nav, light bg vs raised separation.
 - Signature moment not yet built beyond rail trace (U6): plan = completion 'tear-off' + live pen in Run view.
 Queue: U5 Run slice (with themed LiveChart as the pen), Library, Compare, Settings, Analysis; then U6, U7 (window chrome, WKWebView check via packaged build), U8 cycles 2+.
+
+## U5 slice 1: Run (done)
+- Run view: segmented mode selector (selected = tinted + pen underline, radio semantics unchanged), plan sentence with large trial count and pen rule, flatter preflight list (OK/WARN/BLOCK in ok/warn/danger tokens), checkboxes enlarged with accent, Start with reason line, RunPanel with big state + count readouts, transform-only progress bar, themed LiveChart (pen colour, token axes; re-themes on scheme change).
+- Bug caught: a str.replace with an empty slice corrupted LiveChart.tsx; restored from git and redone with an assert. No data lost.
+- Checks: typecheck, lint, 71/71 e2e green; gate OK.
+Remaining queue: Library, Compare, Settings, Analysis (cramped Save PNG, legend overflow), then U6 signature (tear-off on completion), U7 window chrome + packaged WKWebView check, U8 cycles.

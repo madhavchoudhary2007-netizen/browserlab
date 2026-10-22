@@ -4,7 +4,7 @@ export interface PreflightCheck { id: string; label: string; status: "pass" | "w
 export interface PreflightResult { checks: PreflightCheck[]; can_start: boolean; has_warnings: boolean }
 
 const MARK = { pass: "OK", warn: "WARN", fail: "BLOCK" } as const;
-const COLOR = { pass: "var(--muted)", warn: "var(--signal)", fail: "var(--danger)" } as const;
+const COLOR = { pass: "var(--ok)", warn: "var(--warn)", fail: "var(--danger)" } as const;
 
 export function Preflight({ state, onRetry }: { state: Remote<PreflightResult>; onRetry: () => void }) {
   switch (state.kind) {
@@ -21,12 +21,12 @@ export function Preflight({ state, onRetry }: { state: Remote<PreflightResult>; 
       const { checks } = state.value;
       if (checks.length === 0) return <p>No checks reported.</p>;
       return (
-        <ul aria-label="Preflight checks" className="flex flex-col gap-2">
+        <ul aria-label="Preflight checks" className="preflight">
           {checks.map((c) => (
-            <li key={c.id} className="grid grid-cols-[4rem_12rem_1fr] gap-4">
-              <span className="num" style={{ color: COLOR[c.status] }}>{MARK[c.status]}</span>
-              <span>{c.label}</span>
-              <span style={{ color: "var(--muted)" }}>{c.detail}</span>
+            <li key={c.id}>
+              <span className="pf-mark" style={{ color: COLOR[c.status] }}>{MARK[c.status]}</span>
+              <span className="pf-label">{c.label}</span>
+              <span className="pf-detail">{c.detail}</span>
             </li>
           ))}
         </ul>

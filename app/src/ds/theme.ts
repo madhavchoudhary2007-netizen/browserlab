@@ -49,3 +49,8 @@ export function themeOption<T>(value: T, scheme: Scheme): T {
   };
   return walk(value) as T;
 }
+
+/** Resolved value of a CSS custom property (for canvas charts that cannot use var()). */
+export function cssVar(name: string): string {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}

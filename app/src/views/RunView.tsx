@@ -3,6 +3,7 @@ import { useRemote } from "../useRemote";
 import { call, type Mode, type PlanResult } from "../engine";
 import { Preflight, type PreflightResult } from "../components/Preflight";
 import { RunPanel } from "../components/RunPanel";
+import "./run.css";
 import { attachEngineEvents, useLab, type RunState } from "../store";
 
 const MODES: { id: Mode; title: string; blurb: string }[] = [
@@ -64,19 +65,18 @@ export function RunView() {
   };
 
   return (
-    <div className="flex flex-col gap-6">
-      <div role="radiogroup" aria-label="Test mode" className="grid grid-cols-3 gap-4">
+    <div className="run">
+      <div role="radiogroup" aria-label="Test mode" className="run-modes">
         {MODES.map((m, i) => (
           <button key={m.id} ref={(el) => { radioRefs.current[i] = el; }} role="radio" tabIndex={(advanced ? i === 0 : mode === m.id) ? 0 : -1} onKeyDown={(e) => moveMode(e, i)} aria-checked={!advanced && mode === m.id} disabled={busy} onClick={() => { setAdvanced(false); setMode(m.id); }}
-            className="min-h-11 rounded-md border p-4 text-left"
-            style={{ borderColor: !advanced && mode === m.id ? "var(--signal)" : "var(--line)", background: "var(--graphite)" }}>
-            <div className="font-semibold">{m.title}</div>
-            <div style={{ color: "var(--muted)" }}>{m.blurb}</div>
+            className="run-mode">
+            <span className="run-mode-title">{m.title}</span>
+            <span className="run-mode-blurb">{m.blurb}</span>
           </button>
         ))}
       </div>
       {!advanced && mode === "quick" && (
-        <div className="flex gap-4">
+        <div className="run-controls">
           <label>Workload{" "}
             <select value={workload} disabled={busy} onChange={(e) => setWorkload(e.target.value as typeof workload)}>
               {WORKLOADS.map((w) => <option key={w}>{w}</option>)}
@@ -89,17 +89,17 @@ export function RunView() {
           </label>
         </div>
       )}
-      <label className="flex min-h-11 items-center gap-2">
+      <label className="run-check">
         <input type="checkbox" checked={advanced} disabled={busy} onChange={(e) => setAdvanced(e.target.checked)} />
         Advanced research: lifecycle analysis (a separate experiment, not part of Quick / Standard / Full)
       </label>
-      <section aria-live="polite" className="rounded-md border p-4" style={{ borderColor: "var(--line)" }}>
+      <section aria-live="polite" className="run-plan">
         {plan.kind === "loading" && <p>Planning…</p>}
         {plan.kind === "error" && <p role="alert">Engine unavailable: {plan.message}</p>}
-        {plan.kind === "ready" && plan.value.disclosure && <p role="note" style={{ color: "var(--signal)" }}>{plan.value.disclosure}</p>}
+        {plan.kind === "ready" && plan.value.disclosure && <p role="note" className="run-disclosure">{plan.value.disclosure}</p>}
         {plan.kind === "ready" && (
-          <p className="num">
-            {plan.value.trial_count} trials · at least {fmtDuration(plan.value.min_seconds_lower_bound)} (excludes startup and cooldown) ·{" "}
+          <p className="run-plan-line">
+            <span className="run-plan-n">{plan.value.trial_count}</span> trials · at least {fmtDuration(plan.value.min_seconds_lower_bound)} (excludes startup and cooldown) ·{" "}
             {plan.value.inference_allowed ? "exploratory inference allowed" : "descriptive only"}
           </p>
         )}
@@ -107,7 +107,7 @@ export function RunView() {
       {!busy && (
         <>
           <Preflight state={pre} onRetry={retryPre} />
-          <label className="flex min-h-11 items-center gap-2">
+          <label className="run-check">
             <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} />
             I understand this launches real browsers for the full duration and I will not use this Mac meanwhile.
           </label>

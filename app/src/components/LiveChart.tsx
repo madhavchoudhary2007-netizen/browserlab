@@ -4,6 +4,7 @@ import { LineChart } from "echarts/charts";
 import { GridComponent, TooltipComponent } from "echarts/components";
 import { CanvasRenderer } from "echarts/renderers";
 import { useLab } from "../store";
+import { cssVar, useScheme } from "../ds/theme";
 
 echarts.use([LineChart, GridComponent, TooltipComponent, CanvasRenderer]);
 
@@ -12,6 +13,7 @@ export function LiveChart() {
   const el = useRef<HTMLDivElement>(null);
   const chart = useRef<echarts.ECharts | null>(null);
   const live = useLab((s) => s.live);
+  const scheme = useScheme();
 
   useEffect(() => {
     if (!el.current) return;
@@ -23,21 +25,22 @@ export function LiveChart() {
   }, []);
 
   useEffect(() => {
+    const axis = { axisLine: { lineStyle: { color: cssVar("--edge") } }, axisLabel: { color: cssVar("--fg-muted") }, nameTextStyle: { color: cssVar("--fg-muted") }, splitLine: { lineStyle: { color: cssVar("--grid") } } };
     chart.current?.setOption({
       animation: false,
       grid: { left: 56, right: 16, top: 16, bottom: 28 },
       tooltip: { trigger: "axis" },
-      xAxis: { type: "value", name: "s", scale: true },
-      yAxis: { type: "value", name: "MB (RSS)", scale: true },
-      series: [{ type: "line", showSymbol: false, data: live.map((d) => [d.t, d.rss_mb]), lineStyle: { color: "#f2a93b", width: 1.5 } }],
+      xAxis: { type: "value", name: "s", scale: true, ...axis },
+      yAxis: { type: "value", name: "MB (RSS)", scale: true, ...axis },
+      series: [{ type: "line", showSymbol: false, data: live.map((d) => [d.t, d.rss_mb]), lineStyle: { color: cssVar("--pen"), width: 2 } }],
     });
-  }, [live]);
+  }, [live, scheme]);
 
   return (
-    <div style={{ position: "relative", height: 240 }}>
-      <div ref={el} role="img" aria-label="Live memory preview" style={{ height: "100%" }} />
+    <div className="live-chart">
+      <div ref={el} role="img" aria-label="Live memory preview" />
       {live.length === 0 && (
-        <p style={{ position: "absolute", inset: 0, color: "var(--muted)" }}>Waiting for the first sample…</p>
+        <p className="live-wait">Waiting for the first sample…</p>
       )}
     </div>
   );
