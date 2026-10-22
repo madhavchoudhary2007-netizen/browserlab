@@ -24,3 +24,9 @@ export async function axeViolations(page: Page): Promise<string[]> {
   const r = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).analyze();
   return r.violations.map((v) => `${v.id} (${v.impact}): ${v.nodes.slice(0, 3).map((n) => n.target.join(" ")).join(" | ")}`);
 }
+
+/** Export is a menu: open it, then choose a format. */
+export async function exportAs(page: Page, format: "PDF report" | "Excel (.xlsx)" | "Trials CSV" | "Conditions CSV" | "JSON"): Promise<void> {
+  await page.getByRole("button", { name: "Export", exact: true }).click();
+  await page.getByRole("menuitem", { name: format }).click();
+}

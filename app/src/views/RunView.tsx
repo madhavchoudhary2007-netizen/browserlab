@@ -113,7 +113,8 @@ export function RunView() {
       {!busy && (
         <>
           <Preflight state={pre} onRetry={retryPre} />
-          <div className="run-launch">
+          <div className="run-launch" data-ready={ready && confirmed}>
+            <h2 className="run-launch-title">{ready && confirmed ? "Ready to launch" : "Before you launch"}</h2>
             <label className="run-check">
               <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} />
               I understand this launches real browsers for the full duration and I will not use this Mac meanwhile.

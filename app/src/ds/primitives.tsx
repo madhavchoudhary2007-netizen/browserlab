@@ -85,7 +85,7 @@ export function Tooltip({ text, children }: { text: string; children: ReactNode 
 }
 
 /** Button + menu with arrow-key roving focus, Home/End, Escape and outside-click close. */
-export function Menu({ label, items }: { label: string; items: { id: string; title: string; onSelect: () => void }[] }): ReactNode {
+export function Menu({ label, items, disabled = false }: { label: string; items: { id: string; title: string; onSelect: () => void }[]; disabled?: boolean }): ReactNode {
   const [open, setOpen] = useState(false);
   const root = useRef<HTMLDivElement>(null);
   const id = useId();
@@ -107,7 +107,7 @@ export function Menu({ label, items }: { label: string; items: { id: string; tit
   };
   return (
     <div className="ds-menu" ref={root} onKeyDown={key}>
-      <Button aria-haspopup="menu" aria-expanded={open} aria-controls={id} onClick={() => setOpen(!open)}>{label}</Button>
+      <Button aria-haspopup="menu" aria-expanded={open} aria-controls={open ? id : undefined} disabled={disabled} onClick={() => setOpen(!open)}>{label}</Button>
       {open && (
         <ul id={id} role="menu" aria-label={label}>
           {items.map((it) => <li key={it.id} role="none"><button role="menuitem" onClick={() => { setOpen(false); it.onSelect(); }}>{it.title}</button></li>)}

@@ -7,7 +7,7 @@ const style = (loc: import("@playwright/test").Locator) =>
 test("action buttons look like buttons: a surface, border, radius and shadow", async ({ page }) => {
   await openApp(page);
   await openExperiment(page, "data_static_scaling_v013", "Report");
-  const pdf = page.getByRole("button", { name: "PDF report" });
+  const pdf = page.getByRole("button", { name: "Export", exact: true });
   await expect(pdf).toBeVisible();
   const s = await style(pdf);
   expect(s.border).toBe("1px");

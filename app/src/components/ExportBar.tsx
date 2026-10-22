@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button } from "../ds/primitives";
+import { Button, Menu } from "../ds/primitives";
 import { saveExport, type ExportFormat } from "../engine";
 import { allChartImages, chartImage } from "../charts/registry";
 
@@ -37,9 +37,7 @@ export function ExportBar({ id, suite }: { id: string; suite: string }) {
   const busy = status.kind === "busy";
   return (
     <div className="export-bar" role="group" aria-label="Export">
-      {FORMATS.map((f) => (
-        <Button key={f.id} disabled={busy} onClick={() => void run(f.id, f.id === "pdf" ? allChartImages() : [])}>{f.label}</Button>
-      ))}
+      <Menu label="Export" disabled={busy} items={FORMATS.map((f) => ({ id: f.id, title: f.label, onSelect: () => void run(f.id, f.id === "pdf" ? allChartImages() : []) }))} />
       <span role="status" aria-live="polite" style={{ color: status.kind === "error" ? "var(--danger)" : "var(--muted)" }}>
         {status.kind === "busy" && "Writing…"}{status.kind === "done" && status.message}{status.kind === "error" && `Export failed: ${status.message}`}
       </span>

@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { goTo, openApp, openExperiment } from "./helpers";
+import { exportAs, goTo, openApp, openExperiment } from "./helpers";
 
 const calls = (page: import("@playwright/test").Page) =>
   page.evaluate(() => (window as unknown as { __calls: { method: string; params: Record<string, unknown> }[] }).__calls);
@@ -49,14 +49,14 @@ test("journey: exports send on-screen charts and never a path", async ({ page })
   await openApp(page);
   await openExperiment(page, "data_static_scaling_v013");
   await expect(page.getByRole("img", { name: /Memory versus tab count/ })).toBeVisible();
-  await page.getByRole("button", { name: "PDF report" }).click();
+  await exportAs(page, "PDF report");
   await expect(page.getByText(/Saved \/mock\/out\.pdf/)).toBeVisible();
   const last = () => page.evaluate(() => (window as unknown as { __lastExport: { format: string; images: string[]; path?: string } }).__lastExport);
   const pdf = await last();
   expect(pdf.format).toBe("pdf");
   expect(pdf.images.length).toBeGreaterThanOrEqual(3);
   expect(pdf).not.toHaveProperty("path");
-  await page.getByRole("button", { name: "Trials CSV" }).click();
+  await exportAs(page, "Trials CSV");
   await expect.poll(async () => (await last()).format).toBe("csv_trials");
   expect((await last()).images).toEqual([]);
   await page.getByRole("button", { name: "Save PNG" }).first().click();

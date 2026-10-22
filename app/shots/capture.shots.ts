@@ -32,6 +32,7 @@ for (const [w, h] of SIZES) {
     await page.keyboard.press("Escape");
     await goTo(page, "Run");
     await page.getByRole("checkbox", { name: /I understand/ }).check();
+    await snap("run-ready");
     await page.getByRole("button", { name: "Start experiment" }).click();
     const emit = (e: unknown) => page.evaluate((p) => (window as unknown as { __emit: (x: unknown) => void }).__emit(p), e);
     await emit({ event: "state", state: "running", progress: { index: 2, total: 4, trial_id: "core-b001-o001-chrome-javascript-t5", completed: 1 } });
