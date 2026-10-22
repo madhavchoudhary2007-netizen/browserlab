@@ -11,12 +11,15 @@
 .rail nav button:hover { background: var(--sunk); color: var(--fg); }
 .rail nav button[aria-current="page"] { background: var(--pen-soft); color: var(--fg); box-shadow: inset 3px 0 0 var(--pen); }
 .rail nav button:focus-visible, .rail-palette:focus-visible { outline: 3px solid var(--pen); outline-offset: -3px; }
+.rail { position: relative; }
+.rail-drag { display: none; position: absolute; inset-inline: 0; inset-block-start: 0; block-size: 2rem; }
 .rail-foot { display: none; }
 @media (min-width: 768px) {
   .shell { grid-template-columns: 14rem 1fr; grid-template-rows: 1fr; }
   .shell-main { padding: var(--s-6); }
-  .rail { flex-direction: column; align-items: stretch; gap: var(--s-4); padding: var(--s-4); border-block-end: 0; border-inline-end: 1px solid var(--grid); }
+  .rail { flex-direction: column; align-items: stretch; gap: var(--s-4); padding: var(--s-4); padding-block-start: 2.25rem; border-block-end: 0; border-inline-end: 1px solid var(--grid); }
   .rail nav { flex-direction: column; overflow: visible; }
+  .rail-drag { display: block; }
   .rail-foot { display: grid; gap: var(--s-3); margin-block-start: auto; }
 }
 .rail-palette { display: flex; align-items: center; justify-content: space-between; min-block-size: var(--target); padding-inline: var(--s-3); border: 1px solid var(--grid); border-radius: var(--r-2); background: transparent; color: var(--fg-muted); font: var(--w-reg) var(--t-0) var(--font-ui); cursor: pointer; }

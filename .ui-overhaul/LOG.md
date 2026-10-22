@@ -114,3 +114,11 @@ Scores (fresh agent; viewed all screens at 1280 both themes, other sizes partial
 Means by cycle: 2.6, 3.3, 3.1, 3.4, 3.3, 3.6. Cycles used 6 of 6. Only one review in this cycle; DONE needs two with every line >=4 and mean >=4.3. Not met.
 Open defects: wide windows leave content stranded; 16-entry legend hard to decode; 1280 Run view cramped with 80 px rail thumbnail; Export styled differently on Report vs Analysis; low-contrast disabled/meta text; light surfaces blur; Library rows (Open far from metadata, unlabeled checkboxes); Save PNG buttons heavy, tabs wrap at 900.
 Verdict: ESCALATED (cycle limit reached).
+
+## Post-report WKWebView checks (owner: "you have all permissions")
+- Packaged app (release bundle, signed): overlay title bar works, traffic lights sit in the rail inset, brand clears them (review/u7-webview/chrome-system.png).
+- Light theme: macOS switched to Light temporarily (restored to dark), WKWebView renders OKLCH light tokens, fonts, rail and segmented control correctly (review/u7-webview/light-100.png).
+- 150 %: NOT verified. A temporary build with zoomHotkeysEnabled did not respond to synthetic Cmd+/Cmd+Shift+= keystrokes (no change in 3 attempts), so no scaled capture exists. Chromium 200 % text and 320-900 px specs still pass.
+- Animation smoothness: NOT measured (no frame-timing probe in WKWebView).
+- Window drag: permission present and drag strip built; a real drag was not performed (no input automation available).
+- e2e after the chrome change: first run broke 320/375 px specs (drag strip overlaid the nav); fixed by showing the strip only >=768 px; 85/85 pass.

@@ -35,10 +35,10 @@ Frozen-path gate passes; IPC contract snapshot unchanged (invoke `engine_call`, 
 `@fontsource-variable/instrument-sans`, `@fontsource-variable/spline-sans-mono`.
 
 ## 8. Could not be checked
-- WKWebView: only the packaged app in dark at 100 % was checked by hand; light theme, 150 % scale and animation smoothness not verified.
+- WKWebView: dark and light at 100 % verified in the packaged app (review/u7-webview). 150 % scale and animation smoothness NOT verified (synthetic zoom keystrokes had no effect; no frame-timing probe).
 - Startup time not measured.
 - Human taste sign-off not obtained; reviewers call the direction competent but not distinctive.
-- Window chrome (overlay title bar) not done: needs the frozen capability `core:window:allow-start-dragging` (logged in `.ui-overhaul/requests.md`).
+- Window chrome: DONE after the report with owner permission (capability + overlay title bar; gate flags that one capability line as an approved exception). Real window drag not exercised.
 - Working tree includes your unrelated modifications.
 
 ## 9. Open defects and next steps

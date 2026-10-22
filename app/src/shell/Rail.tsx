@@ -23,6 +23,7 @@ export function Rail({ view, setView, showCompare, openPalette }: { view: ViewId
   const active = state !== "idle";
   return (
     <div className="rail">
+      <div className="rail-drag" data-tauri-drag-region aria-hidden="true" />
       <div className="rail-brand" data-tauri-drag-region>
         <Icon name="pen" size={20} />
         <span>BrowserLab</span>
