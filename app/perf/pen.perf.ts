@@ -42,6 +42,6 @@ test(`pen sweep smoothness at ${rate}x throttle`, async ({ page }) => {
     dom_nodes: { early: early.Nodes, late: late.Nodes }, listeners: { early: early.JSEventListeners, late: late.JSEventListeners },
   };
   console.log(JSON.stringify({ ...out, long_task_detail: r.ld }));
-  fs.mkdirSync("../.ui-overhaul/review2", { recursive: true });
-  fs.writeFileSync(`../.ui-overhaul/review2/pen-perf-x${rate}.json`, JSON.stringify(out, null, 2));
+  fs.mkdirSync("../.ui-overhaul/review3", { recursive: true });
+  fs.writeFileSync(`../.ui-overhaul/review3/pen-perf-x${rate}.json`, JSON.stringify(out, null, 2));
 });

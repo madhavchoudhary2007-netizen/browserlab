@@ -112,3 +112,7 @@
 ## Motion note (owner request: fluid, distinctive, no generic motion)
 - Each page header carries a short wavy trace under the title that the pen inks (stroke-dashoffset, 520 ms) every time a screen opens (Run re-inks too, since it goes from display none to shown). It is the only new motion: no transform or layout work, no motion with reduced motion, 72x8 px of paint. The Pen is the other motion surface. No page-transition animation was added: a switch already completes in about 29 ms at 1x (perf/switch.perf.ts p50 29.2/29.3/29.1 ms Settings/Library/Run; 35.7/53.6/28.0 ms at 6x), and adding a slide or fade would lengthen the perceived switch.
 - After this: ui.perf navigation p50 30.6 ms, p95 31.9 ms; long-session heap test green.
+
+## Q7 F8 cycle 1: pack built
+- make_pack.sh now takes REVIEW=review3 (output .ui-overhaul/review3/cycle<N>/, copies the pen perf JSONs); capture sizes are 960x640, 1280x800, 1920x1080, 2560x1440 (no 900x600) and a compare-empty state was added; pen.perf.ts and contrast.mjs write to review3. Pack: review3/cycle1 (30 PNG in the manifest plus pen-perf-x1.json and x6.json).
+- Two fresh reviewers launched (K, L) with only rubric, manifest and images.

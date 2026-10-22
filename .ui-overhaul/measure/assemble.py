@@ -4,8 +4,8 @@ import sys, os, glob
 from PIL import Image, ImageDraw
 src, out = sys.argv[1], sys.argv[2]
 os.makedirs(out, exist_ok=True)
-SCREENS = ["run-idle", "run-ready", "run-running", "library", "library-no-match", "compare", "results-report", "results-analysis", "settings", "palette"]
-SIZES = ["900x600", "1280x800", "1920x1080", "2560x1440"]
+SCREENS = ["run-idle", "run-ready", "run-running", "library", "library-no-match", "compare-empty", "compare", "results-report", "results-analysis", "settings", "palette"]
+SIZES = ["960x640", "1280x800", "1920x1080", "2560x1440"]
 CELL = 1200
 def label(img, text):
     # header band above the image so the label never covers content

@@ -3,7 +3,7 @@ import { goTo, openApp, openExperiment } from "../e2e/helpers";
 
 const OUT = process.env.OUT ?? "../.ui-overhaul/shots/current";
 const SCALE = Number(process.env.SCALE ?? 1);
-const SIZES: [number, number][] = [[900, 600], [1280, 800], [1920, 1080], [2560, 1440]];
+const SIZES: [number, number][] = [[960, 640], [1280, 800], [1920, 1080], [2560, 1440]];
 
 for (const [w, h] of SIZES) {
   test(`capture ${w}x${h} @${SCALE}x`, async ({ page }) => {
@@ -13,6 +13,8 @@ for (const [w, h] of SIZES) {
     await page.addInitScript(() => { (window as unknown as { __penSeconds: number }).__penSeconds = 12; });
     await openApp(page);
     await snap("run-idle");
+    await page.getByRole("navigation", { name: "Primary" }).getByRole("button", { name: "Compare" }).click({ force: true });
+    await snap("compare-empty");
     await goTo(page, "Library");
     await snap("library");
     await page.getByLabel("Search", { exact: true }).fill("zzz");
