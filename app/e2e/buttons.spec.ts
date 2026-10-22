@@ -11,7 +11,7 @@ test("action buttons look like buttons: a surface, border, radius and shadow", a
   await expect(pdf).toBeVisible();
   const s = await style(pdf);
   expect(s.border).toBe("1px");
-  expect(s.bg).toMatch(/gradient|rgb\(/);  // a filled surface, not transparent
+  expect(s.bg).toMatch(/gradient|rgb\(|oklch\(/);  // a filled surface, not transparent (tokens resolve to oklch())
   expect(s.shadow).not.toBe("none");
   expect(parseFloat(s.radius)).toBeGreaterThanOrEqual(8);
   await goTo(page, "Run");

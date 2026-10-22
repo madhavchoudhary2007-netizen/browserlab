@@ -8,7 +8,7 @@ import { useRemote } from "../useRemote";
 import type { Selected } from "./LibraryView";
 import { AnalysisView } from "./AnalysisView";
 
-const STATUS_COLOR: Record<string, string> = { completed: "#5ccf9a", incomplete: "#ef6b6b" };
+const STATUS_COLOR: Record<string, string> = { completed: "var(--ok)", incomplete: "var(--danger)" };
 
 function Fact({ k, v }: { k: string; v: string }) {
   return <div><div style={{ color: "var(--muted)" }}>{k}</div><div className="num">{v}</div></div>;
@@ -83,7 +83,7 @@ export function ReportView({ selected }: { selected: Selected }) {
         <p>{d.inference.reason}</p>
         {d.notes.map((n) => <p key={n} style={{ color: "var(--signal)" }}>{n}</p>)}
         {bad.length === 0 && d.integrity.length > 0 && <p style={{ color: "var(--muted)" }}>Integrity check: memory means recomputed from the raw samples match the engine's summary for all {d.integrity.length} trials (within 0.5%).</p>}
-        {d.problems.missing_trials.length > 0 && <p style={{ color: "#ef6b6b" }}>Missing trials: {d.problems.missing_trials.join(", ")}. {d.problems.attempt_failures.length} failed attempt(s) are recorded in logs/errors.jsonl.</p>}
+        {d.problems.missing_trials.length > 0 && <p style={{ color: "var(--danger)" }}>Missing trials: {d.problems.missing_trials.join(", ")}. {d.problems.attempt_failures.length} failed attempt(s) are recorded in logs/errors.jsonl.</p>}
       </div>
 
       <ExportBar id={selected.id} suite={selected.suite} />

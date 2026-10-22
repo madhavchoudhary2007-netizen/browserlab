@@ -1,13 +1,14 @@
 /* Design-system component styles (chart-recorder). New primitives use .ds-* classes; legacy views migrate onto them slice by slice. */
 .ds-btn { min-block-size: var(--target); min-inline-size: var(--target); padding-inline: var(--s-4); border-radius: var(--r-2); border: 1px solid var(--edge); background: var(--raised); color: var(--fg);
-  font: var(--w-strong) var(--t-1)/1 var(--font-ui); display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2); cursor: pointer;
+  font: var(--w-strong) var(--t-1)/1 var(--font-ui); box-shadow: var(--shadow-1); display: inline-flex; align-items: center; justify-content: center; gap: var(--s-2); cursor: pointer;
   transition: transform var(--dur-2) var(--ease-spring), background-color var(--dur-1) linear, opacity var(--dur-1) linear; }
-.ds-btn:hover:not(:disabled) { background: var(--sunk); }
-.ds-btn:active:not(:disabled) { transform: scale(0.97); transition-duration: var(--dur-1); }
+.ds-btn:hover:not(:disabled) { background: var(--sunk); transform: translateY(-2px); box-shadow: var(--shadow-2); }
+.ds-btn:active:not(:disabled) { transform: translateY(1px) scale(0.96); transition-duration: var(--dur-1); }
 .ds-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .ds-btn-primary { background: var(--pen); color: var(--pen-fg); border-color: transparent; }
 .ds-btn-primary:hover:not(:disabled) { background: var(--pen-hover); }
-.ds-btn-quiet { background: transparent; border-color: transparent; }
+.ds-btn-quiet { background: transparent; border-color: transparent; box-shadow: none; }
+@media (prefers-reduced-motion: reduce) { .ds-btn:hover, .ds-btn:active { transform: none !important; } }
 .ds-btn.is-pending { cursor: progress; animation: ds-pulse 1.1s ease-in-out infinite; }
 @keyframes ds-pulse { 50% { opacity: 0.55; } }
 :where(.ds-btn, .ds-tabs [role="tab"], .ds-menu [role="menuitem"], .ds-field input, .ds-field select):focus-visible { outline: 3px solid var(--pen); outline-offset: 2px; }

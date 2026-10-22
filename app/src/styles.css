@@ -5,47 +5,44 @@
 @import "./ds/ds.css";
 
 :root {
-  --ink: #0e1013;
-  --graphite: #161a1f;
-  --raise: #1d2229;
-  --line: #2a3039;
-  --text: #e6e8eb;
-  --muted: #8b94a0;
-  --signal: #f2a93b;
-  --font-sans: "Geist", "Inter", system-ui, sans-serif;
-  --font-mono: "Geist Mono", ui-monospace, "SF Mono", monospace;
+  /* Legacy names now resolve to the design tokens (ds/tokens.css), so every screen follows the active theme. */
+  --ink: var(--sheet);
+  --graphite: var(--raised);
+  --raise: var(--sunk);
+  --line: var(--edge);
+  --text: var(--fg);
+  --muted: var(--fg-muted);
+  --signal: var(--pen);
+  --font-sans: var(--font-ui);
+  --font-mono: var(--font-num);
 }
 html, body, #root { height: 100%; }
 body {
   margin: 0; background: var(--ink); color: var(--text);
-  font-family: var(--font-sans); font-size: 14px; -webkit-font-smoothing: antialiased;
+  font-family: var(--font-sans); font-size: var(--t-0); -webkit-font-smoothing: antialiased;
 }
 .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
 :focus-visible { outline: 2px solid var(--signal); outline-offset: 2px; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 
 select:not(.ds-field *), input:not([type="checkbox"]):not([type="radio"]):not(.ds-field *) {
-  min-height: 44px; min-width: 64px; padding: 0 8px; color: var(--text);
-  background: var(--graphite); border: 1px solid var(--line); border-radius: 6px;
+  min-block-size: var(--target); min-inline-size: 64px; padding-inline: var(--s-2); color: var(--fg);
+  background: var(--raised); border: 1px solid var(--edge); border-radius: var(--r-2); font-family: var(--font-ui);
 }
-/* Buttons: raised surfaces that lift on hover and squash then spring back on press. */
-button { cursor: pointer; transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease, background-color 0.15s ease, border-color 0.15s ease, filter 0.15s ease; }
+/* Legacy buttons share the design-system button look until each screen moves onto <Button>. */
+button { cursor: pointer; }
 button:disabled { cursor: not-allowed; }
 button:not([role]):not(nav button):not(.ds-btn) {
-  background: linear-gradient(180deg, #252b34 0%, #1b2027 100%); color: var(--text); font-weight: 500;
-  border: 1px solid #343c47; border-radius: 10px;
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 2px 6px rgba(0, 0, 0, 0.35);
+  min-block-size: var(--target); padding-inline: var(--s-4); background: var(--raised); color: var(--fg); font-weight: var(--w-strong);
+  border: 1px solid var(--edge); border-radius: var(--r-2); box-shadow: var(--shadow-1);
+  transition: transform var(--dur-2) var(--ease-spring), background-color var(--dur-1) linear;
 }
-button:not([role="tab"]):not(.ds-btn):not(:disabled):hover { transform: translateY(-2px); }
-button:not([role]):not(nav button):not(.ds-btn):not(:disabled):hover {
-  background: linear-gradient(180deg, #2c333d 0%, #20262e 100%); border-color: #4a5462;
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.08) inset, 0 8px 16px rgba(0, 0, 0, 0.45);
-}
-button:not([role="tab"]):not(.ds-btn):not(:disabled):active { transform: translateY(1px) scale(0.95); transition-duration: 0.07s; }
-button:not([role]):not(nav button):not(.ds-btn):disabled { opacity: 0.45; box-shadow: none; }
-button.btn-primary:not(.ds-btn):not(:disabled) { box-shadow: 0 0 0 1px rgba(242, 169, 59, 0.5), 0 4px 14px rgba(242, 169, 59, 0.3); border: 0; }
-button.btn-primary:not(.ds-btn):not(:disabled):hover { filter: brightness(1.08); box-shadow: 0 0 0 1px rgba(242, 169, 59, 0.7), 0 10px 24px rgba(242, 169, 59, 0.4); }
-@media (prefers-reduced-motion: reduce) { button:not(.ds-btn):hover, button:active { transform: none !important; } }
+button:not([role]):not(nav button):not(.ds-btn):not(:disabled):hover { background: var(--sunk); transform: translateY(-2px); box-shadow: var(--shadow-2); }
+button:not([role]):not(nav button):not(.ds-btn):not(:disabled):active { transform: translateY(1px) scale(0.96); transition-duration: var(--dur-1); }
+button:not([role]):not(nav button):not(.ds-btn):disabled { opacity: 0.5; box-shadow: none; }
+@media (prefers-reduced-motion: reduce) { button:hover, button:active { transform: none !important; } }
+button.btn-primary:not(.ds-btn) { background: var(--pen); color: var(--pen-fg); border-color: transparent; }
+button.btn-primary:not(.ds-btn):not(:disabled):hover { background: var(--pen-hover); }
 
 .report-table th, .report-table td { padding: 6px 10px; white-space: nowrap; }
 .report-table th { color: var(--muted); font-weight: 500; }

@@ -7,6 +7,7 @@ const SIZES: [number, number][] = [[900, 600], [1280, 800], [1920, 1080], [2560,
 
 for (const [w, h] of SIZES) {
   test(`capture ${w}x${h} @${SCALE}x`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: (process.env.SCHEME as "light" | "dark") ?? "dark" });
     await page.setViewportSize({ width: w, height: h });
     const snap = async (name: string) => { await page.waitForTimeout(400); await page.screenshot({ path: `${OUT}/${name}-${w}x${h}-${SCALE}x.png` }); };
     await openApp(page);

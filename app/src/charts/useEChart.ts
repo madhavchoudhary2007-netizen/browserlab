@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { withMotionPreference, prefersReducedMotion } from "./motion";
 import { registerChart } from "./registry";
+import { themeOption, useScheme } from "../ds/theme";
 import * as echarts from "echarts/core";
 import { BarChart, BoxplotChart, CustomChart, HeatmapChart, LineChart, ScatterChart } from "echarts/charts";
 import { GridComponent, LegendComponent, MarkAreaComponent, TooltipComponent, VisualMapComponent, ToolboxComponent, DataZoomComponent } from "echarts/components";
@@ -18,6 +19,7 @@ export const AXIS = { axisLine: { lineStyle: { color: "#2a3039" } }, axisLabel: 
 export function useEChart(option: echarts.EChartsCoreOption, label: string) {
   const el = useRef<HTMLDivElement>(null);
   const chart = useRef<echarts.ECharts | null>(null);
+  const scheme = useScheme();
   useEffect(() => {
     if (!el.current) return;
     const c = echarts.init(el.current);
@@ -26,8 +28,8 @@ export function useEChart(option: echarts.EChartsCoreOption, label: string) {
     ro.observe(el.current);
     return () => { ro.disconnect(); c.dispose(); chart.current = null; };
   }, []);
-  useEffect(() => { chart.current?.setOption(withMotionPreference(option, prefersReducedMotion()), true); }, [option]);
-  const png = () => chart.current?.getDataURL({ type: "png", pixelRatio: 2, backgroundColor: "#0e1013" });
-  useEffect(() => registerChart(label, png), [label]);
+  useEffect(() => { chart.current?.setOption(withMotionPreference(themeOption(option, scheme), prefersReducedMotion()), true); }, [option, scheme]);
+  const png = () => chart.current?.getDataURL({ type: "png", pixelRatio: 2, backgroundColor: scheme === "light" ? "#e8edee" : "#0e1013" });
+  useEffect(() => registerChart(label, png), [label, scheme]);
   return { el, png, props: { role: "img", "aria-label": label } as const };
 }

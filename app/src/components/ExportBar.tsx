@@ -39,7 +39,7 @@ export function ExportBar({ id, suite }: { id: string; suite: string }) {
       {FORMATS.map((f) => (
         <button key={f.id} className="min-h-11 px-4" disabled={busy} onClick={() => void run(f.id, f.id === "pdf" ? allChartImages() : [])}>{f.label}</button>
       ))}
-      <span role="status" aria-live="polite" style={{ color: status.kind === "error" ? "#ef6b6b" : "var(--muted)" }}>
+      <span role="status" aria-live="polite" style={{ color: status.kind === "error" ? "var(--danger)" : "var(--muted)" }}>
         {status.kind === "busy" && "Writing…"}{status.kind === "done" && status.message}{status.kind === "error" && `Export failed: ${status.message}`}
       </span>
     </div>

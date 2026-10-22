@@ -4,7 +4,7 @@ export interface PreflightCheck { id: string; label: string; status: "pass" | "w
 export interface PreflightResult { checks: PreflightCheck[]; can_start: boolean; has_warnings: boolean }
 
 const MARK = { pass: "OK", warn: "WARN", fail: "BLOCK" } as const;
-const COLOR = { pass: "var(--muted)", warn: "var(--signal)", fail: "#ef6b6b" } as const;
+const COLOR = { pass: "var(--muted)", warn: "var(--signal)", fail: "var(--danger)" } as const;
 
 export function Preflight({ state, onRetry }: { state: Remote<PreflightResult>; onRetry: () => void }) {
   switch (state.kind) {

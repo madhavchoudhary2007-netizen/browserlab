@@ -113,7 +113,7 @@ export function RunView() {
           </label>
           {startError && <p role="alert">{startError}</p>}
           <button className="btn-primary min-h-11 rounded-md px-6 font-semibold" disabled={!ready || !confirmed} onClick={() => void start()}
-            style={{ background: "var(--signal)", color: "#1a1204", opacity: ready && confirmed ? 1 : 0.4 }}>
+            style={{ background: "var(--signal)", color: "var(--pen-fg)", opacity: ready && confirmed ? 1 : 0.4 }}>
             Start experiment
           </button>
         </>
