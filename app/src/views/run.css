@@ -34,12 +34,12 @@
 .preflight .pf-detail { grid-column: 2; color: var(--fg-muted); }
 @media (max-width: 40rem) { .run-modes { grid-template-columns: 1fr; } .run-mode { border-inline-end: 0; border-block-end: 1px solid var(--grid); } }
 
-.run > .btn-primary, .run > button { justify-self: start; min-inline-size: 14rem; }
+.run > .btn-primary, .run > button { justify-self: start; min-inline-size: min(14rem, 100%); }
 .run > .btn-primary:not(:disabled) { box-shadow: 0 0 0 4px var(--pen-soft), var(--shadow-1); }
 .start-reason { margin-block-start: calc(var(--s-2) * -1); }
 
 .run-launch { display: grid; gap: var(--s-3); justify-items: start; padding: var(--s-4); background: var(--sunk); border-radius: var(--r-3); max-inline-size: 70ch; }
-.run-launch > .btn-primary, .run-launch > button { min-inline-size: 14rem; }
+.run-launch > .btn-primary, .run-launch > button { min-inline-size: min(14rem, 100%); }
 .run-launch .start-reason { margin: 0; }
 button.run-stop.run-stop.run-stop:not(:disabled):not(.ds-btn) { color: var(--danger); border-color: var(--danger); }
 .preflight li { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s-1) var(--s-3); }
@@ -48,4 +48,4 @@ button.run-stop.run-stop.run-stop:not(:disabled):not(.ds-btn) { color: var(--dan
 
 .run-launch-title { margin: 0; font: var(--w-strong) var(--t-2)/1.2 var(--font-ui); }
 .run-launch[data-ready="true"] { background: var(--pen-soft); box-shadow: inset 0 0 0 2px var(--pen); }
-.run-launch .ds-btn-primary { min-block-size: 3.5rem; min-inline-size: 18rem; font-size: var(--t-2); }
+.run-launch .ds-btn-primary { min-block-size: 3.5rem; min-inline-size: min(18rem, 100%); font-size: var(--t-2); }
