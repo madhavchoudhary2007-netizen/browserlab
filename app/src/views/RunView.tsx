@@ -52,7 +52,7 @@ export function RunView() {
     radioRefs.current[next]?.focus();
   };
   const sel: Record<string, unknown> = advanced ? { mode: "lifecycle" } : mode === "quick" ? { mode, workload, tabs } : { mode };
-  const [plan] = useRemote<PlanResult>("plan", sel);
+  const [plan, retryPlan] = useRemote<PlanResult>("plan", sel);
   const [pre, retryPre] = useRemote<PreflightResult>("preflight", sel);
 
   useEffect(() => {
@@ -112,7 +112,7 @@ export function RunView() {
       </label>
       <section aria-live="polite" className="run-plan">
         {plan.kind === "loading" && <p>Planning…</p>}
-        {plan.kind === "error" && <p role="alert">Engine unavailable: {plan.message}</p>}
+        {plan.kind === "error" && <div role="alert"><p>Engine unavailable: {plan.message}. Check that the engine is running, then try again.</p><Button onClick={retryPlan}>Retry</Button></div>}
         {plan.kind === "ready" && plan.value.disclosure && <p role="note" className="run-disclosure">{plan.value.disclosure}</p>}
         {plan.kind === "ready" && (
           <p className="run-plan-line">

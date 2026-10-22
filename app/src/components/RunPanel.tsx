@@ -18,7 +18,7 @@ export function RunPanel() {
         <span className="run-count"><span className="run-count-n">{progress.completed}/{progress.total}</span> trials</span>
         <span className="run-trial">{progress.trial_id ?? ""}</span>
       </div>
-      <div role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(pct)}
+      <div role="progressbar" aria-label="Trials completed" aria-valuemin={0} aria-valuemax={100} aria-valuenow={Math.round(pct)}
         className="run-bar">
         <div style={{ transform: `scaleX(${pct / 100})` }} />
       </div>

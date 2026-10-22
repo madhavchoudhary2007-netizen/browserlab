@@ -65,3 +65,11 @@
 - Method: .ui-overhaul/measure/startup_proxy.mjs on built mock-engine frontends of base-ref, ui-overhaul-final and the current tree (20 loads, 2 warm-ups, 1280x800). FCP/LCP/ready p50: base 60/60/60 ms; pass 1 72/72/81; pass 2 before fix 72-76/72-76/86-88.
 - Cause (trace.mjs): two full layouts of ~8 ms each from web-font load; with system fonts total layout 2.6 ms. Preload and static instances did not help. Fix: system font stacks, removed both @fontsource deps (net -98 kB fonts), pen sheet lazily mounted. After: ready 62.8/64.3 vs base 60.3/59.7 (+4-7 %). Recorded in the ADR amendment.
 - Real packaged-window startup: still NOT RUN (no valid probe).
+
+## P4 pen budgets and a11y (measured)
+- perf/pen.perf.ts (10 sweeps, sheet shortened to 3 s, Run view 1280x800, headless Chrome): 1x: frame interval p50/p95/p99 16.7/16.7/16.8 ms, 0 dropped (>25 ms), 0 long tasks, script share 1.24 % of one core, main thread 3.49 %; 6x CPU throttle: 16.7/16.7/16.8, 0 dropped, 0 long tasks (a 67 ms task at 123 ms is page boot, excluded), script share 2.06 %, main thread 3.94 %. Heap 17.96 -> 18.57 MB (+0.6 MB over 10 sweeps; DOM nodes 306 -> 306, listeners 202 -> 202). Raw: .ui-overhaul/review2/pen-perf-x1.json, -x6.json. Caveat: headless Chrome vsync 60 Hz; real WKWebView smoothness NOT RUN.
+- Idle CPU 0.01 % (run idle, report open). Bundle: JS 1,040.55 kB (gzip 338.6; base 1,011), CSS 37.9 kB, no font files.
+- a11y: e2e/a11y-matrix.spec.ts axe zero violations on run idle/ready/running, library (+no match), compare, report, analysis, settings, palette in light and dark at 900x600 and 1920x1080 (reduced motion emulated for stable captures); forced-colors spec passes. Found and fixed: progressbar without a name.
+- Run plan error state now has a Retry.
+- States not capturable with the frozen mock engine (loading skeleton, error): covered by code paths only; screenshots NOT RUN for them.
+- Suite after these changes: typecheck/lint clean, vitest 18, e2e 97/97, gate OK, pytest 122 (unchanged).
