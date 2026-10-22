@@ -144,3 +144,9 @@
 - Cycle mean 3.40; reviewer difference 0.20. Both listed all 31 files. Bar not met: verdict ESCALATED.
 - Remaining weakest lines: Craft (2.5-3), Color (3), Hierarchy (3-3.5), Typography (3-3.5), Distinctiveness (3-3.5).
 - e2e edit (size only, no assertion changed): a11y-matrix.spec.ts SIZES 900x600 -> 960x640 (brief: axe at 960x640 and 1920x1080).
+
+## Path 1 layout pass (owner-requested after ESCALATED; no new review cycle run)
+- Stop is now an outlined button with a danger label (one filled action per Run view). contrast.mjs pair changed from "--sheet on --danger fill" to "--danger on --raised", threshold 4.5 unchanged (logged here as a pair change, not a weakening).
+- Run: "Memory trace" heading always shown and the readout row keeps its height idle/ready/running (visibility, not hidden); run-panel head aligned; stacked (<1000 px) run chart now clamp(12rem, 36vh, 22rem), so at 960x640 the running state (progress, Pause/Stop, readout, chart) fits in the first view.
+- Library "Open" is quiet; Replay (Results) is the filled primary; Compare sessions stays primary when two rows are ticked.
+- Gates: typecheck, lint, vitest, build, e2e 129, contrast, frozen-check OK. Pen perf and startup not re-measured (CSS/markup-only change on the Run heading); the FINAL_REPORT_3 numbers refer to the commit before this pass.

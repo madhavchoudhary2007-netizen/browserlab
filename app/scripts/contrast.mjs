@@ -66,8 +66,8 @@ for (const [theme, t] of Object.entries(themes)) {
     add(theme, "disabled", "--fg-muted (primary disabled)", bg, c("--fg-muted"), c(bg), 3);
     add(theme, "disabled", "--edge dashed outline", bg, c("--edge"), c(bg), 3);
   }
-  // Filled danger button ("Stop after trial", run.css .run-stop): --sheet text on --danger fill.
-  add(theme, "text", "--sheet (Stop after trial)", "--danger", c("--sheet"), c("--danger"), 4.5);
+  // Outlined danger button ("Stop after trial", run.css .run-stop): --danger label on the --raised button fill (was a filled button before the pass 3 layout pass; threshold unchanged).
+  add(theme, "text", "--danger (Stop after trial, outlined)", "--raised", c("--danger"), c("--raised"), 4.5);
   // Chart text: axis ticks, legend and axis names sit on the chart sheet (--raised); literals come from useEChart/theme.ts mapping.
   const chartText = theme === "light" ? { axis: "#3E4C57", legend: "#0E1A22" } : { axis: "#8B94A0", legend: "#E6E8EB" };
   for (const [n, h] of Object.entries(chartText)) add(theme, "chart", `chart ${n} text (${h})`, "--raised", rgb(h), c("--raised"), 4.5);

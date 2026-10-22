@@ -17,8 +17,8 @@ export function PenPanel(): ReactNode {
   return (
     <section className="pen-panel" aria-label="Memory trace">
       <div className="pen-head">
-        {!hasData && <h2 className="pen-idle">Memory trace</h2>}
-        <p className="pen-reading" hidden={!hasData}><output ref={reading} aria-label="Latest memory reading in megabytes" /> <span>MB, summed RSS of the run</span></p>
+        <h2 className="pen-idle">Memory trace</h2>
+        <p className="pen-reading" style={{ visibility: hasData ? "visible" : "hidden" }} aria-hidden={!hasData}><output ref={reading} aria-label="Latest memory reading in megabytes" /> <span>MB, summed RSS of the run</span></p>
         <p className="pen-note">{reduced ? "Reduced motion: the trace updates once a second." : "Live preview, one reading a second. The recorded metric is memory footprint."}</p>
       </div>
       <div className="pen-frame">

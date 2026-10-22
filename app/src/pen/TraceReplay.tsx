@@ -26,7 +26,7 @@ export function TraceReplay({ report }: { report: Report }): ReactNode {
             </select>
           </label>
         )}
-        <Button onClick={() => setToken((t) => t + 1)} pending={pen === "drawing"}>{token === 0 ? "Replay" : pen === "drawing" ? "Replaying" : "Replay again"}</Button>
+        <Button variant="primary" onClick={() => setToken((t) => t + 1)} pending={pen === "drawing"}>{token === 0 ? "Replay" : pen === "drawing" ? "Replaying" : "Replay again"}</Button>
       </div>
       <p className="report-note">The pen inks this trace once from start to end. It is a display aid; the numbers below come from the recorded samples.</p>
       <div className="pen-frame pen-frame-report"><PenSheet variant="full" source="replay" series={series} playToken={token} unit={unit} onState={setPen} label={`Memory trace, ${name(row, idx)}`} /></div>

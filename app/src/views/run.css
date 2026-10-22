@@ -76,4 +76,9 @@ button.run-stop.run-stop.run-stop:not(:disabled):not(.ds-btn) { color: var(--dan
 }
 @media (max-height: 700px) { .run[data-show="false"] .run-main { display: none; } }
 @media (max-width: 999px) { .run[data-busy="true"] .run-plan { display: none; } .run .pen-frame { block-size: clamp(9rem, 28vh, 15rem); } }
-button.run-stop.run-stop.run-stop:not(:disabled):not(.ds-btn) { background: var(--danger); color: var(--sheet); border-color: var(--danger); }
+
+/* Pass 3 layout pass: the page has one filled action. Stop is an outlined button with a danger label; the readout row keeps its height in every state; the stacked (below 1000 px) run chart is taller. */
+.pen-head { min-block-size: 2.75rem; align-items: center; }
+.pen-reading { display: flex; align-items: baseline; gap: var(--s-2); }
+@media (max-width: 999px) { .run .pen-frame { block-size: clamp(12rem, 36vh, 22rem); } }
+.run-panel-head { min-block-size: 2.75rem; align-items: center; }

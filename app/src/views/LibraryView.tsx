@@ -89,7 +89,7 @@ function LibraryBody({ onOpen, onCompare }: { onOpen: (s: Selected) => void; onC
               <span className="lib-status" style={{ color: STATUS_TONE[e.status] ?? "var(--fg-muted)" }}>{e.status}</span>
               <time className="lib-date" title={when} dateTime={e.finished_unix ? new Date(e.finished_unix * 1000).toISOString() : undefined}>{when}</time>
               <span className="lib-trials">{e.completed_trials} of {e.scheduled_trials} trials</span>
-              <Button onClick={() => onOpen({ id: e.id, suite: e.suite })}>Open</Button>
+              <Button variant="quiet" onClick={() => onOpen({ id: e.id, suite: e.suite })}>Open</Button>
               {e.warnings.length > 0 && <div className="lib-warns">{e.warnings.map((w) => <div key={w} className="lib-warn">{w}</div>)}</div>}
             </li>
           );
