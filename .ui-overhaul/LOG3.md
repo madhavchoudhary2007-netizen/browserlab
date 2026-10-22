@@ -75,3 +75,9 @@
 - perf: 1x p50/p95/p99 16.7/16.7/16.8, 0 dropped, 0 long tasks, script share 1.27 % (baseline 1.24), main 3.45 %; 6x 16.7/16.7/16.8, script share 2.31 % (baseline 2.06; F2 limit 2.5), main 5.3 %; heap +0.57 MB, DOM 311 -> 311. Within the limits.
 - e2e flake found and fixed: axe color-contrast on .results-crumb failed about 1 run in 4 because axe sampled the Results fade-in mid-flight. e2e/helpers.ts axeViolations now waits until no finite animation is running before analysing (timing only; no assertion changed). Verified 4 full runs green (108 tests).
 - Gates: typecheck, lint, vitest 20, e2e 108, frozen-check OK.
+
+## F4 done
+- Idle Run recomposed: from 1000 px the sheet is the stage (left, 1.25fr) and the launch controls are the right column (1fr = 44 % of the content width), with the mode choices stacked as rows; the sheet keeps its size when a run starts so only the right column changes. Below 1000 px everything stacks, the idle sheet is not mounted (and is hidden when the window is under 700 px tall), so Start is in view at 960x640; once a run is shown the sheet appears BELOW the run panel (order 1) so nothing already on screen moves, and the plan line is hidden while busy.
+- e2e f4.spec.ts (4 sizes): Start bottom edge inside the viewport at scrollTop 0; idle sheet area <= 45 % of the viewport; controls column >= 40 % of content width at >= 1600; layout shift while starting a run <= 0.05 counting every layout-shift entry including those within 500 ms of input (stricter than CLS); axe zero violations at all four sizes in light and dark. Baseline red: 960x640 Start at y=730 > 640; 1280 shift 0.059; 1920/2560 column 36 % and 35.6 %. Final: all green.
+- Evidence: review3/f4/run-idle-{1280x800,1920x1080,2560x1440}-before-after.png (left: pass-2 final, right: now).
+- Gates: typecheck, lint, vitest 20, e2e 120, contrast OK, frozen-check OK.
