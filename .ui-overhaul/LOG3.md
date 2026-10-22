@@ -137,3 +137,10 @@
 - T2 not fixed: short pages at 1920/2560 are content-driven; no content added.
 - T6 not fixed (Run running two-column layout kept; 960 Run scrolls, Start visible).
 - shots/compare-states.shots.ts now reads W/H env (default 1280x800).
+
+## F8 cycle 2 result (final cycle; not rerun)
+- Reviewer M mean 3.5: Dist 3.5, Fit 4, Hier 3.5, Type 3.5, Color 3, Motion 4, Craft 3, Usab 3.5, Pen 3.5, Cons 3.5.
+- Reviewer N mean 3.3: Dist 3, Fit 3.5, Hier 3, Type 3, Color 3, Motion 4, Craft 2.5, Usab 3.5, Pen 4, Cons 3.5.
+- Cycle mean 3.40; reviewer difference 0.20. Both listed all 31 files. Bar not met: verdict ESCALATED.
+- Remaining weakest lines: Craft (2.5-3), Color (3), Hierarchy (3-3.5), Typography (3-3.5), Distinctiveness (3-3.5).
+- e2e edit (size only, no assertion changed): a11y-matrix.spec.ts SIZES 900x600 -> 960x640 (brief: axe at 960x640 and 1920x1080).

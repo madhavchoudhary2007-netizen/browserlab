@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { axeViolations, goTo, openApp, openExperiment } from "./helpers";
 
 /** Axe (WCAG 2.1 A/AA) on every screen and state, light and dark, at the smallest and a wide window. */
-const SIZES: [number, number][] = [[900, 600], [1920, 1080]];
+const SIZES: [number, number][] = [[960, 640], [1920, 1080]];
 const emit = (page: Page, e: unknown) => page.evaluate((p) => (window as unknown as { __emit: (x: unknown) => void }).__emit(p), e);
 
 for (const scheme of ["light", "dark"] as const) {
