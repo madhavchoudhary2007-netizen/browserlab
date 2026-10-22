@@ -66,3 +66,12 @@
 - pnpm perf (full): pen 1x p50/p95/p99 16.7/16.7/16.8 ms, 0 dropped, 0 long tasks, script share 0.56 %, main thread 1.51 %, heap 18.03 -> 18.62 MB, DOM 305 -> 305, listeners 201 -> 201 (limit 1.5 %).
 - Regression found and fixed while running the full perf suite: perf/ui.perf.ts navigation p95 went 31 ms (pass-2 tag, measured in a temp worktree at ui-overhaul-2-final) -> 162-322 ms after P0 because a revisited Results screen now rendered all charts in the click's own commit. Fix: src/ds/Staged.tsx mounts the pen replay and each chart 2n animation frames after first paint with a placeholder of the final height (no layout shift). Result: nav median 30.7 ms, p95 31.6 ms, max 55.2 ms; heap/long-session perf test passes.
 - Temp worktree /tmp/bl_p2 (tag ui-overhaul-2-final) was created for the baseline; remove at the end.
+
+## F3 done
+- New ballpoint sprite in PenSheet.tsx (flat vector, original): metal tip with ink dot at the nib, dark tapered cone, dark grip ring, orange barrel with light stripe and clip, dark clicker cap with button; one flat shadow, wider offset when lifted. Moved by transform only.
+- Containment: penExtent(deg, scale) geometry (unit test penExtent.test.ts); full sheet reserves top and right margins for the pen (t = pen extent at 45 deg + 6, r likewise, minimums 40/44) and clampNib keeps the whole drawing inside the sheet; pen scale now from sheet height. The small rail sheet is exempt (decorative, clipped). Decision logged: margins instead of a rest-corner glide, so ink still ends exactly at the nib.
+- e2e f3.spec.ts at 960x640, 1280x800, 1920x1080, 2560x1440: pen svg box inside the sheet at rest, at every 100 ms during the whole replay, and at the end. Note the old pencil already passed at three sizes and failed at 2560 before the change.
+- Evidence: review3/f3/pen-closeup-light|dark.png (4x), pen-sheet-light|dark.png. shots/pen-large.shots.ts added.
+- perf: 1x p50/p95/p99 16.7/16.7/16.8, 0 dropped, 0 long tasks, script share 1.27 % (baseline 1.24), main 3.45 %; 6x 16.7/16.7/16.8, script share 2.31 % (baseline 2.06; F2 limit 2.5), main 5.3 %; heap +0.57 MB, DOM 311 -> 311. Within the limits.
+- e2e flake found and fixed: axe color-contrast on .results-crumb failed about 1 run in 4 because axe sampled the Results fade-in mid-flight. e2e/helpers.ts axeViolations now waits until no finite animation is running before analysing (timing only; no assertion changed). Verified 4 full runs green (108 tests).
+- Gates: typecheck, lint, vitest 20, e2e 108, frozen-check OK.

@@ -2,7 +2,7 @@
 .pen-grid, .pen-ink { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; display: block; }
 .pen-obj, .pen-shadow { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; pointer-events: none; visibility: hidden; }
 .pen-shadow { opacity: 0.16; }
-.pen-svg { position: absolute; left: -12px; top: -96px; overflow: visible; display: block; }
+.pen-svg { position: absolute; left: -12px; top: -98px; overflow: visible; display: block; }
 
 .pen-panel { display: grid; gap: var(--s-3); min-inline-size: 0; }
 .pen-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--s-1) var(--s-5); }

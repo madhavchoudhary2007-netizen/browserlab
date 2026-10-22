@@ -26,6 +26,14 @@ function niceStep(span: number): number {
   return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * mag;
 }
 
+/** Extents of the pen drawing (a 26x98 box with the nib at its bottom, x from -12 to 14) from the nib after rotating `deg` clockwise and scaling by `s`. */
+export function penExtent(deg: number, s: number): { l: number; r: number; t: number; b: number } {
+  const a = (deg * Math.PI) / 180, c = Math.cos(a), n = Math.sin(a);
+  const xs: number[] = [], ys: number[] = [];
+  for (const px of [-12, 14]) for (const py of [-98, 0]) { xs.push((px * c - py * n) * s); ys.push((px * n + py * c) * s); }
+  return { l: -Math.min(...xs), r: Math.max(...xs), t: -Math.min(...ys), b: Math.max(...ys) };
+}
+
 type Phase = "idle" | "sweep" | "hold" | "return";
 
 /** Imperative pen controller: grid canvas (painted on resize/theme), ink canvas (only new segments per frame), and the pen as a transformed element. The frame loop runs only while the pen is sweeping, the document is visible and the sheet is on screen. */
@@ -52,8 +60,19 @@ export class PenRig {
   }
 
   /** Pen size: 0.62 per the spec on a normal sheet, growing on tall sheets so it stays in proportion. */
-  private get scale(): number { return this.o.mini ? 0.3 : 0.62 * Math.max(1, Math.min(1.7, this.plotH / 320)); }
-  get margins() { return this.o.mini ? { l: 4, r: 18, t: 4, b: 4 } : { l: 56, r: 44, t: 40, b: 24 }; }
+  private get scale(): number { return this.o.mini ? 0.3 : 0.62 * Math.max(1, Math.min(1.7, (this.H - 84) / 320)); }
+  /** The full sheet reserves room above and to the right of the plot for the pen at its highest and last point, so the pen never leaves the paper. */
+  get margins() {
+    if (this.o.mini) return { l: 4, r: 18, t: 4, b: 4 };
+    const e = penExtent(45, this.scale);
+    return { l: 56, r: Math.max(44, Math.ceil(e.r) + 6), t: Math.max(40, Math.ceil(e.t) + 6), b: 24 };
+  }
+  /** Keeps the whole pen drawing inside the sheet (full sheets; the small rail sheet just clips). */
+  private clampNib(x: number, y: number, rot: number): { x: number; y: number } {
+    if (this.o.mini || !this.W) return { x, y };
+    const e = penExtent(rot, this.scale);
+    return { x: Math.max(e.l, Math.min(this.W - e.r, x)), y: Math.max(e.t, Math.min(this.H - e.b, y)) };
+  }
   private x(u: number) { const m = this.margins; return m.l + u * (this.W - m.l - m.r); }
   private y(px: number) { const m = this.margins; return this.H - m.b - px; }
   private px(val: number) { return Math.max(0, Math.min(1.04, (val - this.lo) / (this.hi - this.lo))) * this.plotH; }
@@ -124,9 +143,10 @@ export class PenRig {
   private placePen(lifted = false) {
     const e = this.engine, s = this.scale;
     const u = e ? e.u : 0, v = e ? e.v : 0;
-    const x = Math.min(this.x(u), this.W - this.margins.r), y = this.y(v), tilt = e ? Math.max(-10, Math.min(10, e.tilt * 3)) : 0;
+    const tilt = e ? Math.max(-10, Math.min(10, e.tilt * 3)) : 0;
     const rot = 35 + tilt, off = lifted ? 9 : 5, offy = lifted ? 12 : 7;
-    this.o.pen.style.transform = `translate3d(${x}px,${y - (lifted ? 6 : 0)}px,0) rotate(${rot}deg) scale(${s})`;
+    const { x, y } = this.clampNib(this.x(u), this.y(v) - (lifted ? 6 : 0), rot);
+    this.o.pen.style.transform = `translate3d(${x}px,${y}px,0) rotate(${rot}deg) scale(${s})`;
     this.o.shadow.style.transform = `translate3d(${x + off * (this.o.mini ? 0.4 : 1)}px,${y + offy * (this.o.mini ? 0.4 : 1)}px,0) rotate(${rot}deg) scale(${s})`;
     this.o.pen.style.visibility = this.o.shadow.style.visibility = this.W ? "visible" : "hidden";
   }
@@ -172,7 +192,7 @@ export class PenRig {
     c.stroke(); this.engine = null; this.placePenAt(p[p.length - 1]!.v, Math.min(1, (p[p.length - 1]!.t - t0) / this.seconds)); this.readout(p[p.length - 1]!.v);
   }
   private placePenAt(v: number, u: number) {
-    const s = this.scale, x = this.x(u), y = this.y(this.px(v));
+    const s = this.scale, { x, y } = this.clampNib(this.x(u), this.y(this.px(v)), 35);
     this.o.pen.style.transform = `translate3d(${x}px,${y}px,0) rotate(35deg) scale(${s})`;
     this.o.shadow.style.transform = `translate3d(${x + 5}px,${y + 7}px,0) rotate(35deg) scale(${s})`;
     this.o.pen.style.visibility = this.o.shadow.style.visibility = "visible";
@@ -233,9 +253,9 @@ export class PenRig {
     const t = `transform ${RETURN_MS}ms ease-in-out`;
     this.o.pen.style.transition = this.o.shadow.style.transition = t;
     this.o.ink.style.transition = `opacity ${RETURN_MS}ms linear`; this.o.ink.style.opacity = "0";
-    const s = this.scale, x = this.x(0), y = this.y(this.px(sampleAt(this.pts, performance.now() / 1000 - DELAY)));
-    this.o.pen.style.transform = `translate3d(${x}px,${y - 6}px,0) rotate(35deg) scale(${s})`;
-    this.o.shadow.style.transform = `translate3d(${x + 9}px,${y + 10}px,0) rotate(35deg) scale(${s})`;
+    const s = this.scale, { x, y } = this.clampNib(this.x(0), this.y(this.px(sampleAt(this.pts, performance.now() / 1000 - DELAY))) - 6, 35);
+    this.o.pen.style.transform = `translate3d(${x}px,${y}px,0) rotate(35deg) scale(${s})`;
+    this.o.shadow.style.transform = `translate3d(${x + 9}px,${y + 16}px,0) rotate(35deg) scale(${s})`;
     this.timer = window.setTimeout(() => { this.timer = 0; this.phase = "idle"; this.engine = null; this.startLiveSheet(); }, RETURN_MS + 30);
   }
 

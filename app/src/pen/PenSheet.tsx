@@ -4,16 +4,21 @@ import { useScheme } from "../ds/theme";
 import { PenRig, type PenState, type Pt } from "./PenRig";
 import "./pen.css";
 
+/** Ballpoint pen, nib at (0,0), drawn upward. Flat vector, original. The shadow variant is the same silhouette in one flat colour. */
 function PenSvg({ shadow = false }: { shadow?: boolean }): ReactNode {
   const f = (c: string) => (shadow ? "#000" : c);
+  const rim = shadow ? undefined : "rgba(14,26,34,0.5)";
   return (
-    <svg className="pen-svg" width="24" height="96" viewBox="-12 -96 24 96" aria-hidden="true" focusable="false">
-      <path d="M0 0 L-3.4 -15 L3.4 -15Z" fill={f("var(--pen-trim)")} />
-      <rect x="-5.5" y="-78" width="11" height="64" rx="3" fill={f("var(--pen-body)")} />
-      <rect x="-5.5" y="-30" width="11" height="6" fill={f("var(--pen-trim)")} />
-      <rect x="-5.5" y="-92" width="11" height="16" rx="3" fill={f("var(--pen-trim)")} />
-      <rect x="5.5" y="-88" width="2.4" height="30" fill={f("var(--pen-trim)")} />
-      {!shadow && <rect x="-3" y="-74" width="2" height="40" fill="#fff" opacity="0.28" />}
+    <svg className="pen-svg" width="26" height="98" viewBox="-12 -98 26 98" aria-hidden="true" focusable="false">
+      <path d="M-2.2 -9 L2.2 -9 L5 -27 L-5 -27 Z" fill={f("#4B545C")} stroke={rim} strokeWidth="0.6" />
+      <path d="M0 0 L-2.2 -9 L2.2 -9 Z" fill={f("#C9CED3")} stroke={rim} strokeWidth="0.5" />
+      <rect x="-5.8" y="-35" width="11.6" height="8.4" rx="2" fill={f("#2B3238")} stroke={rim} strokeWidth="0.6" />
+      <rect x="-7" y="-84" width="14" height="49.4" rx="2.4" fill={f("var(--pen-body)")} stroke={rim} strokeWidth="0.7" />
+      <rect x="7" y="-82" width="2.6" height="30" rx="1.1" fill={f("#9AA3AB")} stroke={rim} strokeWidth="0.5" />
+      <rect x="6.6" y="-83.6" width="4" height="3.4" rx="1.2" fill={f("#9AA3AB")} stroke={rim} strokeWidth="0.5" />
+      <rect x="-5.2" y="-92" width="10.4" height="8.6" rx="2.2" fill={f("#2B3238")} stroke={rim} strokeWidth="0.6" />
+      <rect x="-2.6" y="-97" width="5.2" height="5.4" rx="1.5" fill={f("#4B545C")} stroke={rim} strokeWidth="0.5" />
+      {!shadow && <rect x="-4.6" y="-80" width="2.2" height="40" rx="1.1" fill="#fff" opacity="0.34" />}
       {!shadow && <circle cx="0" cy="0" r="2.6" fill="var(--pen)" />}
     </svg>
   );

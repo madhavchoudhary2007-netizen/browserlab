@@ -21,6 +21,8 @@ export async function openExperiment(page: Page, id: string, tab: "Analysis" | "
 }
 
 export async function axeViolations(page: Page): Promise<string[]> {
+  // Entry animations (screen fades) change computed colours mid-flight, which axe reads as low contrast; measure the settled page.
+  await page.waitForFunction(() => document.getAnimations().every((an) => an.playState !== "running" || an.effect?.getTiming().iterations === Infinity));
   const r = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]).analyze();
   return r.violations.map((v) => `${v.id} (${v.impact}): ${v.nodes.slice(0, 3).map((n) => n.target.join(" ")).join(" | ")}`);
 }
