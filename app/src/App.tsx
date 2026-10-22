@@ -9,6 +9,7 @@ import { Rail, VIEWS, type ViewId } from "./shell/Rail";
 import { CommandPalette, type Command } from "./shell/CommandPalette";
 import { Dialog, Button } from "./ds/primitives";
 import { restoreThemePreference, setThemePreference } from "./ds/theme";
+import { Arrival } from "./shell/Arrival";
 import "./shell/shell.css";
 
 function AppShell() {
@@ -16,6 +17,7 @@ function AppShell() {
   const [selected, setSelected] = useState<Selected | null>(null);
   const [pair, setPair] = useState<[Selected, Selected] | null>(null);
   const { runId, suite, state: runState, progress } = useLab();
+  const [arrival, setArrival] = useState("");
   const [palette, setPalette] = useState(false);
   const [help, setHelp] = useState(false);
   useEffect(() => { restoreThemePreference(); }, []);
@@ -49,6 +51,7 @@ function AppShell() {
     if (!runId || !ended || progress.completed < 1 || shown.current === key) return;
     shown.current = key;
     setSelected({ id: runId, suite });
+    setArrival(key);
     setView("results");
   }, [runId, suite, runState, progress.completed]);
   return (
@@ -61,7 +64,7 @@ function AppShell() {
           {view === "library" && <LibraryView onOpen={(s) => { setSelected(s); setView("results"); }} onCompare={(a, b) => { setPair([a, b]); setView("compare"); }} />}
           {view === "compare" && pair && <CompareView a={pair[0]} b={pair[1]} />}
           {view === "settings" && <SettingsView />}
-          {view === "results" && <ResultsView key={`${selected?.id}|${selected?.suite}`} selected={selected} />}
+          {view === "results" && <Arrival token={arrival}><ResultsView key={`${selected?.id}|${selected?.suite}`} selected={selected} /></Arrival>}
         </div>
       </main>
       <CommandPalette open={palette} onClose={() => setPalette(false)} commands={commands} />

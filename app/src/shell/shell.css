@@ -31,3 +31,5 @@ kbd { font: var(--w-reg) var(--t-0) var(--font-num); color: var(--fg-muted); }
 .palette-empty { padding: var(--s-3); color: var(--fg-muted); }
 .shortcuts { display: grid; grid-template-columns: auto 1fr; gap: var(--s-2) var(--s-4); margin: 0 0 var(--s-4); }
 .shortcuts dt { justify-self: start; } .shortcuts dd { margin: 0; }
+.arrival { position: relative; }
+.arrival-pen { position: absolute; inset-inline: 0; inset-block-start: 0; block-size: 3px; background: var(--pen); transform-origin: left; opacity: 0; pointer-events: none; }

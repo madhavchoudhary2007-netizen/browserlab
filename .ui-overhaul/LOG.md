@@ -1,5 +1,5 @@
 # UI overhaul log
-Branch: ui-overhaul (from perfection-loop @ base-ref). Phase: U6 next (U0-U5 done; critique cycle 1 fixes applied, review 2 pending in U8). Cycle: 1. Cycle: 0.
+Branch: ui-overhaul (from perfection-loop @ base-ref). Phase: U7 next (U0-U6 done; critique cycle 1 fixes applied, review 2 pending in U8). Cycle: 1. Cycle: 0.
 
 ## Decisions
 - App lives in `app/`; gate uses UI_DIRS="app/src", TAURI_DIR="app/src-tauri" (brief paths adjusted).
@@ -54,3 +54,10 @@ Remaining queue: Settings, Analysis (Save PNG weight, legend overflow, small box
 - Checks: typecheck, lint, vitest 15, e2e 73/73 green, gate OK.
 Known gaps: Report hero legend still paginates at 16 series (needs per-browser grouping, U8 task); browser colour dots in table come from frozen analysis.ts (dark-tuned); chart toolbars unlabelled (ECharts toolbox icons).
 Next: U6 signature moment, U7 window chrome + packaged WKWebView check + startup/idle CPU, U8 independent review 2.
+
+## U6 signature moment (done): the pen tears off the sheet
+- Rail pen trace gains a pen-head dot while a run is live (real 1 Hz display sample, display aid only).
+- On a run's automatic report opening (App's existing terminal-state effect), shell/Arrival plays once per run key: a pen-coloured line sweeps across the top (scaleX) and the report settles in (translateY+opacity, 360 ms). Manual navigation never replays it (module-level played token). Reduced motion: opacity-only fade <=150 ms. No ambient motion; nothing runs when idle. Falls back to no animation if Web Animations is missing.
+- Tests: e2e/arrival.spec.ts (only transform/opacity keyframes; reduced = opacity only; no replay on manual open). e2e total 76/76.
+- Performance: idle main-thread busy 0.01 % of one core on Run (idle) and on an open Report (perf/idle.perf.ts, Chrome headless, mock engine); nav p95 59.2 ms (baseline 57.1), heap +1.6 MB over 400 navs (baseline +1.5). JS bundle unchanged ~1,011 kB; CSS growth small.
+- Not verified: 60 fps of the arrival in the real WKWebView (needs packaged app, U7).
