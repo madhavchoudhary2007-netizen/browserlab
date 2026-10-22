@@ -34,8 +34,8 @@ export function TimeChart({ report, metric }: { report: Report; metric: TraceMet
       });
     });
     return {
-      animationDuration: 150, grid: { left: 64, right: 24, top: 56, bottom: 72 },
-      legend: { top: 0, type: "scroll", textStyle: { color: "#e6e8eb" }, data: names },
+      animationDuration: 150, grid: { left: 64, right: 24, top: names.length > 4 ? 28 + 24 * Math.ceil(names.length / 4) : 56, bottom: 72 },
+      legend: { top: 0, type: names.length > 16 ? "scroll" : "plain", itemGap: 12, textStyle: { color: "#e6e8eb" }, data: names },
       tooltip: {
         trigger: "axis", confine: true,
         formatter: (ps: { seriesName: string; value: [number, number]; color: string }[]) => {

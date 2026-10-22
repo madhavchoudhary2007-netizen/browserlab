@@ -27,5 +27,15 @@ for (const [w, h] of SIZES) {
     await snap("results-analysis");
     await goTo(page, "Settings");
     await snap("settings");
+    await page.keyboard.press("Control+k");
+    await snap("palette");
+    await page.keyboard.press("Escape");
+    await goTo(page, "Run");
+    await page.getByRole("checkbox", { name: /I understand/ }).check();
+    await page.getByRole("button", { name: "Start experiment" }).click();
+    const emit = (e: unknown) => page.evaluate((p) => (window as unknown as { __emit: (x: unknown) => void }).__emit(p), e);
+    await emit({ event: "state", state: "running", progress: { index: 2, total: 4, trial_id: "core-b001-o001-chrome-javascript-t5", completed: 1 } });
+    for (let i = 0; i < 40; i++) await emit({ event: "live_sample", t: i, rss_mb: 900 + 120 * Math.sin(i / 6) + i * 4, cpu_pct: 20, processes: 24 });
+    await snap("run-running");
   });
 }

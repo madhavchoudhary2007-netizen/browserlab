@@ -19,7 +19,7 @@
   .rail nav { flex-direction: column; overflow: visible; }
   .rail-foot { display: grid; gap: var(--s-3); margin-block-start: auto; }
 }
-.rail-palette { display: flex; align-items: center; justify-content: space-between; min-block-size: var(--target); padding-inline: var(--s-3); border: 1px solid var(--edge); border-radius: var(--r-2); background: transparent; color: var(--fg-muted); font: var(--w-reg) var(--t-0) var(--font-ui); cursor: pointer; }
+.rail-palette { display: flex; align-items: center; justify-content: space-between; min-block-size: var(--target); padding-inline: var(--s-3); border: 1px solid var(--grid); border-radius: var(--r-2); background: transparent; color: var(--fg-muted); font: var(--w-reg) var(--t-0) var(--font-ui); cursor: pointer; }
 kbd { font: var(--w-reg) var(--t-0) var(--font-num); color: var(--fg-muted); }
 .rail-status { display: grid; gap: var(--s-1); font: var(--w-strong) var(--t-0) var(--font-ui); color: var(--fg); }
 .pen-trace { inline-size: 100%; block-size: var(--s-6); display: block; }

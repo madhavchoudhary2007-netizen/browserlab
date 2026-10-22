@@ -1,19 +1,19 @@
 /* Design tokens: chart-recorder direction. Hex values are the fallback; OKLCH overrides where supported. */
 :root {
-  --sheet: #E8EDEE;
-  --raised: #F4F7F8;
+  --sheet: #E3E9EB;
+  --raised: #F7F9FA;
   --sunk: #DCE3E5;
   --fg: #0E1A22;
   --fg-muted: #3E4C57;
   --grid: #C3CED3;
   --edge: #6B7F89;
-  --pen: #00767F;
+  --pen: #006D76;
   --pen-fg: #FFFFFF;
-  --pen-hover: #005F66;
+  --pen-hover: #005A61;
   --pen-soft: #CFE5E7;
   --danger: #B3261E;
   --warn: #8A5000;
-  --ok: #1F7A3E;
+  --ok: #1A6F37;
   --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 24px; --s-6: 32px; --s-7: 48px; --s-8: 64px;
   --r-1: 4px; --r-2: 8px; --r-3: 14px; --r-pill: 999px;
   --t-0: clamp(0.8125rem, 0.79rem + 0.1vw, 0.875rem);
@@ -33,12 +33,12 @@
 }
 @supports (color: oklch(0% 0 0)) {
   :root {
-    --sheet: oklch(94.3% 0.006 211);
-    --raised: oklch(97.4% 0.003 220);
+    --sheet: oklch(93.2% 0.007 211);
+    --raised: oklch(98.1% 0.002 220);
     --fg: oklch(21.1% 0.023 239);
     --fg-muted: oklch(40.9% 0.026 242);
     --grid: oklch(84.4% 0.014 227);
-    --pen: oklch(51.6% 0.088 204);
+    --pen: oklch(48.8% 0.083 205);
   }
 }
 @media (prefers-color-scheme: dark) {
