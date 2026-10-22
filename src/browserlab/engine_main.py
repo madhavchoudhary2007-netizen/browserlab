@@ -11,6 +11,8 @@ from pathlib import Path
 
 
 def main(argv: list[str] | None = None) -> None:
+    from browserlab.paths import ensure_tool_path
+    ensure_tool_path()  # GUI-launched apps get a minimal PATH; both RPC and --bench (and its children) need the tools
     args = list(sys.argv if argv is None else argv)
     if len(args) > 1 and args[1] == "--bench":
         sys.argv = [args[0], *args[2:]]

@@ -37,3 +37,17 @@ def default_project_root(home: Path) -> Path:
         root.mkdir(parents=True, exist_ok=True)
         return root
     return Path.cwd()
+
+
+TOOL_DIRS = ("/opt/homebrew/bin", "/usr/local/bin")
+
+
+def with_tool_path(path: str, exists=os.path.isdir) -> str:
+    """Append the usual package-manager bin dirs that a Finder-launched app lacks (geckodriver lives
+    in /opt/homebrew/bin). Appended last, so a binary already on PATH still wins."""
+    parts = [p for p in path.split(os.pathsep) if p]
+    return os.pathsep.join(parts + [d for d in TOOL_DIRS if d not in parts and exists(d)])
+
+
+def ensure_tool_path() -> None:
+    os.environ["PATH"] = with_tool_path(os.environ.get("PATH", ""))
