@@ -1,6 +1,9 @@
 import { useMemo, useState } from "react";
 import { fmtDateTime, fmtDuration } from "../format";
 import { useRemote } from "../useRemote";
+import { Button } from "../ds/primitives";
+import { useAfter } from "../ds/useAfter";
+import "./library.css";
 
 export interface ExperimentInfo {
   id: string; suite: string; status: string; scheduled_trials: number; completed_trials: number;
@@ -10,6 +13,7 @@ export interface ExperimentInfo {
 }
 export interface Selected { id: string; suite: string }
 
+const STATUS_TONE: Record<string, string> = { completed: "var(--ok)", incomplete: "var(--danger)", exploratory: "var(--warn)", "instrumentation-validation": "var(--pen)" };
 const STATUSES = ["all", "completed", "pilot", "exploratory", "instrumentation-validation", "incomplete", "unclassified"] as const;
 
 export function filterExperiments(list: ExperimentInfo[], q: string, status: string): ExperimentInfo[] {
@@ -31,55 +35,59 @@ export function LibraryView({ onOpen, onCompare }: { onOpen: (s: Selected) => vo
   const all = state.kind === "ready" ? state.value : [];
   const shown = useMemo(() => filterExperiments(all, q, status), [all, q, status]);
 
-  if (state.kind === "loading") return <p aria-busy="true">Scanning experiment library…</p>;
+  const slow = useAfter(150, state.kind === "loading");
+  if (state.kind === "loading") return slow
+    ? <ul className="lib-list" aria-busy="true" aria-label="Scanning experiment library">{[0, 1, 2, 3].map((i) => <li key={i} className="lib-row"><span /><div className="report-skeleton"><div /></div><span /></li>)}</ul>
+    : <p aria-busy="true" className="sr-only">Scanning experiment library…</p>;
   if (state.kind === "error") {
-    return <div role="alert"><p>Library scan failed: {state.message}</p><button className="min-h-11 px-4" onClick={retry}>Retry</button></div>;
+    return <div role="alert" className="lib"><p>Library scan failed: {state.message}</p><div><Button onClick={retry}>Retry</Button></div></div>;
   }
-  if (all.length === 0) return <p>No experiments found. Completed runs and historical data_* folders appear here.</p>;
+  if (all.length === 0) return <p>No experiments found yet. Completed runs and historical data_* folders appear here; start a run from the Run screen.</p>;
 
   const picked = cmp.map((k) => all.find((e) => `${e.id}/${e.suite}` === k)).filter((e): e is ExperimentInfo => !!e);
   const filtered = shown.length !== all.length;
   return (
-    <section className="flex flex-col gap-4" aria-label="Experiment library">
-      <div className="flex flex-wrap items-center gap-4">
+    <section className="lib" aria-label="Experiment library">
+      <div className="lib-tools">
         <label>Search <input value={q} onChange={(e) => setQ(e.target.value)} className="min-h-11 px-2" /></label>
         <label>Status{" "}
           <select value={status} onChange={(e) => setStatus(e.target.value)} className="min-h-11">
             {STATUSES.map((s) => <option key={s}>{s}</option>)}
           </select>
         </label>
-        <span className="num" style={{ color: "var(--muted)" }}>{filtered ? `${shown.length} of ${all.length} shown` : `${all.length} experiments`}</span>
+        <span className="lib-count">{filtered ? `${shown.length} of ${all.length} shown` : `${all.length} experiments`}</span>
+        {filtered && <Button variant="quiet" onClick={() => { setQ(""); setStatus("all"); }}>Clear filters</Button>}
       </div>
       {shown.length === 0 && <p>No experiments match the current filters.</p>}
-      <ul className="flex flex-col gap-2">
+      <ul className="lib-list">
         {shown.map((e) => {
           const key = `${e.id}/${e.suite}`;
           return (
-            <li key={key} className="grid grid-cols-[2.75rem_1fr_auto] items-center gap-4 rounded-md border p-4" style={{ borderColor: "var(--line)" }}>
-              <label className="flex min-h-11 min-w-11 items-center justify-center">
+            <li key={key} className="lib-row">
+              <label className="lib-check">
                 <input type="checkbox" aria-label={`Compare ${e.id}`} checked={cmp.includes(key)}
                   onChange={(ev) => setCmp(ev.target.checked ? [...cmp, key].slice(-2) : cmp.filter((k) => k !== key))} />
               </label>
-              <div>
-                <div><strong>{e.id}</strong> <span className="num" style={{ color: "var(--signal)" }}>{e.status}</span>
-                  {e.mode && <span className="num" style={{ color: "var(--muted)" }}> · {e.mode}</span>} <span className="num" style={{ color: "var(--muted)" }}>· {e.source === "app" ? "BrowserLab run" : "imported folder"}</span></div>
-                <div className="num"><time dateTime={e.finished_unix ? new Date(e.finished_unix * 1000).toISOString() : undefined}>{fmtDateTime(e.finished_unix ?? e.started_unix)}</time>
+              <div className="lib-main">
+                <div className="lib-title"><strong>{e.id}</strong>
+                  <span className="lib-status" style={{ color: STATUS_TONE[e.status] ?? "var(--fg-muted)" }}>{e.status}</span></div>
+                <div className="lib-when"><time dateTime={e.finished_unix ? new Date(e.finished_unix * 1000).toISOString() : undefined}>{fmtDateTime(e.finished_unix ?? e.started_unix)}</time>
                   {e.started_unix && e.finished_unix ? ` · ran ${fmtDuration(e.finished_unix - e.started_unix)}` : ""}</div>
-                <div className="num" style={{ color: "var(--muted)" }}>
-                  {e.completed_trials}/{e.scheduled_trials} trials · {e.browsers.join(", ")} · {e.workloads.join(", ")} · tabs {e.tab_levels.join(",")} ·
-                  warm-up {e.warmup_seconds}s / measure {e.measure_seconds}s
+                <div className="lib-meta">
+                  {e.mode ? `${e.mode} · ` : ""}{e.source === "app" ? "BrowserLab run" : "imported folder"} · {e.completed_trials}/{e.scheduled_trials} trials · {e.browsers.join(", ")} · {e.workloads.join(", ")} · tabs {e.tab_levels.join(",")} · warm-up {e.warmup_seconds}s / measure {e.measure_seconds}s
                 </div>
-                {e.warnings.map((w) => <div key={w} style={{ color: "var(--signal)" }}>{w}</div>)}
+                {e.warnings.map((w) => <div key={w} className="lib-warn">{w}</div>)}
               </div>
-              <button className="min-h-11 px-4" onClick={() => onOpen({ id: e.id, suite: e.suite })}>Open</button>
+              <Button onClick={() => onOpen({ id: e.id, suite: e.suite })}>Open</Button>
             </li>
           );
         })}
       </ul>
+      {picked.length === 1 && <p className="lib-count" role="status">Pick one more experiment to compare.</p>}
       {picked.length === 2 && (
-        <div className="flex items-center gap-4">
+        <div className="lib-bar">
           <p role="status">{compareNote(picked[0]!, picked[1]!)}</p>
-          <button className="min-h-11 px-4" onClick={() => onCompare({ id: picked[0]!.id, suite: picked[0]!.suite }, { id: picked[1]!.id, suite: picked[1]!.suite })}>Compare sessions</button>
+          <Button variant="primary" onClick={() => onCompare({ id: picked[0]!.id, suite: picked[0]!.suite }, { id: picked[1]!.id, suite: picked[1]!.suite })}>Compare sessions</Button>
         </div>
       )}
     </section>

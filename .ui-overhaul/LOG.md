@@ -40,3 +40,9 @@ Queue: U5 Run slice (with themed LiveChart as the pen), Library, Compare, Settin
 - Bug caught: a str.replace with an empty slice corrupted LiveChart.tsx; restored from git and redone with an assert. No data lost.
 - Checks: typecheck, lint, 71/71 e2e green; gate OK.
 Remaining queue: Library, Compare, Settings, Analysis (cramped Save PNG, legend overflow), then U6 signature (tear-off on completion), U7 window chrome + packaged WKWebView check, U8 cycles.
+
+## U5 slices 2-3: Library and Compare (done)
+- Library: boxed identical cards -> ruled list (hairlines only), status colour by meaning (completed ok, incomplete danger, exploratory warn), metadata in UI face, 150 ms skeleton, Clear filters button, "Pick one more" hint, sticky compare bar with the single primary action once two are picked; empty state now points to Run.
+- Compare: A/B session heading, factual summary line (conditions in common, how many lack a test result and why, "Differences are B minus A"), right-aligned tabular table in a keyboard-focusable scroll region, not-comparable block with warn rule, 150 ms skeleton.
+- New e2e: library-compare.spec.ts (clear filters, pick-one hint, compare path + axe). Total 73 e2e expected; gate OK.
+Remaining queue: Settings, Analysis (Save PNG weight, legend overflow, small box plots), U6 signature, U7 chrome + WKWebView, U8 cycles.
