@@ -1,0 +1,17 @@
+/* One bundled face: Instrument Sans, Latin subset, variable weight 400-700 (OFL, public/fonts/InstrumentSans-OFL.txt).
+   The fallback face is Arial scaled to Instrument Sans metrics so text does not move when the font arrives. Mono text stays on the system stack. */
+@font-face {
+  font-family: "Instrument Sans";
+  src: url("/fonts/InstrumentSans-latin-wght.woff2") format("woff2");
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Instrument Sans Fallback";
+  src: local("Arial");
+  size-adjust: 103.23%;
+  ascent-override: 93.97%;
+  descent-override: 24.22%;
+  line-gap-override: 0%;
+}

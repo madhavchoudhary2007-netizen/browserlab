@@ -22,7 +22,7 @@
   --t-3: clamp(1.5rem, 1.3rem + 0.9vw, 2rem);
   --t-4: clamp(2.25rem, 1.8rem + 2vw, 3.5rem);
   --w-reg: 450; --w-strong: 650;
-  --font-ui: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+  --font-ui: "Instrument Sans", "Instrument Sans Fallback", -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
   --font-num: ui-monospace, "SF Mono", Menlo, monospace;
   --shadow-1: 0 1px 2px rgb(14 26 34 / 0.12);
   --shadow-2: 0 6px 20px rgb(14 26 34 / 0.18);
