@@ -28,8 +28,9 @@ export function Rail({ view, setView, showCompare, openPalette }: { view: ViewId
         <span>BrowserLab</span>
       </div>
       <nav aria-label="Primary">
-        {VIEWS.filter((v) => v.id !== "compare" || showCompare).map((v) => (
-          <button key={v.id} aria-current={view === v.id ? "page" : undefined} onClick={() => setView(v.id)}>
+        {VIEWS.map((v) => (
+          <button key={v.id} aria-current={view === v.id ? "page" : undefined} onClick={() => setView(v.id)}
+            disabled={v.id === "compare" && !showCompare} title={v.id === "compare" && !showCompare ? "Tick two experiments in the Library to compare them" : undefined}>
             <Icon name={v.icon} />
             <span>{v.label}</span>
           </button>
@@ -41,6 +42,7 @@ export function Rail({ view, setView, showCompare, openPalette }: { view: ViewId
         </button>
         <div className="rail-status" role="status" aria-live="polite">
           <PenTrace />
+          {state === "running" && <span className="rail-caption">Live memory (RSS)</span>}
           <span>{STATE_TEXT[state] ?? state}{active && progress.total > 0 ? ` · ${progress.completed}/${progress.total}` : ""}</span>
         </div>
       </div>

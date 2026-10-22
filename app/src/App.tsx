@@ -22,7 +22,7 @@ function AppShell() {
   const [help, setHelp] = useState(false);
   useEffect(() => { restoreThemePreference(); }, []);
   const commands = useMemo<Command[]>(() => [
-    ...VIEWS.filter((v) => v.id !== "compare" || pair).map((v, i) => ({ id: `go-${v.id}`, title: `Go to ${v.label}`, hint: `⌘${i + 1}`, run: () => setView(v.id) })),
+    ...VIEWS.map((v, i) => ({ v, i })).filter(({ v }) => v.id !== "compare" || pair).map(({ v, i }) => ({ id: `go-${v.id}`, title: `Go to ${v.label}`, hint: `⌘${i + 1}`, run: () => setView(v.id) })),
     { id: "theme-light", title: "Theme: light", run: () => setThemePreference("light") },
     { id: "theme-dark", title: "Theme: dark", run: () => setThemePreference("dark") },
     { id: "theme-system", title: "Theme: follow system", run: () => setThemePreference("system") },
@@ -34,8 +34,8 @@ function AppShell() {
       const typing = (e.target as HTMLElement | null)?.closest("input, textarea, select, [contenteditable]");
       if (mod && e.key.toLowerCase() === "k") { e.preventDefault(); setPalette((p) => !p); return; }
       if (mod && /^[1-9]$/.test(e.key)) {
-        const v = VIEWS.filter((x) => x.id !== "compare" || pair)[Number(e.key) - 1];
-        if (v) { e.preventDefault(); setView(v.id); }
+        const v = VIEWS[Number(e.key) - 1];
+        if (v && (v.id !== "compare" || pair)) { e.preventDefault(); setView(v.id); }
         return;
       }
       if (e.key === "?" && !typing && !mod) { e.preventDefault(); setHelp(true); }

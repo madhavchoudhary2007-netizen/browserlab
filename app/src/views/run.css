@@ -37,3 +37,11 @@
 .run > .btn-primary, .run > button { justify-self: start; min-inline-size: 14rem; }
 .run > .btn-primary:not(:disabled) { box-shadow: 0 0 0 4px var(--pen-soft), var(--shadow-1); }
 .start-reason { margin-block-start: calc(var(--s-2) * -1); }
+
+.run-launch { display: grid; gap: var(--s-3); justify-items: start; padding: var(--s-4); background: var(--sunk); border-radius: var(--r-3); max-inline-size: 70ch; }
+.run-launch > .btn-primary, .run-launch > button { min-inline-size: 14rem; }
+.run-launch .start-reason { margin: 0; }
+button.run-stop.run-stop.run-stop:not(:disabled):not(.ds-btn) { color: var(--danger); border-color: var(--danger); }
+.preflight li { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s-1) var(--s-3); }
+.preflight .pf-mark { min-inline-size: 0; flex: none; }
+.preflight .pf-detail { flex-basis: 100%; padding-inline-start: 0; }

@@ -20,7 +20,7 @@ export function ChartPngButton({ prefix, id, suite }: { prefix: string; id: stri
       setMsg("cancelled" in r ? "" : `Saved ${r.path}`);
     } catch (e) { setMsg(`Export failed: ${String(e)}`); }
   };
-  return <span className="png-save"><Button variant="quiet" onClick={() => void click()}>Save PNG</Button> <span role="status" className="report-note">{msg}</span></span>;
+  return <span className="png-save"><Button onClick={() => void click()}>Save PNG</Button> <span role="status" className="report-note">{msg}</span></span>;
 }
 
 export function ExportBar({ id, suite }: { id: string; suite: string }) {

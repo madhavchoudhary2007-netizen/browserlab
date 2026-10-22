@@ -27,7 +27,7 @@ export function RunPanel() {
       <div className="run-actions">
         <button disabled={state !== "running"} onClick={() => act("run.pause")}>Pause after trial</button>
         <button disabled={state !== "paused" && state !== "stopped" && state !== "incomplete"} onClick={() => act("run.resume")}>Resume</button>
-        <button disabled={!active && state !== "paused"} onClick={() => act("run.stop")}>Stop after trial</button>
+        <button className="run-stop" disabled={!active && state !== "paused"} onClick={() => act("run.stop")}>Stop after trial</button>
       </div>
       {warnings.length > 0 && (
         <ul aria-label="Warnings" className="run-warnings">

@@ -113,15 +113,17 @@ export function RunView() {
       {!busy && (
         <>
           <Preflight state={pre} onRetry={retryPre} />
-          <label className="run-check">
-            <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} />
-            I understand this launches real browsers for the full duration and I will not use this Mac meanwhile.
-          </label>
-          {startError && <p role="alert">{startError}</p>}
-          <Button variant="primary" pending={starting} disabled={!ready || !confirmed} onClick={() => void start()}>
-            {starting ? "Starting…" : "Start experiment"}
-          </Button>
-          {(!ready || !confirmed) && <p className="start-reason">{!ready ? "Fix the blocked checks above to start." : "Tick the confirmation above to enable Start."}</p>}
+          <div className="run-launch">
+            <label className="run-check">
+              <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} />
+              I understand this launches real browsers for the full duration and I will not use this Mac meanwhile.
+            </label>
+            {startError && <p role="alert">{startError}</p>}
+            <Button variant="primary" pending={starting} disabled={!ready || !confirmed} onClick={() => void start()}>
+              {starting ? "Starting…" : "Start experiment"}
+            </Button>
+            {(!ready || !confirmed) && <p className="start-reason">{!ready ? "Fix the blocked checks above to start." : "Tick the confirmation above to enable Start."}</p>}
+          </div>
         </>
       )}
       {runState !== "idle" && <RunPanel />}
