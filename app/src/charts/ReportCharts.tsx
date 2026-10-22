@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { colorFor, uniq } from "../analysis";
+import { uniq } from "../analysis";
+import { colorFor } from "./palette";
 import type { Report, SeriesRow, TrialStats } from "../report";
 import { AXIS, useEChart } from "./useEChart";
 
@@ -165,7 +166,7 @@ export function MeanBars({ report }: { report: Report }) {
   return <div ref={el} {...props} style={{ height: 320 }} />;
 }
 
-const CLASS_COLORS: Record<string, string> = { browser: "#6aa7ff", renderer: "#f2a93b", gpu: "#5ccf9a", network: "#b48cf2", utility: "#e07b9a", media_or_plugin: "#4fd0d0", other: "#7d8794" };
+const CLASS_COLORS: Record<string, string> = { browser: "#6aa7ff", renderer: "#9bbf3b", gpu: "#5ccf9a", network: "#b48cf2", utility: "#e07b9a", media_or_plugin: "#4fd0d0", other: "#7d8794" };
 
 /** Where the footprint sits: mean physical footprint per process class, stacked, per trial. */
 export function CompositionChart({ report }: { report: Report }) {

@@ -60,3 +60,6 @@ Merge is the owner's decision: `git merge ui-overhaul` from a release branch aft
 - Cycle 3: Q 3.65, P 3.45, mean 3.55 (cycle 2 3.40). Both reviewers listed every file. Lowest lines: Craft 3 (both), Color 3-3.5, Typography 3-3.5. Cycle means rose 3.375 -> 3.40 -> 3.55 but no line set reached 4 on every line.
 - Pen perf: 1x 0 dropped frames, script 1.16%; 6x 1 dropped frame over 25 ms (cycle 2: 0), script 2.22%. Startup and bundle were not re-measured after the layout pass.
 - Not addressed: orange 'brave' series (frozen analysis.ts), dead space at wide sizes, 6-8px chart text, teal vs ink-blue accent, pen touching the plot edge at replay end, Results chart below the fold at 960/1280.
+
+## Addendum 2: fix pass after cycle 3 (no review run after it)
+Not scored by reviewers; cycle 3 (mean 3.55) remains the last scored state and the verdict stays ESCALATED. Changes: brave series recoloured via view-layer adapter (orange now only on the pen), 12 px chart axis text, pen leans over the plot at the end of a sweep, Library and Results tightened at 960x640 (Library shows 5 rows in the first view; Results tabs still wrap to two rows). Gates green (e2e 129, contrast, frozen-check OK). Pen perf: 0 dropped frames at 1x and 6x, script share 1.62% / 2.18%; startup ready p50 60.4 ms; JS 1,049 kB.

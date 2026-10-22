@@ -13,7 +13,7 @@ export function Heatmap({ data, unit }: { data: Analysis; unit: string }) {
       tooltip: { formatter: (p: { value: [number, number, number] }) => `${browsers[p.value[1]]} · ${cols[p.value[0]]}<br/>${p.value[2].toFixed(1)} ${unit}` },
       xAxis: { type: "category", data: cols, splitArea: { show: true }, ...AXIS, axisLabel: { color: "#8b94a0", rotate: 30 } },
       yAxis: { type: "category", data: browsers, ...AXIS },
-      visualMap: { min: Math.min(...vals), max: Math.max(...vals), calculable: true, orient: "horizontal", left: "center", bottom: 0, textStyle: { color: "#8b94a0" }, inRange: { color: ["#1d2a3a", "#6aa7ff", "#f2a93b"] } },
+      visualMap: { min: Math.min(...vals), max: Math.max(...vals), calculable: true, orient: "horizontal", left: "center", bottom: 0, textStyle: { color: "#8b94a0" }, inRange: { color: ["#1d2a3a", "#6aa7ff", "#8B6CD6"] } },
       series: [{ type: "heatmap", label: { show: cols.length * browsers.length <= 40, color: "#e6e8eb", formatter: (p: { value: number[] }) => (p.value[2] ?? 0).toFixed(0) },
         data: conds.map((c) => [cols.indexOf(`${c.workload} · ${c.tabs}`), browsers.indexOf(c.browser), c.mean]) }],
     };

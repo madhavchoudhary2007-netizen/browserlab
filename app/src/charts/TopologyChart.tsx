@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { colorFor, uniq, type TopologyRow } from "../analysis";
+import { uniq, type TopologyRow } from "../analysis";
+import { colorFor } from "./palette";
 import { AXIS, padMax, useEChart } from "./useEChart";
 
 export function TopologyChart({ rows, workload }: { rows: TopologyRow[]; workload: string }) {

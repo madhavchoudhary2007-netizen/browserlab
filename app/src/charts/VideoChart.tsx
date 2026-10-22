@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { colorFor, uniq, type VideoRow } from "../analysis";
+import { uniq, type VideoRow } from "../analysis";
+import { colorFor } from "./palette";
 import { AXIS, padMax, useEChart } from "./useEChart";
 
 /** Aggregate decoded fps (line) with every tab's own measured fps (dots): never aggregate / tabs. */

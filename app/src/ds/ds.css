@@ -57,3 +57,4 @@ select { appearance: none; -webkit-appearance: none; padding-inline-end: var(--s
 .page-ink path { fill: none; stroke: var(--pen); stroke-width: 2.5; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 0; animation: ink-trace 520ms var(--ease-out, ease-out) both; }
 @keyframes ink-trace { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 @media (prefers-reduced-motion: reduce) { .page-ink path { animation: none; } }
+@media (max-width: 1100px) { .ds-tabs [role="tab"] { padding-inline: var(--s-2); font-size: var(--t-0); } }

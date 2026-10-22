@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { boxStats, colorFor, type Analysis } from "../analysis";
+import { boxStats, type Analysis } from "../analysis";
+import { colorFor } from "./palette";
 import { AXIS, useEChart } from "./useEChart";
 
 /** Box body width as a share of its category band: wide enough to read at 960 px and up. */

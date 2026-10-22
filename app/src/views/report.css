@@ -61,3 +61,12 @@
 .chart-tool { display: grid; place-items: center; inline-size: 2.75rem; block-size: 2.75rem; padding: 0; border: 1px solid var(--grid); border-radius: var(--r-2); background: var(--raised); color: var(--fg-muted); cursor: pointer; }
 .chart-tool:hover { color: var(--fg); border-color: var(--edge); }
 .chart-tool:focus-visible { outline: 3px solid var(--pen); outline-offset: 2px; }
+
+/* Pass 3 fix pass: at the minimum window the Trace replay should start in the first view, so the head and the gaps tighten below 1100 px. */
+@media (max-width: 1100px) {
+  .report { gap: var(--s-4); }
+  .report-head { gap: var(--s-2); }
+  .report-facts { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-2) var(--s-4); }
+  .report-facts dd { font-size: var(--t-0); }
+}
+@media (max-width: 1100px) { .results-tabs { column-gap: 0; } .results-tabs > button[role="tab"] { padding-inline: var(--s-2); font-size: var(--t-0); } }

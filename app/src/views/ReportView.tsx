@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { colorFor } from "../analysis";
+import { colorFor } from "../charts/palette";
 import { ChartPngButton, ExportBar } from "../components/ExportBar";
 import { CompositionChart, CpuMemChart, MeanBars, TimeChart, type TraceMetric } from "../charts/ReportCharts";
 import { fmtDateTime, fmtDuration, fmtNum } from "../format";

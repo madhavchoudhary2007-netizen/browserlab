@@ -26,6 +26,9 @@ function niceStep(span: number): number {
   return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * mag;
 }
 
+/** Past 85 % of the sheet the pen leans from 35 degrees clockwise to 35 counter-clockwise, so at the end of a sweep its body stands over the plot instead of the right margin. */
+export const lean = (u: number): number => -70 * Math.max(0, Math.min(1, (u - 0.85) / 0.15));
+
 /** Extents of the pen drawing (a 26x98 box with the nib at its bottom, x from -12 to 14) from the nib after rotating `deg` clockwise and scaling by `s`. */
 export function penExtent(deg: number, s: number): { l: number; r: number; t: number; b: number } {
   const a = (deg * Math.PI) / 180, c = Math.cos(a), n = Math.sin(a);
@@ -144,7 +147,7 @@ export class PenRig {
     const e = this.engine, s = this.scale;
     const u = e ? e.u : 0, v = e ? e.v : 0;
     const tilt = e ? Math.max(-10, Math.min(10, e.tilt * 3)) : 0;
-    const rot = 35 + tilt, off = lifted ? 9 : 5, offy = lifted ? 12 : 7;
+    const rot = 35 + tilt + lean(u), off = lifted ? 9 : 5, offy = lifted ? 12 : 7;
     const { x, y } = this.clampNib(this.x(u), this.y(v) - (lifted ? 6 : 0), rot);
     this.o.pen.style.transform = `translate3d(${x}px,${y}px,0) rotate(${rot}deg) scale(${s})`;
     this.o.shadow.style.transform = `translate3d(${x + off * (this.o.mini ? 0.4 : 1)}px,${y + offy * (this.o.mini ? 0.4 : 1)}px,0) rotate(${rot}deg) scale(${s})`;
@@ -192,9 +195,9 @@ export class PenRig {
     c.stroke(); this.engine = null; this.placePenAt(p[p.length - 1]!.v, Math.min(1, (p[p.length - 1]!.t - t0) / this.seconds)); this.readout(p[p.length - 1]!.v);
   }
   private placePenAt(v: number, u: number) {
-    const s = this.scale, { x, y } = this.clampNib(this.x(u), this.y(this.px(v)), 35);
-    this.o.pen.style.transform = `translate3d(${x}px,${y}px,0) rotate(35deg) scale(${s})`;
-    this.o.shadow.style.transform = `translate3d(${x + 5}px,${y + 7}px,0) rotate(35deg) scale(${s})`;
+    const s = this.scale, rot = 35 + lean(u), { x, y } = this.clampNib(this.x(u), this.y(this.px(v)), rot);
+    this.o.pen.style.transform = `translate3d(${x}px,${y}px,0) rotate(${rot}deg) scale(${s})`;
+    this.o.shadow.style.transform = `translate3d(${x + 5}px,${y + 7}px,0) rotate(${rot}deg) scale(${s})`;
     this.o.pen.style.visibility = this.o.shadow.style.visibility = "visible";
   }
 

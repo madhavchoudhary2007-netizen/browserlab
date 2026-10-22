@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { colorFor, uniq, type LifecyclePoint } from "../analysis";
+import { uniq, type LifecyclePoint } from "../analysis";
+import { colorFor } from "./palette";
 import { AXIS, useEChart } from "./useEChart";
 
 /** Condition means: faster reactivation (left) and more memory reclaimed (up) are better; line joins the non-dominated set. */

@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { colorFor, uniq, type Analysis } from "../analysis";
+import { uniq, type Analysis } from "../analysis";
+import { colorFor } from "./palette";
 import { errorBarSeries } from "./errorBars";
 import { ChartTools } from "./ChartTools";
 import { AXIS, padMax, useEChart } from "./useEChart";

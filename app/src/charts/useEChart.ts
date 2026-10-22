@@ -23,7 +23,7 @@ function paper(option: echarts.EChartsCoreOption, scheme: "light" | "dark"): ech
     if (!ax || typeof ax !== "object") return ax;
     const a = ax as Record<string, unknown>;
     const value = a.type === "value" || a.type === undefined;
-    return { ...a, axisLabel: { fontFamily: mono, ...(a.axisLabel as object) }, splitLine: { show: a.splitLine !== undefined ? (a.splitLine as { show?: boolean }).show !== false : value, lineStyle: { color: major } },
+    return { ...a, axisLabel: { fontFamily: mono, fontSize: 12, ...(a.axisLabel as object) }, nameTextStyle: { fontSize: 12, ...(a.nameTextStyle as object) }, splitLine: { show: a.splitLine !== undefined ? (a.splitLine as { show?: boolean }).show !== false : value, lineStyle: { color: major } },
       ...(value ? { minorTick: { show: true, splitNumber: 4 }, minorSplitLine: { show: true, lineStyle: { color: minor } } } : {}) };
   };
   const o = option as Record<string, unknown>;

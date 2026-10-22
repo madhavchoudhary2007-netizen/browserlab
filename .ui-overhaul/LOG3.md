@@ -157,3 +157,11 @@
 - Cycle mean 3.55 (cycle 2: 3.40; cycle 1: 3.375); reviewer difference 0.20. Bar not met; verdict stays ESCALATED.
 - Pen perf at this commit: 1x p95 16.8 ms, 0 dropped, 0 long tasks, script 1.16%; 6x p95 16.8 ms, 1 dropped frame over 25 ms (cycle 2: 0), 0 long tasks, script 2.22%. Heap/DOM/listeners flat.
 - Remaining weakest (both reviewers): Craft 3 (960x640 clipping on Results/Library/Analysis, dead space at 1920/2560), Typography/Color 3-3.5 (6-8px chart/helper text in sheets, orange 'brave' series, teal not ink blue), pen touches plot edge at replay end, light shadow smear.
+
+## Fix pass on shared cycle-3 weak points (owner-requested; no review run after it)
+- Brave series: view-layer adapter `app/src/charts/palette.ts` (brave -> violet #8B6CD6; analysis.ts untouched, all chart files and ReportView import colorFor from it). Orange also removed from the heatmap ramp and the 'renderer' process class (now yellow-green), so orange is the pen only.
+- Chart text: axis labels and axis names set to 12 px in `paper()` (legend was 13 px; pen sheet ticks were already 12 px; body text tokens are 14 px or more, the 6-8 px reports came from 50% contact sheets).
+- Pen edge: `lean(u)` in PenRig.ts turns the pen from 35 deg clockwise to 35 deg counter-clockwise over the last 15% of the sweep, so at the end its body stands over the plot, not the right margin (checked on pen-large shots, light).
+- 960x640: Library status/date/trials on one line (5 rows in the first view, was 3.5; wraps instead of overflowing at 150/200% text); Results report facts in 3 tighter columns, tighter gaps, smaller tab padding. Tabs still wrap to 2 rows at 960 (6 tabs need about 700 px, 672 available); not forced to scroll.
+- Gates: typecheck, lint, vitest 20, build, e2e 129 (an overflow regression at 150/200% text caught by platform.spec in my first Library change was fixed in the design, test untouched), contrast, frozen-check OK. No e2e edits.
+- Measured: pen 1x p95 16.8 ms, 0 dropped, 0 long tasks, script 1.62%; 6x p95 16.7 ms, 0 dropped, 0 long tasks, script 2.18%; startup proxy ready p50 60.4 / p95 61.8 ms (earlier same-session base 59.7-60.5); JS 1,049.38 kB, CSS 43.55 kB.

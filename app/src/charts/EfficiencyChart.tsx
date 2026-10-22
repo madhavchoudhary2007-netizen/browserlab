@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { colorFor, uniq, type Analysis } from "../analysis";
+import { uniq, type Analysis } from "../analysis";
+import { colorFor } from "./palette";
 import { AXIS, useEChart } from "./useEChart";
 
 /** Resource trade-off: each point is a condition mean; marker size encodes tab count. */

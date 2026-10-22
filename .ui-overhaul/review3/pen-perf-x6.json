@@ -7,16 +7,16 @@
     "p95": 16.7,
     "p99": 16.8
   },
-  "dropped_frames_over_25ms": 1,
+  "dropped_frames_over_25ms": 0,
   "long_tasks_over_50ms": 0,
-  "script_share_pct": 2.22,
-  "main_thread_share_pct": 4.45,
+  "script_share_pct": 2.18,
+  "main_thread_share_pct": 4.4,
   "heap_mb": {
-    "early": 18.21,
-    "late": 18.74
+    "early": 18.22,
+    "late": 18.75
   },
   "dom_nodes": {
-    "early": 323,
+    "early": 324,
     "late": 323
   },
   "listeners": {

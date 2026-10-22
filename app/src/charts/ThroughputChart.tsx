@@ -1,5 +1,6 @@
 import { useMemo } from "react";
-import { colorFor, uniq, type JsRow } from "../analysis";
+import { uniq, type JsRow } from "../analysis";
+import { colorFor } from "./palette";
 import { errorBarSeries } from "./errorBars";
 import { AXIS, padMax, useEChart } from "./useEChart";
 

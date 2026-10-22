@@ -38,7 +38,7 @@ function ResultsBody({ selected }: { selected: Selected | null }) {
   const label = TABLES.find((t) => t.id === table)?.label ?? table;
   return (
     <section className="flex flex-col gap-4" aria-label="Results explorer">
-      <div role="tablist" className="flex flex-wrap gap-x-2">
+      <div role="tablist" className="results-tabs flex flex-wrap gap-x-2">
         {TABLES.map((t) => (
           <button key={t.id} role="tab" aria-selected={table === t.id} className="min-h-11 px-4"
             style={{ borderBottom: `2px solid ${table === t.id ? "var(--signal)" : "transparent"}` }} onClick={() => setTable(t.id)}>
