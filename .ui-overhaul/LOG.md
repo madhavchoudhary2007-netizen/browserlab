@@ -1,5 +1,5 @@
 # UI overhaul log
-Branch: ui-overhaul (from perfection-loop @ base-ref). Phase: U8 next (U0-U7 done; critique cycle 1 fixes applied, review 2 pending in U8). Cycle: 1. Cycle: 0.
+Branch: ui-overhaul (from perfection-loop @ base-ref). Phase: U8 cycle 3 next (U0-U7 done, cycle 2 reviewed; critique cycle 1 fixes applied, review 2 pending in U8). Cycle: 1. Cycle: 0.
 
 ## Decisions
 - App lives in `app/`; gate uses UI_DIRS="app/src", TAURI_DIR="app/src-tauri" (brief paths adjusted).
@@ -75,3 +75,16 @@ Next: U6 signature moment, U7 window chrome + packaged WKWebView check + startup
 - Built with `pnpm tauri build --bundles app` + scripts/sign_app.sh (same signature as before). Launched the release bundle and captured only its own window (screencapture -l): WKWebView renders bundled Instrument Sans, OKLCH colours (system dark scheme), rail with icons, segmented mode control, plan readout and the real preflight list correctly. Native title bar kept. A first full-screen capture showed unrelated personal windows; it was deleted and not used.
 - scripts/perf_packaged.py, new vs pre-overhaul copy (same machine, 20 s idle): app-tree RSS 283.2 vs 278.3 MB (+1.8 %), idle CPU 0.0 vs 0.0 %, sidecar spawn 1.63 vs 1.40 s (backend-bound, unchanged code). window_visible probe reports ~0 s for both and is NOT a valid UI-startup measure; first-paint startup time is NOT MEASURED. The +-10 % startup gate is therefore unproven.
 - Not checked in WKWebView: arrival animation smoothness, light theme, 150 % scale (only dark at 100 % seen).
+
+## U8 cycle 2 (done): independent review 2 = mean 3.3 / 5 (was 2.6)
+Fixes before review: Report legend wraps (all 16 shown), light sheet/raised separation, pen #006D76 and ok #1A6F37 (axe contrast), palette button quieter, screenshot set now 9 screens x 4 sizes x 2 themes (review/u8c2-*).
+Scores (fresh agent, images only, did not open 1920x1080): Distinctiveness 3, Subject fit 4, Hierarchy 3, Typography 4, Color/contrast 3, Motion NOT JUDGEABLE, Craft 3, Usability 3, Signature 3, Consistency 4. Not a pass (need all >=4, mean >=4.3, two reviews).
+Defects -> cycle 3 tasks, by impact:
+1. Start experiment reads inert (flat grey full-width bar) -> make enabled state obvious, shrink width, link checkbox to button, disabled style with outline not flat grey.
+2. Light theme canvas muddy -> lighter sheet or white raised content surface; chart area on raised surface.
+3. Report buries data -> collapse metadata into compact strip, move exports into a Menu (needs test update; keep flows) or place after chart; chart above the fold.
+4. Chart text/legend font mismatch (ECharts default Arial-like) -> set textStyle.fontFamily to the UI font via useEChart; group legend by browser.
+5. Wide windows dead space (content capped 1024 by existing responsive test) -> add second column on wide screens (e.g. sticky run summary) without breaking the width cap, or enlarge density.
+6. 900 px: tab strip clipped without cue, JSON orphan -> fade/edge affordance or wrap tabs; export menu.
+7. Library rows: add sort/group and visible compare hint; Settings/Compare sparse.
+Cycle counter: 2 of 6 used.
