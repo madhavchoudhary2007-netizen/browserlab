@@ -57,3 +57,10 @@
 - Fixes: tab padding 0.375rem below 1100 px (text size unchanged, 14.56 px); rail trace slot and two status lines always reserved (footer height constant; the slot is an empty bordered box until G4 fills it); at heights <= 700 px the report places the chart before the run facts (CSS order, display: contents on the head).
 - Screenshots (full size): .ui-overhaul/review4/g2/ (before-results-report, after-results-report, after-run-idle, after-run-running at 960x640).
 - Gates: typecheck, lint, vitest 20, e2e 143 (axe matrix at 960x640 light and dark inside), contrast OK, frozen-check OK.
+
+## G3 done (Compare under-sampled)
+- New: app/src/views/CompareTable.tsx (view-layer component, analysis untouched), app/src/views/CompareTable.test.ts (vitest with props: n=1 on a side hides 95% CI, p, g and shows the note exactly once; n=3 both sides shows all columns with values; mixed shows columns plus a 'k of n' note), app/e2e/p4-compare.spec.ts (empty state one note and title; one-trial-per-side state: one note, no p/CI/g headers, no 'Needs 2+' cells; axe clean empty and populated at 960x640 and 1920x1080 light and dark). Red first (vitest import failed, e2e failed on the old note count), green after.
+- Behaviour: with no testable condition the table keeps Condition, n, Mean A, Mean B, A and B bars, and B minus A (shown as the plain difference of the two displayed means when the analysis gives no mean_diff), plus one note with the trial counts. With some testable conditions all columns stay and the note says how many read n/a. The summary line no longer repeats the no-test count.
+- The populated state with real tests (n >= 2 per side) cannot be produced by the frozen mock engine in the browser: its screenshot is NOT RUN (covered by the vitest props test instead).
+- Screenshots (full size): .ui-overhaul/review4/g3/.
+- Gates: typecheck, lint, vitest 23, e2e 149 expected (145 plus 4 axe), contrast OK, frozen-check OK.

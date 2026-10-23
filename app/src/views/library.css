@@ -85,3 +85,4 @@
   .cmp:has(.cmp-scroll) > .cmp-scroll { grid-column: 1; grid-row: 1 / span 6; }
   .cmp:has(.cmp-scroll) > :not(.cmp-scroll) { grid-column: 2; }
 }
+.cmp-note { margin: 0; max-inline-size: 70ch; padding-inline-start: var(--s-4); border-inline-start: 4px solid var(--edge); }
