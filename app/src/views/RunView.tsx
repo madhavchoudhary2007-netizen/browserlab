@@ -72,6 +72,13 @@ export function RunView() {
   useEffect(() => setConfirmed(false), [mode, workload, tabs, advanced]);
 
   const busy = runState !== "idle" && runState !== "completed" && runState !== "failed" && runState !== "incomplete" && runState !== "stopped";
+  // Re-run the readiness checks when the user comes back to the window (after closing Chrome or freeing disk space), never during a run.
+  useEffect(() => {
+    if (busy) return;
+    const again = () => { if (document.visibilityState === "visible") retryPre(); };
+    window.addEventListener("focus", again); document.addEventListener("visibilitychange", again);
+    return () => { window.removeEventListener("focus", again); document.removeEventListener("visibilitychange", again); };
+  }, [busy, retryPre]);
   const ready = pre.kind === "ready" && pre.value.can_start && plan.kind === "ready";
 
   const start = async () => {
@@ -143,6 +150,7 @@ export function RunView() {
               {starting ? "Starting…" : "Start experiment"}
             </Button>
             {(!ready || !confirmed) && <p className="start-reason">{!ready ? "Fix the blocked checks below to start." : "Tick the confirmation to enable Start."}</p>}
+            {!ready && <Button onClick={retryPre}>Check again</Button>}
           </div>
           <Preflight state={pre} onRetry={retryPre} />
         </>
