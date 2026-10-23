@@ -7,7 +7,7 @@ import "./pen.css";
 /** Ballpoint pen, nib at (0,0), drawn upward. Flat vector, original. The shadow variant is the same silhouette in one flat colour. */
 function PenSvg({ shadow = false }: { shadow?: boolean }): ReactNode {
   const f = (c: string) => (shadow ? "#000" : c);
-  const rim = shadow ? undefined : "rgba(14,26,34,0.5)";
+  const rim = shadow ? undefined : "var(--pen-rim)";
   return (
     <svg className="pen-svg" width="26" height="98" viewBox="-12 -98 26 98" aria-hidden="true" focusable="false">
       <path d="M-2.2 -9 L2.2 -9 L5 -27 L-5 -27 Z" fill={f("#4B545C")} stroke={rim} strokeWidth="0.6" />
@@ -18,7 +18,8 @@ function PenSvg({ shadow = false }: { shadow?: boolean }): ReactNode {
       <rect x="6.6" y="-83.6" width="4" height="3.4" rx="1.2" fill={f("#9AA3AB")} stroke={rim} strokeWidth="0.5" />
       <rect x="-5.2" y="-92" width="10.4" height="8.6" rx="2.2" fill={f("#2B3238")} stroke={rim} strokeWidth="0.6" />
       <rect x="-2.6" y="-97" width="5.2" height="5.4" rx="1.5" fill={f("#4B545C")} stroke={rim} strokeWidth="0.5" />
-      {!shadow && <rect x="-4.6" y="-80" width="2.2" height="40" rx="1.1" fill="#fff" opacity="0.34" />}
+      {!shadow && <rect x="-4.6" y="-80" width="2.2" height="40" rx="1.1" fill="#fff" opacity="var(--pen-stripe)" />}
+      {!shadow && <rect data-stripe="edge" x="4.4" y="-80" width="1.2" height="40" rx="0.6" fill="#fff" opacity="var(--pen-edge-light)" />}
       {!shadow && <circle cx="0" cy="0" r="2.6" fill="var(--pen)" />}
     </svg>
   );

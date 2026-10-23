@@ -84,3 +84,10 @@
 - "ink blue": no hits in `app/src`; remaining hits are historical records (BRIEF2/3/4, HANDOFF3, LOG3, FINAL_REPORT_3, pass4/G5.md), kept per earlier decision.
 - Gates: typecheck, lint, vitest 23, e2e 158, contrast, frozen-check OK. JS 1,052.4 kB, CSS 46.3 kB.
 - Screenshots: `review4/g5/` (after only; before state is the pass-3/G3 images; no stash allowed with owner's work in tree). Compare populated-with-tests state NOT RUN (mock).
+
+## G6 (pen polish)
+- Failing check first: `app/e2e/p4-pen-polish.spec.ts` (shadow opacity 0.12 with no filter; dark rim lighter than light rim by >60 luminance; edge highlight only in dark).
+- Shadow was already a flat offset silhouette (no blur); opacity 0.10 -> 0.12. Rim, stripe and a new thin edge-light now come from tokens `--pen-rim`, `--pen-stripe`, `--pen-edge-light` (light/dark); pen orange unchanged. Transform-only motion untouched; PenEngine/penExtent tests unchanged and green.
+- 3x screenshots: `review4/g6/pen-3x-{light,dark}.png`.
+- Pen perf (CSS-only change, harness `pnpm perf` pen): 1x p95 16.7 ms, 0 dropped, 0 long tasks, script 1.32% (PASS). 6x, three runs: script 2.22%, 2.45%, 3.04%; dropped >25 ms 0, 0, 1; long tasks 0. The 6x "0 dropped / <=2.5%" budget is NOT met in every run; same intermittent pattern as in G4 (noise on a loaded dev machine). A/B against bf61fc3 is scheduled for G7; JSONs `review4/g6/pen-perf-x1.json`, `pen-perf-x6-run3.json` (the worst run, kept on purpose).
+- Gates: typecheck, lint, vitest 23, e2e 159, contrast, frozen-check OK. JS 1,052.5 kB.

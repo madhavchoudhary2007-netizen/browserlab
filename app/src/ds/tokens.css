@@ -110,7 +110,7 @@
 :root[data-theme="light"] { color-scheme: light; }
 
 /* Pen illustration colours: the orange exists only on the pen object (never on buttons, links, text or status). */
-:root { --pen-body: #D9691F; --pen-trim: #33414B; }
-:root[data-theme="dark"] { --pen-body: #F08A3C; --pen-trim: #8FA2AE; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --pen-body: #F08A3C; --pen-trim: #8FA2AE; } }
+:root { --pen-body: #D9691F; --pen-trim: #33414B; --pen-rim: rgba(14,26,34,0.5); --pen-stripe: 0.34; --pen-edge-light: 0; }
+:root[data-theme="dark"] { --pen-body: #F08A3C; --pen-trim: #8FA2AE; --pen-rim: rgba(226,234,240,0.55); --pen-stripe: 0.45; --pen-edge-light: 0.35; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --pen-body: #F08A3C; --pen-trim: #8FA2AE; --pen-rim: rgba(226,234,240,0.55); --pen-stripe: 0.45; --pen-edge-light: 0.35; } }
 @media (forced-colors: active) { :root { --pen-body: Highlight; --pen-trim: CanvasText; } }
