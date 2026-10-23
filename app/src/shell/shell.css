@@ -49,3 +49,6 @@ kbd { font: var(--w-reg) var(--t-0) var(--font-num); color: var(--fg-muted); }
 
 /* Pass 4 G1: from 2200 px the content column may grow to 120rem so 2560 windows are not mostly margin. */
 @media (min-width: 2200px) { .shell-main > div { max-inline-size: 120rem; } }
+
+/* Pass 4 G2: the footer keeps one height whether a run is idle or running (trace slot and two status lines are always reserved). */
+.rail-status { min-block-size: calc(2 * 1.4em); align-content: start; }

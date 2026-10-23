@@ -43,7 +43,7 @@ export function Rail({ view, setView, showCompare, openPalette }: { view: ViewId
         <button className="rail-palette" onClick={openPalette} aria-keyshortcuts="Control+K Meta+K">
           <span>Commands</span><kbd>⌘K</kbd>
         </button>
-        {view !== "run" && (active || hasTrace) && <div className="rail-pen"><PenSheet variant="mini" source="live" label="Live memory trace" /></div>}
+        <div className="rail-pen">{view !== "run" && (active || hasTrace) && <PenSheet variant="mini" source="live" label="Live memory trace" />}</div>
         <div className="rail-status" role="status" aria-live="polite">
           {state === "running" && <span className="rail-caption">Live memory (RSS)</span>}
           <span>{STATE_TEXT[state] ?? state}{active && progress.total > 0 ? `: ${progress.completed} of ${progress.total}` : ""}</span>

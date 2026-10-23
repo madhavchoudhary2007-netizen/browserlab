@@ -51,3 +51,9 @@
 - Changes: Library at 80rem list width gets Browsers and Workload columns (second line removed); Compare at >=1600 puts the table left and the summary/notes in a 22rem column; Settings two columns at >=1600; main content cap 120rem from 2200 px (e2e cap edit logged above). Run right column keeps width; trial list not possible (data not received), run plan summary stays, request logged in requests.md.
 - Before/after full-size screenshots: .ui-overhaul/review4/g1/ (before = pass-3 state captured earlier in the session, same layout).
 - Gates: typecheck, lint, vitest 20, build (JS 1,049.70 kB, CSS 44.51 kB), e2e 137 (129 + 8 new), contrast OK, frozen-check OK.
+
+## G2 done (results tabs, footer, chart fold)
+- New e2e app/e2e/p4-results.spec.ts: 6 tabs on one row at 960x640 (font >= 12 px), rail footer top moves <= 1 px between idle and running at 960x640, 1280x800, 1920x1080, >= 60% of the Results chart in view on load at 960x640 and 1280x800. Red first (tabs 88 px high, footer moved 22-24 px, chart 7% in view at 960x640; the 1280x800 chart check already passed), green after.
+- Fixes: tab padding 0.375rem below 1100 px (text size unchanged, 14.56 px); rail trace slot and two status lines always reserved (footer height constant; the slot is an empty bordered box until G4 fills it); at heights <= 700 px the report places the chart before the run facts (CSS order, display: contents on the head).
+- Screenshots (full size): .ui-overhaul/review4/g2/ (before-results-report, after-results-report, after-run-idle, after-run-running at 960x640).
+- Gates: typecheck, lint, vitest 20, e2e 143 (axe matrix at 960x640 light and dark inside), contrast OK, frozen-check OK.
