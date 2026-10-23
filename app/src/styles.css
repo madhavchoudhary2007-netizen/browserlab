@@ -45,5 +45,6 @@ button.btn-primary:not(.ds-btn) { background: var(--pen); color: var(--pen-fg); 
 button.btn-primary:not(.ds-btn):not(:disabled):hover { background: var(--pen-hover); }
 button.btn-primary:not(.ds-btn):disabled { background: transparent; color: var(--fg-muted); border: 1px dashed var(--edge); opacity: 1; box-shadow: none; }
 
+.report-table { background: var(--raised); border: 1px solid var(--edge); border-collapse: separate; border-spacing: 0; }
 .report-table th, .report-table td { padding: 6px 10px; white-space: nowrap; }
 .report-table th { color: var(--muted); font-weight: 500; }

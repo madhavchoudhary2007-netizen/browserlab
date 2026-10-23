@@ -40,6 +40,12 @@ Hex fallback tokens from `app/src/ds/tokens.css`. Thresholds: text 4.5, UI/disab
 | disabled | --edge dashed outline | --sheet | 3.68:1 | 3 | pass |
 | disabled | --fg-muted (primary disabled) | --raised | 8.84:1 | 3 | pass |
 | disabled | --edge dashed outline | --raised | 4.18:1 | 3 | pass |
+| paper | table text --fg | --raised | 17.65:1 | 4.5 | pass |
+| paper | table header/helper --fg-muted | --raised | 8.84:1 | 4.5 | pass |
+| paper | --edge table border | --raised | 4.18:1 | 3 | pass |
+| disabled | Compare nav (--fg-muted, dashed --edge) | --raised | 8.84:1 | 3 | pass |
+| disabled | Compare nav dashed outline --edge | --raised | 4.18:1 | 3 | pass |
+| text | nav reason (--sheet on --fg) | --fg | 15.52:1 | 4.5 | pass |
 | text | --danger (Stop after trial, outlined) | --raised | 6.54:1 | 4.5 | pass |
 | chart | chart axis text (#3E4C57) | --raised | 8.84:1 | 4.5 | pass |
 | chart | chart legend text (#0E1A22) | --raised | 17.65:1 | 4.5 | pass |
@@ -94,6 +100,12 @@ Hex fallback tokens from `app/src/ds/tokens.css`. Thresholds: text 4.5, UI/disab
 | disabled | --edge dashed outline | --sheet | 4.74:1 | 3 | pass |
 | disabled | --fg-muted (primary disabled) | --raised | 8.31:1 | 3 | pass |
 | disabled | --edge dashed outline | --raised | 4.24:1 | 3 | pass |
+| paper | table text --fg | --raised | 13.86:1 | 4.5 | pass |
+| paper | table header/helper --fg-muted | --raised | 8.31:1 | 4.5 | pass |
+| paper | --edge table border | --raised | 4.24:1 | 3 | pass |
+| disabled | Compare nav (--fg-muted, dashed --edge) | --raised | 8.31:1 | 3 | pass |
+| disabled | Compare nav dashed outline --edge | --raised | 4.24:1 | 3 | pass |
+| text | nav reason (--sheet on --fg) | --fg | 15.51:1 | 4.5 | pass |
 | text | --danger (Stop after trial, outlined) | --raised | 7.13:1 | 4.5 | pass |
 | chart | chart axis text (#8B94A0) | --raised | 5.30:1 | 4.5 | pass |
 | chart | chart legend text (#E6E8EB) | --raised | 13.26:1 | 4.5 | pass |

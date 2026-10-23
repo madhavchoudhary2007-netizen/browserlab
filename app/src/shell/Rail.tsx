@@ -31,7 +31,8 @@ export function Rail({ view, setView, showCompare, openPalette }: { view: ViewId
       <nav aria-label="Primary">
         {VIEWS.map((v) => (
           <button key={v.id} aria-current={view === v.id ? "page" : undefined} onClick={() => setView(v.id)}
-            aria-disabled={v.id === "compare" && !showCompare ? "true" : undefined} aria-describedby={v.id === "compare" && !showCompare ? "rail-compare-hint" : undefined}>
+            aria-disabled={v.id === "compare" && !showCompare ? "true" : undefined} aria-describedby={v.id === "compare" && !showCompare ? "rail-compare-hint" : undefined}
+            data-hint={v.id === "compare" && !showCompare ? "Needs two finished experiments" : undefined}>
             <Icon name={v.icon} />
             <span>{v.label}</span>
           </button>

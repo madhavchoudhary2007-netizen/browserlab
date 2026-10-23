@@ -78,7 +78,7 @@ export function VirtualTable({ fetchPage, filterLabel, label }: { fetchPage: Fet
         {total.toLocaleString()} rows{filterLabel ? ` · filtered: ${filterLabel}` : ""}
       </p>
       <div ref={scroller} role="table" aria-label={label} aria-rowcount={total + 1} tabIndex={0}
-        style={{ height: 420, overflow: "auto", border: "1px solid var(--line)" }}>
+        style={{ height: 420, overflow: "auto", border: "1px solid var(--edge)", background: "var(--raised)" }}>
         <div role="row" style={{ position: "sticky", top: 0, zIndex: 1, display: "flex", width, background: "var(--raise)", height: ROW_H }}>
           {cols.map((c) => <div key={c} role="columnheader" className="num truncate px-2" style={{ width: colW(c), lineHeight: `${ROW_H}px` }} title={c}>{c}</div>)}
         </div>

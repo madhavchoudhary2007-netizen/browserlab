@@ -75,3 +75,12 @@
 - Idle CPU: not measured separately; the rail has no timer or frame loop when no run is active. (NOT RUN as a number; to be measured in G7.)
 - Screenshots (full size): .ui-overhaul/review4/g4/ (before-run-running-1920x1080, after-rail-idle and after-rail-running in light and dark at 1280x800).
 - Gates: typecheck, lint, vitest 23, e2e 154, contrast OK, frozen-check OK.
+
+## G5 (paper and ink on data surfaces)
+- Failing check first: `app/e2e/p4-paper.spec.ts` (paper ground on Library list, Compare scroller, report table; `tabular-nums` on Library and Compare cells; disabled Compare nav `aria-describedby` reason plus visible reason on hover and keyboard focus).
+- `.lib-list`, `.cmp-scroll`, `.report-table` and the virtual table now use `--raised` ground and `--edge` borders (no new token). Library head padded to stay aligned. Settings and nav stay plain.
+- Disabled Compare nav: opacity 0.5 replaced by dashed `--edge` outline with `--fg-muted` label (>=3:1), tooltip from `data-hint` on hover/focus-visible (`--sheet` on `--fg`, >=4.5:1).
+- `scripts/contrast.mjs`: new "paper" and disabled/nav-reason pairs, both themes, all pass (`review4/contrast.md`).
+- "ink blue": no hits in `app/src`; remaining hits are historical records (BRIEF2/3/4, HANDOFF3, LOG3, FINAL_REPORT_3, pass4/G5.md), kept per earlier decision.
+- Gates: typecheck, lint, vitest 23, e2e 158, contrast, frozen-check OK. JS 1,052.4 kB, CSS 46.3 kB.
+- Screenshots: `review4/g5/` (after only; before state is the pass-3/G3 images; no stash allowed with owner's work in tree). Compare populated-with-tests state NOT RUN (mock).

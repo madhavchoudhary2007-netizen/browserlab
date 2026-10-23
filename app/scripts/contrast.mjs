@@ -66,6 +66,13 @@ for (const [theme, t] of Object.entries(themes)) {
     add(theme, "disabled", "--fg-muted (primary disabled)", bg, c("--fg-muted"), c(bg), 3);
     add(theme, "disabled", "--edge dashed outline", bg, c("--edge"), c(bg), 3);
   }
+  // G5: data surfaces sit on --raised (paper). Table text, header/helper text, status colours and the ink-tone border; disabled nav item (dashed --edge outline, --fg-muted label) and its hover/focus reason (--sheet on --fg).
+  add(theme, "paper", "table text --fg", "--raised", c("--fg"), c("--raised"), 4.5);
+  add(theme, "paper", "table header/helper --fg-muted", "--raised", c("--fg-muted"), c("--raised"), 4.5);
+  add(theme, "paper", "--edge table border", "--raised", c("--edge"), c("--raised"), 3);
+  add(theme, "disabled", "Compare nav (--fg-muted, dashed --edge)", "--raised", c("--fg-muted"), c("--raised"), 3);
+  add(theme, "disabled", "Compare nav dashed outline --edge", "--raised", c("--edge"), c("--raised"), 3);
+  add(theme, "text", "nav reason (--sheet on --fg)", "--fg", c("--sheet"), c("--fg"), 4.5);
   // Outlined danger button ("Stop after trial", run.css .run-stop): --danger label on the --raised button fill (was a filled button before the pass 3 layout pass; threshold unchanged).
   add(theme, "text", "--danger (Stop after trial, outlined)", "--raised", c("--danger"), c("--raised"), 4.5);
   // Chart text: axis ticks, legend and axis names sit on the chart sheet (--raised); literals come from useEChart/theme.ts mapping.
