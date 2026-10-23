@@ -41,7 +41,7 @@ test("forced colors: controls and the pen sheet stay visible and axe stays clean
   await expect(page.getByRole("radio", { name: /Quick/ })).toBeVisible();
   expect(await axeViolations(page)).toEqual([]);
   await page.setViewportSize({ width: 1920, height: 1080 });
-  await expect(page.getByRole("img", { name: "Live memory trace" })).toBeVisible();
+  await expect(page.getByRole("img", { name: "Live memory trace", exact: true })).toBeVisible();
   // every button keeps a border in forced-colors so it still reads as a button
   const borders = await page.locator("button.ds-btn").evaluateAll((els) => els.filter((e) => (e as HTMLElement).offsetParent !== null).map((e) => getComputedStyle(e).borderTopWidth));
   expect(borders.length).toBeGreaterThan(0);

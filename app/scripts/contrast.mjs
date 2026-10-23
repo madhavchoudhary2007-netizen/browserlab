@@ -90,7 +90,7 @@ for (const theme of Object.keys(themes)) {
     md.push(`| ${x.group} | ${x.fgName} | ${x.bgName} | ${x.r.toFixed(2)}${unit(x)} | ${x.informational ? "info" : x.min} | ${x.informational ? "-" : x.ok ? "pass" : "FAIL"} |`);
   md.push("");
 }
-const out = resolve(here, "../../.ui-overhaul/review3/contrast.md");
+const out = resolve(here, `../../.ui-overhaul/${process.env.REVIEW ?? "review4"}/contrast.md`);
 mkdirSync(dirname(out), { recursive: true });
 writeFileSync(out, md.join("\n"));
 process.exit(failed ? 1 : 0);

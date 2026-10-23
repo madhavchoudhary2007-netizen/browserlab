@@ -22,5 +22,5 @@ test(`screen switch latency at ${rate}x throttle`, async ({ page }) => {
   const q = (a: number[], p: number) => [...a].sort((x, y) => x - y)[Math.min(a.length - 1, Math.round((a.length - 1) * p))] ?? 0;
   const summary = Object.fromEntries(Object.entries(res).map(([k, v]) => [k, { p50: +q(v, 0.5).toFixed(1), p95: +q(v, 0.95).toFixed(1), max: +Math.max(...v).toFixed(1) }]));
   console.log("SWITCH", rate, JSON.stringify(summary));
-  fs.writeFileSync(`../.ui-overhaul/review3/switch-x${rate}.json`, JSON.stringify({ throttle: rate, screens_ms: summary }, null, 1));
+  fs.writeFileSync(`../.ui-overhaul/${process.env.REVIEW ?? "review4"}/switch-x${rate}.json`, JSON.stringify({ throttle: rate, screens_ms: summary }, null, 1));
 });

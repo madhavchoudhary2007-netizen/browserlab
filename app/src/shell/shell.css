@@ -52,3 +52,9 @@ kbd { font: var(--w-reg) var(--t-0) var(--font-num); color: var(--fg-muted); }
 
 /* Pass 4 G2: the footer keeps one height whether a run is idle or running (trace slot and two status lines are always reserved). */
 .rail-status { min-block-size: calc(2 * 1.4em); align-content: start; }
+
+/* Pass 4 G4: the rail trace is a 160 by 48 canvas over a faint paper grid; the end dot is moved by transform. */
+.rail-pen { position: relative; box-sizing: content-box; inline-size: min(100%, 160px); block-size: 48px; border: 1px solid var(--grid); border-radius: var(--r-1); overflow: hidden; background-color: var(--raised);
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: 16px 16px; }
+.rail-trace { display: block; inline-size: 100%; block-size: 100%; color: var(--pen); }
+.rail-trace-dot { position: absolute; inset: 0 auto auto 0; inline-size: 5px; block-size: 5px; border-radius: 50%; background: var(--pen); visibility: hidden; pointer-events: none; }
