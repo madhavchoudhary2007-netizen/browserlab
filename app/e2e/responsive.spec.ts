@@ -46,7 +46,7 @@ for (const w of WIDTHS) {
       await openApp(page);
       const width = await page.locator("main > div").first().evaluate((e) => e.getBoundingClientRect().width);
       const rootPx = await page.evaluate(() => parseFloat(getComputedStyle(document.documentElement).fontSize));
-      expect(width).toBeLessThanOrEqual(w >= 1600 ? 90 * rootPx + 1 : 1100); // pass 2: wide windows use a two-column layout up to 90rem
+      expect(width).toBeLessThanOrEqual(w >= 2200 ? 120 * rootPx + 1 : w >= 1600 ? 90 * rootPx + 1 : 1100); // pass 2: wide windows use a two-column layout up to 90rem; pass 4 G1: up to 120rem from 2200 px
       expect(width).toBeGreaterThanOrEqual(Math.min(w - 32, 280));
     });
   });

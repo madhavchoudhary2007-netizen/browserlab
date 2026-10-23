@@ -69,3 +69,19 @@
   .lib-warns { grid-row: 3; }
   .lib-status, .lib-date, .lib-trials { white-space: normal; overflow-wrap: anywhere; }
 }
+
+/* Pass 4 G1: from 80rem of list width the browsers and workload leave the second line and get their own columns, and the list fills the wider main area. */
+.lib-browsers, .lib-workload { display: none; }
+@container (min-width: 80rem) {
+  .lib-head, .lib-row { grid-template-columns: var(--target) minmax(0, 1.4fr) minmax(0, 1.1fr) 8rem 9rem 13rem 9rem 5rem; max-inline-size: none; }
+  .lib-browsers, .lib-workload { display: block; min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lib-head .lib-browsers, .lib-head .lib-workload { display: block; }
+  .lib-sub { display: none; }
+  .lib-warns { grid-column: 2 / -1; }
+}
+/* Compare: table beside the summary on wide windows. */
+@media (min-width: 1600px) {
+  .cmp:has(.cmp-scroll) { grid-template-columns: minmax(0, 1fr) 22rem; align-items: start; column-gap: var(--s-6); }
+  .cmp:has(.cmp-scroll) > .cmp-scroll { grid-column: 1; grid-row: 1 / span 6; }
+  .cmp:has(.cmp-scroll) > :not(.cmp-scroll) { grid-column: 2; }
+}

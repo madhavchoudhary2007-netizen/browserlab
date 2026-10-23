@@ -69,7 +69,7 @@ function LibraryBody({ onOpen, onCompare }: { onOpen: (s: Selected) => void; onC
       </div>
       {shown.length === 0 && <EmptyState action={<Button onClick={() => { setQ(""); setStatus("all"); }}>Show all experiments</Button>}>No experiments match the current filters.</EmptyState>}
       {shown.length > 0 && <div className="lib-head" aria-hidden="true">
-        <span /><span>Session</span><span>Status</span><span>Finished</span><span>Trials</span><span />
+        <span /><span>Session</span><span className="lib-browsers">Browsers</span><span className="lib-workload">Workload</span><span>Status</span><span>Finished</span><span>Trials</span><span />
       </div>}
       <ul className="lib-list">
         {shown.map((e) => {
@@ -86,6 +86,8 @@ function LibraryBody({ onOpen, onCompare }: { onOpen: (s: Selected) => void; onC
                 <strong className="lib-name" title={e.id}>{e.id}</strong>
                 {detail && <span className="lib-sub" title={detail}>{detail}</span>}
               </div>
+              <span className="lib-browsers" title={e.browsers.join(", ")}>{e.browsers.join(", ")}</span>
+              <span className="lib-workload">{e.workloads.join(", ")}</span>
               <span className="lib-status" style={{ color: STATUS_TONE[e.status] ?? "var(--fg-muted)" }}>{e.status}</span>
               <time className="lib-date" title={when} dateTime={e.finished_unix ? new Date(e.finished_unix * 1000).toISOString() : undefined}>{when}</time>
               <span className="lib-trials">{e.completed_trials} of {e.scheduled_trials} trials</span>

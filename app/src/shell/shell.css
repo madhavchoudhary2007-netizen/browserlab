@@ -46,3 +46,6 @@ kbd { font: var(--w-reg) var(--t-0) var(--font-num); color: var(--fg-muted); }
 
 @media (min-width: 1600px) { .shell-main > div { max-inline-size: 90rem; margin-inline: auto; } }
 .rail-pen { block-size: 3.25rem; border: 1px solid var(--grid); border-radius: var(--r-1); overflow: hidden; }
+
+/* Pass 4 G1: from 2200 px the content column may grow to 120rem so 2560 windows are not mostly margin. */
+@media (min-width: 2200px) { .shell-main > div { max-inline-size: 120rem; } }

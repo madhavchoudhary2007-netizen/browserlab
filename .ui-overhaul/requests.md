@@ -6,3 +6,6 @@ Added `core:window:allow-start-dragging` to `app/src-tauri/capabilities/default.
 
 ## pass 3 (P0): view-layer stale-while-revalidate
 - Wanted: useRemote with stale-while-revalidate. useRemote.ts is frozen, so app/src/views/useSwr.ts wraps the same `call` and is used by Settings, Library, Report, Analysis and Compare. Same engine calls, order and count.
+
+## Pass 4 G1: running trial list (not available)
+The Run right column while running would ideally list trials. The UI only receives the current trial id and completed/total counts (store.progress), so no per-trial list can be built without a new engine request. Default applied: the run plan summary stays in the right column (width unchanged between idle, ready and running). Request for the engine owner: a `run.trials` or progress event carrying the trial list.

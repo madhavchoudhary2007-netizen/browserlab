@@ -58,7 +58,7 @@ function SettingsBody() {
   const s = state.value;
   const missing = s.profiles.filter((p) => p.state === "missing" || p.state === "empty").length;
   return (
-    <section className="report" aria-label="Settings">
+    <section className="report settings" aria-label="Settings">
       <div className="report-section">
         <h2>Project folder</h2>
         <p className="settings-path">{s.project_root}</p>
