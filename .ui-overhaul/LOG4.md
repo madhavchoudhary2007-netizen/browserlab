@@ -91,3 +91,7 @@
 - 3x screenshots: `review4/g6/pen-3x-{light,dark}.png`.
 - Pen perf (CSS-only change, harness `pnpm perf` pen): 1x p95 16.7 ms, 0 dropped, 0 long tasks, script 1.32% (PASS). 6x, three runs: script 2.22%, 2.45%, 3.04%; dropped >25 ms 0, 0, 1; long tasks 0. The 6x "0 dropped / <=2.5%" budget is NOT met in every run; same intermittent pattern as in G4 (noise on a loaded dev machine). A/B against bf61fc3 is scheduled for G7; JSONs `review4/g6/pen-perf-x1.json`, `pen-perf-x6-run3.json` (the worst run, kept on purpose).
 - Gates: typecheck, lint, vitest 23, e2e 159, contrast, frozen-check OK. JS 1,052.5 kB.
+
+## G7 (measurement, review, report)
+- Startup vs fresh base worktree, bundle sizes, reduced-motion/forced-colors e2e (`p4-modes.spec.ts`), real-size pack `review4/cycle1/` via `measure/make_pack_full.sh` and `assemble_full.py`, two reviewers (37 and 38 of 50), fixes in `p4-review.spec.ts`, A/B pen perf vs bf61fc3, idle CPU 0.01%. Details in FINAL_REPORT_4.md and `review4/cycle1-reviews.md`.
+- Existing test edited: none new in G7 (`library-rows.spec.ts` left unchanged by keeping the name on one line).

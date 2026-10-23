@@ -10,8 +10,8 @@
 .pen-reading output { font: var(--w-strong) var(--t-4, 2rem)/1 var(--font-num); color: var(--fg); min-inline-size: 5ch; display: inline-block; font-variant-numeric: tabular-nums; }
 .pen-note { margin: 0; color: var(--fg-muted); font-size: var(--t-0); }
 .pen-frame { position: relative; block-size: clamp(11rem, 36vh, 26rem); border: 1px solid var(--edge); border-radius: var(--r-2); overflow: hidden; background: var(--raised); }
-.pen-empty { position: absolute; inset: 0; margin: 0; display: grid; place-items: center; color: var(--fg-muted); pointer-events: none; }
+.pen-empty { position: absolute; inset-block-start: 50%; inset-inline-start: 50%; transform: translate(-50%, -50%); margin: 0; max-inline-size: 90%; padding: var(--s-1) var(--s-3); background: var(--raised); text-align: center; color: var(--fg-muted); pointer-events: none; }
 .pen-frame-report { block-size: clamp(12rem, 30vh, 20rem); }
 .pen-reading output[data-empty] { color: var(--fg-muted); }
 .pen-idle { margin: 0; font: var(--w-strong) var(--t-3)/1.1 var(--font-ui); color: var(--fg); }
-.pen-reading output { margin-inline-end: var(--s-2); }
+.pen-reading output { margin-inline-end: var(--s-2); text-align: end; }

@@ -1,0 +1,191 @@
+# Review pack, real size. Every image is an unmodified screenshot at 100 % (device pixel ratio 1). Open every file under REQUIRED.
+
+## REQUIRED: screens (screen, theme, window size)
+screens/light/run-idle-960x640.png  (960x640px)
+screens/light/run-idle-1280x800.png  (1280x800px)
+screens/light/run-idle-1920x1080.png  (1920x1080px)
+screens/light/run-idle-2560x1440.png  (2560x1440px)
+screens/light/run-ready-960x640.png  (960x640px)
+screens/light/run-ready-1280x800.png  (1280x800px)
+screens/light/run-ready-1920x1080.png  (1920x1080px)
+screens/light/run-ready-2560x1440.png  (2560x1440px)
+screens/light/run-running-960x640.png  (960x640px)
+screens/light/run-running-1280x800.png  (1280x800px)
+screens/light/run-running-1920x1080.png  (1920x1080px)
+screens/light/run-running-2560x1440.png  (2560x1440px)
+screens/light/library-960x640.png  (960x640px)
+screens/light/library-1280x800.png  (1280x800px)
+screens/light/library-1920x1080.png  (1920x1080px)
+screens/light/library-2560x1440.png  (2560x1440px)
+screens/light/library-no-match-960x640.png  (960x640px)
+screens/light/library-no-match-1280x800.png  (1280x800px)
+screens/light/library-no-match-1920x1080.png  (1920x1080px)
+screens/light/library-no-match-2560x1440.png  (2560x1440px)
+screens/light/compare-empty-960x640.png  (960x640px)
+screens/light/compare-empty-1280x800.png  (1280x800px)
+screens/light/compare-empty-1920x1080.png  (1920x1080px)
+screens/light/compare-empty-2560x1440.png  (2560x1440px)
+screens/light/compare-960x640.png  (960x640px)
+screens/light/compare-1280x800.png  (1280x800px)
+screens/light/compare-1920x1080.png  (1920x1080px)
+screens/light/compare-2560x1440.png  (2560x1440px)
+screens/light/results-report-960x640.png  (960x640px)
+screens/light/results-report-1280x800.png  (1280x800px)
+screens/light/results-report-1920x1080.png  (1920x1080px)
+screens/light/results-report-2560x1440.png  (2560x1440px)
+screens/light/results-analysis-960x640.png  (960x640px)
+screens/light/results-analysis-1280x800.png  (1280x800px)
+screens/light/results-analysis-1920x1080.png  (1920x1080px)
+screens/light/results-analysis-2560x1440.png  (2560x1440px)
+screens/light/settings-960x640.png  (960x640px)
+screens/light/settings-1280x800.png  (1280x800px)
+screens/light/settings-1920x1080.png  (1920x1080px)
+screens/light/settings-2560x1440.png  (2560x1440px)
+screens/light/palette-960x640.png  (960x640px)
+screens/light/palette-1280x800.png  (1280x800px)
+screens/light/palette-1920x1080.png  (1920x1080px)
+screens/light/palette-2560x1440.png  (2560x1440px)
+screens/dark/run-idle-960x640.png  (960x640px)
+screens/dark/run-idle-1280x800.png  (1280x800px)
+screens/dark/run-idle-1920x1080.png  (1920x1080px)
+screens/dark/run-idle-2560x1440.png  (2560x1440px)
+screens/dark/run-ready-960x640.png  (960x640px)
+screens/dark/run-ready-1280x800.png  (1280x800px)
+screens/dark/run-ready-1920x1080.png  (1920x1080px)
+screens/dark/run-ready-2560x1440.png  (2560x1440px)
+screens/dark/run-running-960x640.png  (960x640px)
+screens/dark/run-running-1280x800.png  (1280x800px)
+screens/dark/run-running-1920x1080.png  (1920x1080px)
+screens/dark/run-running-2560x1440.png  (2560x1440px)
+screens/dark/library-960x640.png  (960x640px)
+screens/dark/library-1280x800.png  (1280x800px)
+screens/dark/library-1920x1080.png  (1920x1080px)
+screens/dark/library-2560x1440.png  (2560x1440px)
+screens/dark/library-no-match-960x640.png  (960x640px)
+screens/dark/library-no-match-1280x800.png  (1280x800px)
+screens/dark/library-no-match-1920x1080.png  (1920x1080px)
+screens/dark/library-no-match-2560x1440.png  (2560x1440px)
+screens/dark/compare-empty-960x640.png  (960x640px)
+screens/dark/compare-empty-1280x800.png  (1280x800px)
+screens/dark/compare-empty-1920x1080.png  (1920x1080px)
+screens/dark/compare-empty-2560x1440.png  (2560x1440px)
+screens/dark/compare-960x640.png  (960x640px)
+screens/dark/compare-1280x800.png  (1280x800px)
+screens/dark/compare-1920x1080.png  (1920x1080px)
+screens/dark/compare-2560x1440.png  (2560x1440px)
+screens/dark/results-report-960x640.png  (960x640px)
+screens/dark/results-report-1280x800.png  (1280x800px)
+screens/dark/results-report-1920x1080.png  (1920x1080px)
+screens/dark/results-report-2560x1440.png  (2560x1440px)
+screens/dark/results-analysis-960x640.png  (960x640px)
+screens/dark/results-analysis-1280x800.png  (1280x800px)
+screens/dark/results-analysis-1920x1080.png  (1920x1080px)
+screens/dark/results-analysis-2560x1440.png  (2560x1440px)
+screens/dark/settings-960x640.png  (960x640px)
+screens/dark/settings-1280x800.png  (1280x800px)
+screens/dark/settings-1920x1080.png  (1920x1080px)
+screens/dark/settings-2560x1440.png  (2560x1440px)
+screens/dark/palette-960x640.png  (960x640px)
+screens/dark/palette-1280x800.png  (1280x800px)
+screens/dark/palette-1920x1080.png  (1920x1080px)
+screens/dark/palette-2560x1440.png  (2560x1440px)
+
+## REQUIRED: motion frames (12 evenly spaced frames per sweep; open frames 01, 04, 08 and 12 of each sweep; the rest are supplied for reference)
+motion/live-light/frame-01.png
+motion/live-light/frame-04.png
+motion/live-light/frame-08.png
+motion/live-light/frame-12.png
+motion/live-dark/frame-01.png
+motion/live-dark/frame-04.png
+motion/live-dark/frame-08.png
+motion/live-dark/frame-12.png
+motion/live-light-throttled-6x/frame-01.png
+motion/live-light-throttled-6x/frame-04.png
+motion/live-light-throttled-6x/frame-08.png
+motion/live-light-throttled-6x/frame-12.png
+motion/live-dark-throttled-6x/frame-01.png
+motion/live-dark-throttled-6x/frame-04.png
+motion/live-dark-throttled-6x/frame-08.png
+motion/live-dark-throttled-6x/frame-12.png
+motion/replay-light/frame-01.png
+motion/replay-light/frame-04.png
+motion/replay-light/frame-08.png
+motion/replay-light/frame-12.png
+motion/replay-dark/frame-01.png
+motion/replay-dark/frame-04.png
+motion/replay-dark/frame-08.png
+motion/replay-dark/frame-12.png
+motion/replay-light-throttled-6x/frame-01.png
+motion/replay-light-throttled-6x/frame-04.png
+motion/replay-light-throttled-6x/frame-08.png
+motion/replay-light-throttled-6x/frame-12.png
+motion/replay-dark-throttled-6x/frame-01.png
+motion/replay-dark-throttled-6x/frame-04.png
+motion/replay-dark-throttled-6x/frame-08.png
+motion/replay-dark-throttled-6x/frame-12.png
+
+## Reference: remaining motion frames
+motion/live-light/frame-02.png
+motion/live-light/frame-03.png
+motion/live-light/frame-05.png
+motion/live-light/frame-06.png
+motion/live-light/frame-07.png
+motion/live-light/frame-09.png
+motion/live-light/frame-10.png
+motion/live-light/frame-11.png
+motion/live-dark/frame-02.png
+motion/live-dark/frame-03.png
+motion/live-dark/frame-05.png
+motion/live-dark/frame-06.png
+motion/live-dark/frame-07.png
+motion/live-dark/frame-09.png
+motion/live-dark/frame-10.png
+motion/live-dark/frame-11.png
+motion/live-light-throttled-6x/frame-02.png
+motion/live-light-throttled-6x/frame-03.png
+motion/live-light-throttled-6x/frame-05.png
+motion/live-light-throttled-6x/frame-06.png
+motion/live-light-throttled-6x/frame-07.png
+motion/live-light-throttled-6x/frame-09.png
+motion/live-light-throttled-6x/frame-10.png
+motion/live-light-throttled-6x/frame-11.png
+motion/live-dark-throttled-6x/frame-02.png
+motion/live-dark-throttled-6x/frame-03.png
+motion/live-dark-throttled-6x/frame-05.png
+motion/live-dark-throttled-6x/frame-06.png
+motion/live-dark-throttled-6x/frame-07.png
+motion/live-dark-throttled-6x/frame-09.png
+motion/live-dark-throttled-6x/frame-10.png
+motion/live-dark-throttled-6x/frame-11.png
+motion/replay-light/frame-02.png
+motion/replay-light/frame-03.png
+motion/replay-light/frame-05.png
+motion/replay-light/frame-06.png
+motion/replay-light/frame-07.png
+motion/replay-light/frame-09.png
+motion/replay-light/frame-10.png
+motion/replay-light/frame-11.png
+motion/replay-dark/frame-02.png
+motion/replay-dark/frame-03.png
+motion/replay-dark/frame-05.png
+motion/replay-dark/frame-06.png
+motion/replay-dark/frame-07.png
+motion/replay-dark/frame-09.png
+motion/replay-dark/frame-10.png
+motion/replay-dark/frame-11.png
+motion/replay-light-throttled-6x/frame-02.png
+motion/replay-light-throttled-6x/frame-03.png
+motion/replay-light-throttled-6x/frame-05.png
+motion/replay-light-throttled-6x/frame-06.png
+motion/replay-light-throttled-6x/frame-07.png
+motion/replay-light-throttled-6x/frame-09.png
+motion/replay-light-throttled-6x/frame-10.png
+motion/replay-light-throttled-6x/frame-11.png
+motion/replay-dark-throttled-6x/frame-02.png
+motion/replay-dark-throttled-6x/frame-03.png
+motion/replay-dark-throttled-6x/frame-05.png
+motion/replay-dark-throttled-6x/frame-06.png
+motion/replay-dark-throttled-6x/frame-07.png
+motion/replay-dark-throttled-6x/frame-09.png
+motion/replay-dark-throttled-6x/frame-10.png
+motion/replay-dark-throttled-6x/frame-11.png

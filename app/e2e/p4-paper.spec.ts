@@ -54,3 +54,18 @@ test("the disabled Compare item exposes its reason to assistive tech, on hover a
   await page.keyboard.press("Shift+Tab"); await page.keyboard.press("Tab"); // keyboard focus, so :focus-visible applies
   await expect.poll(shown).toBe(true);
 });
+
+test("the Compare reason never covers page content", async ({ page }) => {
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await openApp(page);
+  const compare = page.getByRole("navigation", { name: "Primary" }).getByRole("button", { name: "Compare" });
+  await compare.hover();
+  const rail = await page.locator(".rail").boundingBox();
+  const tip = await compare.evaluate((e) => { const r = e.getBoundingClientRect(); return { x: r.left, w: Math.max(r.width, 0) }; });
+  expect(rail).toBeTruthy();
+  // the reason is drawn inside the rail's width, so it cannot overlap the main column
+  const w = await compare.evaluate((e) => { const a = getComputedStyle(e, "::after"); return { left: a.insetInlineStart, maxw: a.maxInlineSize }; });
+  expect(w.left).toBe("0px");
+  expect(w.maxw).not.toBe("none");
+  expect(tip.x + tip.w).toBeLessThanOrEqual(rail!.x + rail!.width);
+});

@@ -10,6 +10,7 @@
 .lib-check input { inline-size: var(--s-5); block-size: var(--s-5); accent-color: var(--pen); }
 .lib-main { display: grid; gap: var(--s-1); min-inline-size: 0; }
 .lib-name, .lib-sub { min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.lib-sub { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2; overflow-wrap: anywhere; white-space: normal; } /* review cycle 1: the detail line wraps to two lines so the workload stays readable */
 .lib-name { font: var(--w-strong) var(--t-1) var(--font-ui); }
 .lib-sub { color: var(--fg-muted); font-size: var(--t-0); }
 .lib-status { font: var(--w-strong) var(--t-0) var(--font-ui); }
