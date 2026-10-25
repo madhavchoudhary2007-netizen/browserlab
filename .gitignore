@@ -30,3 +30,22 @@ profiles/
 .browserbench/
 
 .ui-overhaul/shots/
+
+# Experiment output and local run folders (generated; each run writes a data_<name>/ folder)
+data_*/
+results/
+.browserlab_home_run/
+
+# Python packaging leftovers
+*.egg-info/
+.venv/
+build/
+dist/
+
+# Secrets and local settings
+.env
+.env.*
+
+# Test output
+app/test-results/
+app/playwright-report/

@@ -1,8 +1,0 @@
-selenium>=4.27
-psutil>=6.1
-PyYAML>=6.0.2
-pandas>=2.2
-numpy>=2.1
-
-[dev]
-pytest>=8.3

@@ -13,6 +13,8 @@ from typing import Any, Callable, TextIO
 import yaml
 from dataclasses import asdict
 
+from browserbench.platforms import apply_platform_defaults, default_home
+
 from .library import scan, to_json
 from .modes import BROWSERS, MODES, TAB_LEVELS, WORKLOADS, mode_config, plan
 from . import settings as st
@@ -69,6 +71,7 @@ class Server:
 
     def _base(self) -> dict[str, Any]:
         cfg = yaml.safe_load(BASE.read_text())
+        apply_platform_defaults(cfg)  # protocol_base lists macOS paths; swap in this machine's install locations
         cfg["_project_root"] = str(self.project_root)
         return cfg
 
@@ -352,7 +355,7 @@ class Server:
 
 
 def main() -> None:
-    home = Path(os.environ.get("BROWSERLAB_HOME", Path.home() / "Library/Application Support/BrowserLab"))
+    home = Path(os.environ.get("BROWSERLAB_HOME") or default_home())
     Server(sys.stdout, home, default_project_root(home)).serve(sys.stdin)
 
 

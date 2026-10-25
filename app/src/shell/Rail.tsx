@@ -1,3 +1,4 @@
+import { MOD } from "./modKey";
 import type { ReactNode } from "react";
 import { Icon, type IconName } from "../ds/Icon";
 import { useLab } from "../store";
@@ -41,7 +42,7 @@ export function Rail({ view, setView, showCompare, openPalette }: { view: ViewId
       </nav>
       <div className="rail-foot">
         <button className="rail-palette" onClick={openPalette} aria-keyshortcuts="Control+K Meta+K">
-          <span>Commands</span><kbd>⌘K</kbd>
+          <span>Commands</span><kbd>{MOD}K</kbd>
         </button>
         <div className="rail-pen"><RailTrace /></div>
         <div className="rail-status" role="status" aria-live="polite">

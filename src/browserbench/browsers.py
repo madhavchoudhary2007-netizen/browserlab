@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import shutil
 import subprocess
+import sys
 import tempfile
 import time
 from dataclasses import dataclass
@@ -41,7 +42,20 @@ class BrowserSession:
             pass
 
 
+def _windows_file_version(binary: str) -> str:
+    """chrome.exe and brave.exe do not print a version for --version on Windows; read it from the file."""
+    try:
+        out = subprocess.check_output(
+            ["powershell", "-NoProfile", "-Command", f"(Get-Item -LiteralPath '{binary}').VersionInfo.ProductVersion"],
+            stderr=subprocess.STDOUT, text=True, timeout=15)
+        return out.strip() or "unknown"
+    except Exception:
+        return "unknown"
+
+
 def browser_version(binary: str) -> str:
+    if sys.platform.startswith("win"):
+        return _windows_file_version(binary)
     try:
         out = subprocess.check_output([binary, "--version"], stderr=subprocess.STDOUT, text=True, timeout=8)
         return out.strip()

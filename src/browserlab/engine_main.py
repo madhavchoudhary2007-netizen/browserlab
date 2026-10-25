@@ -19,9 +19,10 @@ def main(argv: list[str] | None = None) -> None:
         from browserbench.cli import main as bench_main
         bench_main()
         return
+    from browserbench.platforms import default_home
     from browserlab.paths import default_project_root
     from browserlab.rpc import Server
-    home = Path(os.environ.get("BROWSERLAB_HOME", Path.home() / "Library/Application Support/BrowserLab"))
+    home = Path(os.environ.get("BROWSERLAB_HOME") or default_home())
     home.mkdir(parents=True, exist_ok=True)
     Server(sys.stdout, home, default_project_root(home)).serve(sys.stdin)
 

@@ -1,3 +1,4 @@
+import { MOD } from "./shell/modKey";
 import { lazy, Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useLab } from "./store";
 import { CompareView, CompareEmpty } from "./views/CompareView";
@@ -22,7 +23,7 @@ function AppShell() {
   const [help, setHelp] = useState(false);
   useEffect(() => { restoreThemePreference(); }, []);
   const commands = useMemo<Command[]>(() => [
-    ...VIEWS.map((v, i) => ({ v, i })).filter(({ v }) => v.id !== "compare" || pair).map(({ v, i }) => ({ id: `go-${v.id}`, title: `Go to ${v.label}`, hint: `⌘${i + 1}`, run: () => setView(v.id) })),
+    ...VIEWS.map((v, i) => ({ v, i })).filter(({ v }) => v.id !== "compare" || pair).map(({ v, i }) => ({ id: `go-${v.id}`, title: `Go to ${v.label}`, hint: `${MOD}${i + 1}`, run: () => setView(v.id) })),
     { id: "theme-light", title: "Theme: light", run: () => setThemePreference("light") },
     { id: "theme-dark", title: "Theme: dark", run: () => setThemePreference("dark") },
     { id: "theme-system", title: "Theme: follow system", run: () => setThemePreference("system") },
@@ -70,8 +71,8 @@ function AppShell() {
       <CommandPalette open={palette} onClose={() => setPalette(false)} commands={commands} />
       <Dialog open={help} title="Keyboard shortcuts" onClose={() => setHelp(false)}>
         <dl className="shortcuts">
-          <dt><kbd>⌘K</kbd></dt><dd>Open the command palette</dd>
-          <dt><kbd>⌘1</kbd>–<kbd>⌘5</kbd></dt><dd>Go to a screen</dd>
+          <dt><kbd>{MOD}K</kbd></dt><dd>Open the command palette</dd>
+          <dt><kbd>{MOD}1</kbd>–<kbd>{MOD}5</kbd></dt><dd>Go to a screen</dd>
           <dt><kbd>?</kbd></dt><dd>Show this list</dd>
           <dt><kbd>Esc</kbd></dt><dd>Close a dialog or menu</dd>
         </dl>

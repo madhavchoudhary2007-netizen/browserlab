@@ -5,6 +5,7 @@ import platform
 import re
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 from typing import Any
 import psutil
@@ -17,21 +18,51 @@ def _run(args: list[str], timeout: float = 5.0) -> str:
         return ""
 
 
+def _cpu_name() -> str:
+    """Marketing CPU name where the OS offers it cheaply; otherwise the platform's own string."""
+    if sys.platform == "darwin":
+        return _run(["/usr/sbin/sysctl", "-n", "machdep.cpu.brand_string"]) or _run(["/usr/sbin/system_profiler", "SPHardwareDataType"])
+    if sys.platform.startswith("linux"):
+        try:
+            for line in Path("/proc/cpuinfo").read_text().splitlines():
+                if line.lower().startswith(("model name", "hardware", "cpu model")):
+                    return line.split(":", 1)[1].strip()
+        except OSError:
+            pass
+    return platform.processor() or platform.machine()
+
+
 def macos_metadata() -> dict[str, Any]:
+    """System description stored with each experiment. Name kept for existing callers; works on every OS."""
     return {
         "platform": platform.platform(),
         "machine": platform.machine(),
         "processor": platform.processor(),
+        "os": platform.system(),
         "macos_version": platform.mac_ver()[0],
+        "os_version": platform.mac_ver()[0] or platform.version(),
         "hostname": platform.node(),
         "logical_cpus": psutil.cpu_count(logical=True),
         "physical_cpus": psutil.cpu_count(logical=False),
         "memory_gb": round(psutil.virtual_memory().total / 1024**3, 2),
-        "chip": _run(["/usr/sbin/sysctl", "-n", "machdep.cpu.brand_string"]) or _run(["/usr/sbin/system_profiler", "SPHardwareDataType"]),
+        "chip": _cpu_name(),
     }
 
 
+def _power_status_psutil() -> dict[str, Any]:
+    """Windows and Linux: psutil reads the battery. No battery (desktop PC) counts as mains power."""
+    try:
+        b = psutil.sensors_battery()
+    except Exception:  # noqa: BLE001 - sensors can be missing or unreadable
+        b = None
+    if b is None:
+        return {"ac_power": True, "battery_pct": None}
+    return {"ac_power": bool(b.power_plugged) if b.power_plugged is not None else True, "battery_pct": int(b.percent)}
+
+
 def power_status() -> dict[str, Any]:
+    if sys.platform != "darwin":
+        return _power_status_psutil()
     text = _run(["/usr/bin/pmset", "-g", "batt"])
     ac = "AC Power" in text
     m = re.search(r"(\d+)%", text)

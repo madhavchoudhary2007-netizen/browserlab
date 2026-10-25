@@ -61,7 +61,8 @@ fn sidecar_command(app: &AppHandle) -> Result<Command, String> {
         .path()
         .resource_dir()
         .map_err(|e| e.to_string())?
-        .join("engine/browserlab-engine/browserlab-engine");
+        .join("engine/browserlab-engine")
+        .join(format!("browserlab-engine{}", std::env::consts::EXE_SUFFIX)); // ".exe" on Windows
     if !exe.is_file() {
         return Err(format!("bundled engine missing at {}", exe.display()));
     }

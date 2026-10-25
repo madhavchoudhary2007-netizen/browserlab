@@ -5,6 +5,8 @@ from typing import Any
 import copy
 import yaml
 
+from .platforms import apply_platform_defaults
+
 
 DEFAULT_CONFIG = Path("config.yaml")
 
@@ -15,6 +17,7 @@ def load_config(path: str | Path = DEFAULT_CONFIG) -> dict[str, Any]:
         raise FileNotFoundError(f"Config not found: {p}")
     with p.open("r", encoding="utf-8") as f:
         cfg = yaml.safe_load(f) or {}
+    apply_platform_defaults(cfg)
     cfg["_config_path"] = str(p)
     cfg["_project_root"] = str(p.parent)
     return cfg

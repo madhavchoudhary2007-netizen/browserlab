@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "browser-research-suite"
 version = "0.1.1"
-description = "Controlled browser resource-efficiency research harness for macOS Apple Silicon"
+description = "Controlled browser resource-efficiency research harness (macOS, Windows, Linux)"
 requires-python = ">=3.11"
 dependencies = [
   "selenium>=4.27",

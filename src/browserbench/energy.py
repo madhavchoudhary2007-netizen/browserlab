@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import re
 import subprocess
+import sys
 import threading
 import time
 from pathlib import Path
@@ -48,6 +49,10 @@ class EnergySampler:
             return False
 
     def start(self) -> None:
+        if sys.platform != "darwin":
+            raise RuntimeError(
+                "Energy collection uses macOS powermetrics and is only available on macOS. Set energy.enabled to false in the config."
+            )
         if not self.sudo_is_primed():
             raise RuntimeError(
                 "Energy collection is enabled but sudo is not primed. Run `sudo -v` once, then start the experiment. "
