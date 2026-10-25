@@ -7,7 +7,6 @@ cost O(STRIDE) after the first scan. Indexes are cached keyed by (path, mtime, s
 from __future__ import annotations
 
 import csv
-import math
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Iterator
