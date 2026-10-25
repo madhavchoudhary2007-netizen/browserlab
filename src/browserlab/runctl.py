@@ -12,6 +12,7 @@ import os
 import re
 import signal
 import subprocess
+import sys
 import threading
 import time
 from pathlib import Path
@@ -34,6 +35,13 @@ TRANSITIONS: dict[str, set[str]] = {
 }
 TRIAL_RE = re.compile(r"^\[(\d+)/(\d+)\]\s+(\S+)\s+attempt=(\d+)")
 Event = dict[str, Any]
+
+
+def group_kwargs(platform: str | None = None) -> dict:
+    """Popen arguments that put the engine in its own process group, so an interrupt reaches it and nothing else."""
+    if (platform or sys.platform) == "win32":
+        return {"creationflags": 0x00000200}  # CREATE_NEW_PROCESS_GROUP
+    return {"start_new_session": True}
 
 
 class InvalidTransition(RuntimeError):
@@ -74,7 +82,7 @@ class RunController:
             self._go("running")
             self._proc = subprocess.Popen(
                 [*self.argv], cwd=self.cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                text=True, bufsize=1, start_new_session=True,
+                text=True, bufsize=1, **group_kwargs(),
             )
             self._thread = threading.Thread(target=self._pump, args=(self._proc,), daemon=True)
             self._thread.start()
@@ -108,8 +116,11 @@ class RunController:
     # -- internals -----------------------------------------------------
     def _interrupt(self, proc: subprocess.Popen[str]) -> None:
         try:
-            os.killpg(proc.pid, signal.SIGINT)  # engine's own process group only
-        except ProcessLookupError:
+            if sys.platform == "win32":
+                proc.send_signal(signal.CTRL_BREAK_EVENT)  # the engine's own process group only; cli.main maps it to KeyboardInterrupt
+            else:
+                os.killpg(proc.pid, signal.SIGINT)  # engine's own process group only
+        except (ProcessLookupError, OSError):
             pass
 
     def _pump(self, proc: subprocess.Popen[str]) -> None:

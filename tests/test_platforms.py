@@ -68,3 +68,10 @@ def test_energy_collection_is_refused_off_macos(monkeypatch):
     monkeypatch.setattr(energy.sys, "platform", "linux")
     with pytest.raises(RuntimeError, match="macOS"):
         energy.EnergySampler().start()
+
+
+def test_engine_process_group_arguments_per_os():
+    from browserlab.runctl import group_kwargs
+    assert group_kwargs("win32") == {"creationflags": 0x200}
+    assert group_kwargs("linux") == {"start_new_session": True}
+    assert group_kwargs("darwin") == {"start_new_session": True}

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import argparse
+import signal
+import sys
 from pathlib import Path
 
 from .config import load_config, with_overrides
@@ -29,6 +31,8 @@ def _parser() -> argparse.ArgumentParser:
 
 
 def main() -> None:
+    if sys.platform == "win32":  # BrowserLab stops a run at a trial boundary with Ctrl+Break; make it behave like Ctrl+C
+        signal.signal(signal.SIGBREAK, signal.default_int_handler)
     args = _parser().parse_args()
     cfg = load_config(args.config)
     if args.command == "doctor":
