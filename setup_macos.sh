@@ -34,7 +34,7 @@ else
 fi
 
 if [[ ! -f workloads/assets/test_1080p.mp4 ]]; then
-  ./tools/generate_video.sh || true
+  python tools/generate_video.py || true
 fi
 
 if command -v Rscript >/dev/null 2>&1; then

@@ -116,11 +116,3 @@ def _cell(v: str) -> str | None:
 
 def trial_ids(path: Path) -> list[str]:
     return list(build_index(path).trial_ranges)
-
-
-def finite(v: str | None) -> float | None:
-    try:
-        x = float(v) if v is not None else math.nan
-    except ValueError:
-        return None
-    return x if math.isfinite(x) else None

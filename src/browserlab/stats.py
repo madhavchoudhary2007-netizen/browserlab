@@ -77,13 +77,6 @@ def factorial_anova(df: pd.DataFrame, y: str, log: bool = False) -> pd.DataFrame
     return sm.stats.anova_lm(model, typ=2)
 
 
-def breusch_pagan(df: pd.DataFrame, formula: str) -> dict[str, float]:
-    from statsmodels.stats.diagnostic import het_breuschpagan
-    m = smf.ols(formula, data=df).fit()
-    lm, p, f, fp = het_breuschpagan(m.resid, m.model.exog)
-    return {"lm": lm, "p": p, "f": f, "f_p": fp}
-
-
 def permutation_test(a: Sequence[float], b: Sequence[float], n_perm: int = 10000, seed: int = 0) -> float:
     rng = np.random.default_rng(seed)
     a, b = np.asarray(a, float), np.asarray(b, float)

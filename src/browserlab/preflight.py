@@ -74,7 +74,7 @@ def run_preflight(
     if "video" in workloads:
         video = workloads_dir(Path(cfg["_project_root"])) / "assets" / "test_1080p.mp4"
         checks.append(Check("video_asset", "Video workload asset", PASS if video.exists() else FAIL,
-                            str(video) if video.exists() else "Missing; run tools/generate_video.sh"))
+                            str(video) if video.exists() else "Missing; run python tools/generate_video.py"))
     if any(cfg["browsers"][b].get("engine") == "firefox" for b in browsers):
         gd = shutil.which("geckodriver")
         checks.append(Check("driver.gecko", "geckodriver", PASS if gd else WARN,

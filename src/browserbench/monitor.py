@@ -147,11 +147,6 @@ def classify_process_details(proc: psutil.Process) -> tuple[str, str]:
     return "other", "unknown"
 
 
-def classify_process(proc: psutil.Process) -> str:
-    return classify_process_details(proc)[0]
-
-
-
 class ProcessMonitor:
     def __init__(
         self,
