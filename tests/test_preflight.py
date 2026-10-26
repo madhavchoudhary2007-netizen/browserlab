@@ -2,6 +2,15 @@ from pathlib import Path
 
 from browserlab.preflight import run_preflight
 
+import pytest
+
+
+@pytest.fixture(autouse=True)
+def _on_macos(monkeypatch):
+    import browserlab.preflight as pf
+    monkeypatch.setattr(pf, "current_os", lambda: "macos")
+
+
 SNAP = {"available_memory_pct": 50.0, "free_disk_gb": 100.0, "ac_power": True, "thermal_pressure": "nominal"}
 
 

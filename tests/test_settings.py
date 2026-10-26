@@ -15,6 +15,8 @@ ROOT = Path(__file__).resolve().parents[1]
 
 @pytest.fixture
 def fake(tmp_path, monkeypatch):
+    if sys.platform == "win32":
+        pytest.skip("the fake browser is a /bin/sh script")
     exe = tmp_path / "fakebrowser"
     exe.write_text('#!/bin/sh\nif [ "$1" = "--version" ]; then echo "Fake 1.0"; exit 0; fi\nsleep 120\n')
     exe.chmod(exe.stat().st_mode | stat.S_IXUSR)

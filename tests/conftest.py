@@ -31,7 +31,7 @@ def _datasets_used(item: pytest.Item) -> set[str]:
 
 
 def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
-    present = {p.name for p in ROOT.glob("data_*") if p.is_dir()}
+    present = {p.name for p in ROOT.glob("data_*") if p.is_dir() and p.name.startswith("data_")}
     for item in items:
         missing = sorted(n for n in _datasets_used(item) if n not in present)
         if missing:

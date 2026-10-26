@@ -139,7 +139,7 @@ def scan(root: Path, home: Path | None = None) -> list[ExperimentInfo]:
     """Discover ``<root>/data_*/<suite>/`` datasets and, if ``home`` is given, the runs BrowserLab
     made under ``<home>/runs/<run_id>/data/<suite>/``. Never writes. Newest first."""
     out: list[ExperimentInfo] = []
-    for d in sorted(root.glob("data_*")):
+    for d in sorted(p for p in root.glob("data_*") if p.is_dir() and p.name.startswith("data_")):  # glob is case-insensitive on Windows (DATA_DICTIONARY.md)
         for suite_dir in sorted(p for p in d.iterdir() if p.is_dir() and (p / "raw").is_dir()):
             out.append(inspect_suite_dir(suite_dir, d.name))
     runs = home / "runs" if home else None

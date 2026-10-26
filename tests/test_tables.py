@@ -46,7 +46,7 @@ def test_empty_and_header_only(tmp_path):
 
 
 def test_multiline_quoted_field(tmp_path):
-    p = tmp_path / "m.csv"; p.write_text('trial_id,x\na,"l1\nl2"\na,2\n')
+    p = tmp_path / "m.csv"; p.write_bytes(b'trial_id,x\na,"l1\nl2"\na,2\n')
     r = tables.read_page(p, 0, 5)
     assert r["total"] == 2 and r["rows"][0][1] == "l1\nl2" and r["rows"][1][1] == "2"
 

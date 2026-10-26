@@ -191,7 +191,7 @@ class Server:
         specs = self._browser_specs()
         return {
             "project_root": str(root), "source": source,
-            "datasets": len([d for d in root.glob("data_*") if d.is_dir()]),
+            "datasets": len([d for d in root.glob("data_*") if d.is_dir() and d.name.startswith("data_")]),
             "profiles": [st.profile_status(root, b, specs[b], browser_version) for b in BROWSERS],
             "setup_active": self.setup[0] if self.setup else None,
         }
