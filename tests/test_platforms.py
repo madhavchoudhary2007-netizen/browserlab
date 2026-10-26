@@ -75,3 +75,10 @@ def test_engine_process_group_arguments_per_os():
     assert group_kwargs("win32") == {"creationflags": 0x200}
     assert group_kwargs("linux") == {"start_new_session": True}
     assert group_kwargs("darwin") == {"start_new_session": True}
+
+
+def test_missing_browser_names_this_systems_location_not_another_systems(monkeypatch):
+    monkeypatch.setattr(pf, "current_os", lambda: "linux")
+    got = pf.resolve_binary("brave", "/Applications/NoSuchBrave.app/Contents/MacOS/Brave", which=lambda n: None, exists=lambda p: False)
+    assert got == "/usr/bin/brave-browser"
+    assert pf.resolve_binary("brave", "/opt/custom/brave", which=lambda n: None, exists=lambda p: False) == "/opt/custom/brave"

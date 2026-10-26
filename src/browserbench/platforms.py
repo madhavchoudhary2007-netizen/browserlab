@@ -57,6 +57,16 @@ def find_binary(browser: str, which: Callable[[str], str | None] = shutil.which,
     return None
 
 
+def _foreign_path(path: str) -> bool:
+    """A default written for another OS (the shipped configs list macOS paths) is not worth showing on this one."""
+    which = current_os()
+    if which != "macos" and path.startswith("/Applications/"):
+        return True
+    if which != "windows" and len(path) > 2 and path[1] == ":" and path[2] in "\\/":
+        return True
+    return which == "windows" and path.startswith("/")
+
+
 def resolve_binary(browser: str, configured: str | None, **kw: Any) -> str:
     """The configured path if it exists, else the browser found on this machine, else the configured value (so the
     'not installed at <path>' message still names something) or this OS's first usual location."""
@@ -65,7 +75,7 @@ def resolve_binary(browser: str, configured: str | None, **kw: Any) -> str:
     found = find_binary(browser, **kw)
     if found:
         return found
-    if configured and configured.lower() != "auto":
+    if configured and configured.lower() != "auto" and not _foreign_path(configured):
         return configured
     return candidates(browser)[0]
 
