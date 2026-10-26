@@ -110,3 +110,21 @@ def test_real_repo_profiles_reported_without_launching():
     assert r["datasets"] >= 10
     assert {p["browser"]: p["state"] for p in r["profiles"]}["chrome"] in ("unmanaged", "ready", "version_changed")
     assert not (ROOT / "nonexistent_home").exists()
+
+
+def test_stop_tree_also_ends_a_process_that_left_the_tree_but_uses_the_profile(tmp_path):
+    import subprocess, sys, time
+    from browserlab import settings as st
+    prof = tmp_path / "prof"
+    prof.mkdir()
+    # The launcher exits at once after starting the real process, as Firefox-family launchers do on Windows.
+    code = ("import subprocess,sys;subprocess.Popen([sys.executable,'-c','import time;time.sleep(60)',sys.argv[1]]);")
+    launcher = subprocess.Popen([sys.executable, "-c", code, str(prof)])
+    launcher.wait()
+    time.sleep(0.5)
+    import psutil
+    left = [p for p in psutil.process_iter(["cmdline"]) if any(str(prof) in x for x in (p.info["cmdline"] or []))]
+    assert left
+    st.stop_tree(launcher, profile=prof)
+    time.sleep(0.5)
+    assert not [p for p in psutil.process_iter(["cmdline"]) if any(str(prof) in x for x in (p.info["cmdline"] or []))]

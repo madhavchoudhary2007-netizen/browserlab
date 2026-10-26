@@ -229,7 +229,7 @@ class Server:
         if not self.setup:
             raise RpcError("no_setup", "no baseline-profile setup is active")
         browser, proc = self.setup
-        st.stop_tree(proc)
+        st.stop_tree(proc, profile=st.profile_dir(self.project_root, browser))
         self.setup = None
         if finish:
             spec = self._browser_specs()[browser]

@@ -59,13 +59,27 @@ def start_profile_setup(root: Path, browser: str, spec: dict[str, Any], running_
     return subprocess.Popen(launch_args(spec, target), stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
 
 
-def stop_tree(proc: subprocess.Popen, timeout: float = 10.0) -> None:
-    """Terminate only the process we launched and its descendants."""
+def stop_tree(proc: subprocess.Popen, timeout: float = 10.0, profile: Path | None = None) -> None:
+    """Terminate the process we launched, its descendants and anything else running on this profile folder.
+
+    Firefox-family launchers on Windows hand off to a process that is no longer our child, so the
+    profile folder (unique to this setup) is the reliable way to find the rest.
+    """
+    procs: list[psutil.Process] = []
     try:
         parent = psutil.Process(proc.pid)
         procs = parent.children(recursive=True) + [parent]
     except psutil.NoSuchProcess:
-        return
+        pass
+    if profile is not None:
+        mark = str(profile)
+        known = {p.pid for p in procs}
+        for p in psutil.process_iter(["pid", "cmdline"]):
+            try:
+                if p.pid not in known and any(mark in part for part in (p.info.get("cmdline") or [])):
+                    procs.append(p)
+            except (psutil.NoSuchProcess, psutil.AccessDenied):
+                continue
     for p in procs:
         try:
             p.terminate()
@@ -77,7 +91,11 @@ def stop_tree(proc: subprocess.Popen, timeout: float = 10.0) -> None:
             p.kill()
         except psutil.NoSuchProcess:
             pass
-    proc.wait(timeout=5)
+    psutil.wait_procs(alive, timeout=5)
+    try:
+        proc.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        pass
 
 
 def write_marker(root: Path, browser: str, version: str) -> None:
