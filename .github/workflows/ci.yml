@@ -105,6 +105,8 @@ jobs:
           $rows | Select-Object browser, browser_version, mean_rss_mb | Format-Table
           $want = @(Select-String -Path config.ci.yaml -Pattern "enabled: true").Count
           if ($rows.Count -ne $want) { throw "expected $want trials, got $($rows.Count)" }
+      - name: Quick mode once per workload (static, javascript, video) through the app's engine interface
+        run: .venv\Scripts\python.exe tools\quick_all.py --browsers installed
       - uses: actions/upload-artifact@v4
         if: always()
         with:
