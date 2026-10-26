@@ -25,9 +25,10 @@ def test_existing_configured_path_is_never_replaced(tmp_path):
 
 
 def test_missing_configured_path_falls_back_to_what_is_installed():
-    found = "/usr/bin/firefox"
-    got = pf.resolve_binary("firefox", "/Applications/Firefox.app/Contents/MacOS/firefox", which=lambda n: None, exists=lambda p: p == found)
-    assert got == found or got == "/Applications/Firefox.app/Contents/MacOS/firefox"  # the second when running on a platform whose first candidate differs
+    found = pf.candidates("firefox", pf.current_os())[-1]
+    got = pf.resolve_binary("firefox", "/nonexistent/firefox", which=lambda n: None, exists=lambda p: p == found)
+    assert got == found
+
 
 
 def test_auto_with_nothing_installed_names_the_usual_location():

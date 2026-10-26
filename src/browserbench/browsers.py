@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import shutil
 import subprocess
 import sys
@@ -12,6 +13,7 @@ from typing import Any
 import psutil
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options as ChromeOptions
+from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 
 
@@ -61,6 +63,25 @@ def browser_version(binary: str) -> str:
         return out.strip()
     except Exception:
         return "unknown"
+
+
+def chromium_driver_path(binary: str) -> str | None:
+    """Fetch the chromedriver for this exact binary's Chromium major version.
+
+    Selenium Manager can pick the driver of a different Chrome on the same machine when the
+    binary is Brave or an older Chromium, which fails with "only supports Chrome version N".
+    Returns None when the version cannot be read, so Selenium falls back to its own lookup.
+    """
+    m = re.search(r"(\d+)\.\d+", browser_version(binary))
+    if not m or int(m.group(1)) < 80:
+        return None
+    try:
+        from selenium.webdriver.common.selenium_manager import SeleniumManager
+        res = SeleniumManager().binary_paths(
+            ["--browser", "chrome", "--browser-version", m.group(1), "--browser-path", binary])
+        return res.get("driver_path") or None
+    except Exception:
+        return None
 
 
 def matching_processes(binary: str) -> list[psutil.Process]:
@@ -294,8 +315,10 @@ def launch_browser(name: str, spec: dict[str, Any]) -> BrowserSession:
                 "--window-size=1440,900"
             )
 
+            driver_path = chromium_driver_path(binary)
             driver = webdriver.Chrome(
-                options=opts
+                options=opts,
+                service=ChromeService(executable_path=driver_path) if driver_path else None,
             )
 
         elif engine == "firefox":

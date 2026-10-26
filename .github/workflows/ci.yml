@@ -98,9 +98,13 @@ jobs:
       - name: Smoke config with only the browsers that are installed
         run: .venv\Scripts\python.exe tools\ci_smoke_config.py
       - run: .venv\Scripts\browserbench.exe --config config.ci.yaml run --suite core --repetitions 1
-      - name: Show the results
+      - name: Every enabled browser must have produced a trial (a skipped trial still exits 0)
         shell: pwsh
-        run: Get-Content data_ci\core\processed\trial_summary_core.csv | Select-Object -First 8
+        run: |
+          $rows = @(Import-Csv data_ci\core\processed\trial_summary_core.csv)
+          $rows | Select-Object browser, browser_version, mean_rss_mb | Format-Table
+          $want = @(Select-String -Path config.ci.yaml -Pattern "enabled: true").Count
+          if ($rows.Count -ne $want) { throw "expected $want trials, got $($rows.Count)" }
       - uses: actions/upload-artifact@v4
         if: always()
         with:

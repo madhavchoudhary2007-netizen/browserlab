@@ -4,6 +4,8 @@ import pandas as pd
 import pytest
 from browserlab import stats
 
+needs_sm = pytest.mark.skipif(stats.smf is None, reason="statsmodels is not installed (Windows ARM64)")
+
 
 def test_describe_known():
     d = stats.describe([2, 4, 4, 4, 5, 5, 7, 9])
@@ -30,6 +32,7 @@ def test_trend_known():
     assert r["slope"] == pytest.approx(2) and r["intercept"] == pytest.approx(1) and r["r2"] == pytest.approx(1)
 
 
+@needs_sm
 def test_anova_requires_replication():
     cells = [(b, w, t) for b in "ab" for w in ("s", "j") for t in (1, 30)]
     one = pd.DataFrame([(*c, float(i)) for i, c in enumerate(cells)], columns=["browser", "workload", "tabs", "y"])
@@ -39,6 +42,7 @@ def test_anova_requires_replication():
     assert "C(browser)" in stats.factorial_anova(two, "y").index
 
 
+@needs_sm
 def test_anova_detects_main_effect():
     rng = np.random.default_rng(1)
     rows = [(b, w, t, (100 if b == "a" else 200) + 5 * t + rng.normal(0, 3))
@@ -60,6 +64,7 @@ def _design(effect=0.0, reps=4, seed=3):
     return pd.DataFrame(rows, columns=["browser", "tabs", "block", "y"])
 
 
+@needs_sm
 def test_anova_auto_skips_constant_factor_and_reports_eta():
     d = _design(effect=20)
     d["workload"] = "static"  # single level must not break the formula
@@ -70,6 +75,7 @@ def test_anova_auto_skips_constant_factor_and_reports_eta():
     assert r["block"] is not None and r["bp"] is not None
 
 
+@needs_sm
 def test_anova_auto_null_effect_and_errors():
     r = stats.anova_auto(_design(effect=0.0, seed=9), "y", ["browser", "tabs"], log=True)
     assert next(t for t in r["table"] if t["term"] == "C(browser)")["p"] > 0.01
@@ -85,6 +91,7 @@ def test_slope_ci_known():
     assert math.isnan(stats.slope_ci([1, 2], [1, 2])["slope_lo"])
 
 
+@needs_sm
 def test_anova_auto_matches_scipy_oneway():
     from scipy import stats as st
     d = pd.DataFrame({"g": list("aaaabbbbcccc"), "y": [1, 2, 3, 2.5, 3, 4, 5, 4.5, 6, 7, 6.5, 8.0]})
@@ -111,6 +118,7 @@ def test_pairwise_holm_family():
     assert ac["p_holm"] < 0.05
 
 
+@needs_sm
 def test_residual_diagnostics_shapes_and_normality():
     rng = np.random.default_rng(0)
     d = pd.DataFrame({"g": list("ab") * 30, "y": rng.normal(10, 1, 60) + np.where(np.arange(60) % 2, 3, 0)})

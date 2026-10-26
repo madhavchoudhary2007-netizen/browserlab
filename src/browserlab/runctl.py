@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import shutil
 import signal
 import subprocess
 import sys
@@ -187,13 +188,26 @@ class RunController:
             return 0
 
 
+def _link_dir(link: Path, target: Path) -> None:
+    """Symlink, or on Windows without symlink rights a junction (needs no privilege), or a copy."""
+    try:
+        link.symlink_to(target, target_is_directory=True)
+        return
+    except OSError:
+        if sys.platform != "win32":
+            raise
+    made = subprocess.run(["cmd", "/c", "mklink", "/J", str(link), str(target)], capture_output=True)
+    if made.returncode != 0:
+        shutil.copytree(target, link)
+
+
 def prepare_run_dir(project_root: Path, run_dir: Path, cfg: dict[str, Any], workloads: Path | None = None) -> Path:
     """Create run dir with config + symlinks to shared workloads/baseline profiles."""
     run_dir.mkdir(parents=True, exist_ok=True)
     for name, target in (("workloads", workloads or project_root / "workloads"), (".browserbench", project_root / ".browserbench")):
         link = run_dir / name
         if not link.is_symlink() and not link.exists() and target.exists():
-            link.symlink_to(target)
+            _link_dir(link, target)
     clean = {k: v for k, v in cfg.items() if not k.startswith("_")}
     clean.setdefault("project", {})["output_dir"] = "data"
     path = run_dir / "config.yaml"
