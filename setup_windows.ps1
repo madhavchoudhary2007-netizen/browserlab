@@ -6,14 +6,13 @@ Run from the project folder:  powershell -ExecutionPolicy Bypass -File setup_win
 $ErrorActionPreference = "Stop"
 Set-Location $PSScriptRoot
 
-$py = Get-Command py -ErrorAction SilentlyContinue
-if ($py) { $python = @("py", "-3") } elseif (Get-Command python -ErrorAction SilentlyContinue) { $python = @("python") } else {
-  Write-Error "Python 3.11 or newer is required. Install it with: winget install Python.Python.3.12"
-}
-& $python[0] $python[1..($python.Length)] -c "import sys; sys.exit(0 if sys.version_info >= (3, 11) else 1)"
+if (Get-Command py -ErrorAction SilentlyContinue) { $pyExe = "py"; $pyArgs = @("-3") }
+elseif (Get-Command python -ErrorAction SilentlyContinue) { $pyExe = "python"; $pyArgs = @() }
+else { Write-Error "Python 3.11 or newer is required. Install it with: winget install Python.Python.3.12" }
+& $pyExe @pyArgs -c "import sys; sys.exit(0 if sys.version_info >= (3, 11) else 1)"
 if ($LASTEXITCODE -ne 0) { Write-Error "Python 3.11 or newer is required." }
 
-& $python[0] $python[1..($python.Length)] -m venv .venv
+& $pyExe @pyArgs -m venv .venv
 $venvPython = Join-Path $PSScriptRoot ".venv\Scripts\python.exe"
 & $venvPython -m pip install --upgrade pip setuptools wheel
 & $venvPython -m pip install -e ".[dev]"

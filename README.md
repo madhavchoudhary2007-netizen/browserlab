@@ -45,7 +45,7 @@ It ships in two forms that share one engine:
 | Optional power sampling (`powermetrics`) | yes | no | no |
 | Thermal-pressure abort | yes | not available (reported as unknown) | not available (reported as unknown) |
 | AC-power check | yes | yes (a desktop PC counts as mains power) | yes (same) |
-| Desktop app build | yes (`scripts/build_app.sh`) | by hand, see [Building the app](#building-the-app) | by hand |
+| Desktop app build | yes (`scripts/build_app.sh`, signed) | `python scripts/build.py` (untested) | `python scripts/build.py` (untested) |
 
 What "not yet run end to end" means: the Windows and Linux code paths (binary discovery, power and memory checks, install scripts, per-OS data folders) exist and the unit tests run on all three systems in CI, but no full experiment has been recorded on those systems yet. Treat Windows and Linux results as **pilot** until you have run `browserbench doctor` and a short pilot on your own machine. Do not compare RSS-based numbers (Windows, Linux) with footprint-based numbers (macOS): BrowserLab marks which one an experiment used and keeps them apart in the library.
 
@@ -151,12 +151,10 @@ macOS, unsigned local build:
 scripts/build_app.sh        # frozen engine (PyInstaller) -> Tauri bundle -> app/src-tauri/target/release/bundle/macos/BrowserLab.app
 ```
 
-Windows and Linux: the same two steps by hand. They have not been exercised end to end, so expect to adjust.
+Windows and Linux (and macOS without signing): one script does both steps. It has not been exercised on Windows or Linux yet, so expect to adjust.
 
 ```bash
-python -m pip install pyinstaller
-python -m PyInstaller --noconfirm --clean --distpath packaging/engine-dist --workpath packaging/build packaging/browserlab-engine.spec
-cd app && pnpm install --frozen-lockfile && pnpm tauri build
+python scripts/build.py     # frozen engine (PyInstaller), then the Tauri bundle for this system
 ```
 
 Where BrowserLab keeps its own settings and workspace: `~/Library/Application Support/BrowserLab` (macOS), `%APPDATA%\BrowserLab` (Windows), `~/.local/share/browserlab` (Linux). Set `BROWSERLAB_HOME` to move it.
@@ -297,14 +295,14 @@ pnpm e2e                         # browser tests against a mock engine; needs Go
                                  # folders (data_*) in the project root, so it runs locally rather than in CI
 ```
 
-GitHub Actions (`.github/workflows/ci.yml`) runs the Python tests on Ubuntu, Windows and macOS, and the app checks on Ubuntu.
+GitHub Actions (`.github/workflows/ci.yml`) runs the Python tests on Ubuntu, Windows and macOS, the app checks on Ubuntu, and a new-user setup check (install script dry run, setup script, `doctor`, `schedule`) on Windows and Linux. Tests that need the author's own `data_*` experiment folders are skipped automatically on a fresh clone.
 
 ## Known limitations
 
 - Only macOS has been used for full experiments. Windows and Linux support is implemented and unit-tested but not yet validated on real machines; expect rough edges and report them.
 - Lifecycle memory-reclamation analysis needs the physical-footprint metric and is macOS only. On Windows and Linux use the `core` and `work` suites.
 - RSS (Windows, Linux) and footprint (macOS) are different quantities; do not pool or compare them.
-- Packaged desktop builds are unsigned. Windows and Linux packaging steps are documented but untested.
+- Packaged desktop builds are unsigned. `scripts/build.py` for Windows and Linux has not been run yet.
 - Firefox-family browsers need `geckodriver`; Selenium Manager downloads it when missing. Linux snap and Flatpak browsers are unsupported.
 - Chrome for Linux is not published for ARM.
 

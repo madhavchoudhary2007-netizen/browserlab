@@ -46,3 +46,39 @@ jobs:
       - run: pnpm build
       - run: node scripts/contrast.mjs
       # The browser tests (pnpm e2e) read real experiment folders (data_*), which are not in the repository; run them locally.
+
+  setup-windows:
+    name: New-user setup on Windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Browser installer (dry run)
+        run: powershell -ExecutionPolicy Bypass -File scripts\install_browsers.ps1 -DryRun
+      - name: Setup script
+        run: powershell -ExecutionPolicy Bypass -File setup_windows.ps1
+      - name: Doctor (Brave and LibreWolf are not preinstalled on the runner, so a non-zero exit is expected)
+        continue-on-error: true
+        run: .venv\Scripts\browserbench.exe doctor
+      - name: Schedule
+        run: .venv\Scripts\browserbench.exe schedule --suite core --repetitions 1
+
+  setup-linux:
+    name: New-user setup on Linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Browser installer (dry run)
+        run: bash scripts/install_browsers.sh --dry-run
+      - name: Setup script
+        run: ./setup_linux.sh
+      - name: Doctor (some browsers are not preinstalled, so a non-zero exit is expected)
+        continue-on-error: true
+        run: .venv/bin/browserbench doctor
+      - name: Schedule
+        run: .venv/bin/browserbench schedule --suite core --repetitions 1
