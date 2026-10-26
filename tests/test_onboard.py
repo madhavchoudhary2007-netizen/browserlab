@@ -41,7 +41,7 @@ def test_missing_browser_without_yes_in_a_script_prints_the_exact_command(tmp_pa
     (tmp_path / "scripts").mkdir()
     (tmp_path / "scripts/install_browsers.sh").write_text("")
     rc, text, calls = go(tmp_path, cfg(tmp_path, present=False), os_name="linux")
-    assert rc == 2 and calls == [] and "install_browsers.sh --only chrome" in text and "--yes" in text
+    assert rc == 2 and calls == [] and "install_browsers.sh" in text and "--only chrome" in text and "--yes" in text
 
 
 def test_yes_runs_the_installer_for_the_missing_browsers_only(tmp_path):

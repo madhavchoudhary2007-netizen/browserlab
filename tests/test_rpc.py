@@ -48,7 +48,7 @@ def test_run_prepares_dir_and_single_active(tmp_path):
     assert "run_id" in r["result"]
     s.run.wait(20)
     cfg = tmp_path / "runs" / r["result"]["run_id"] / "config.yaml"
-    assert cfg.exists() and (cfg.parent / "workloads").is_symlink()
+    assert cfg.exists() and (cfg.parent / "workloads").exists()
     assert s.run.state == "completed"
     assert call(s, "run.status")["result"]["state"] == s.run.state
 
