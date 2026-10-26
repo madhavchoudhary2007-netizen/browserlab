@@ -72,6 +72,308 @@ def _flatten_page_metrics(metrics: list[dict[str, Any]]) -> dict[str, Any]:
     }
 
 
+
+def _finite_float(value: Any) -> float:
+    try:
+        out = float(value)
+    except (TypeError, ValueError):
+        return math.nan
+
+    return out if math.isfinite(out) else math.nan
+
+
+def _measurement_performance_delta(
+    before: list[dict[str, Any]],
+    after: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Calculate workload performance from before/after page counters.
+
+    Each tab uses its own performance.now() interval. This avoids bias from
+    Selenium visiting many tabs sequentially before and after measurement.
+    """
+
+    before_by_tab = {
+        int(r["tab_index"]): r
+        for r in before
+        if isinstance(r.get("tab_index"), (int, float))
+    }
+
+    after_by_tab = {
+        int(r["tab_index"]): r
+        for r in after
+        if isinstance(r.get("tab_index"), (int, float))
+    }
+
+    common_tabs = sorted(
+        set(before_by_tab)
+        & set(after_by_tab)
+    )
+
+    intervals: list[float] = []
+
+    js_rates: list[float] = []
+    js_delta_total = 0.0
+
+    video_decode_rates: list[float] = []
+    video_drop_rates: list[float] = []
+
+    video_decoded_delta_total = 0.0
+    video_dropped_delta_total = 0.0
+
+    valid_js_tabs = 0
+    valid_video_tabs = 0
+
+    for tab in common_tabs:
+        start = before_by_tab[tab]
+        end = after_by_tab[tab]
+
+        t0 = _finite_float(
+            start.get("page_perf_ms")
+        )
+
+        t1 = _finite_float(
+            end.get("page_perf_ms")
+        )
+
+        if (
+            not math.isfinite(t0)
+            or not math.isfinite(t1)
+        ):
+            continue
+
+        elapsed = (
+            t1 - t0
+        ) / 1000.0
+
+        if elapsed <= 0:
+            continue
+
+        intervals.append(elapsed)
+
+        # ----------------------------------------------------
+        # JavaScript workload
+        # ----------------------------------------------------
+
+        b0 = start.get("bench") or {}
+        b1 = end.get("bench") or {}
+
+        if (
+            b0.get("type") == "javascript"
+            and b1.get("type") == "javascript"
+        ):
+            op0 = _finite_float(
+                b0.get("operations")
+            )
+
+            op1 = _finite_float(
+                b1.get("operations")
+            )
+
+            if (
+                math.isfinite(op0)
+                and math.isfinite(op1)
+                and op1 >= op0
+            ):
+                delta = op1 - op0
+
+                js_delta_total += delta
+                js_rates.append(
+                    delta / elapsed
+                )
+
+                valid_js_tabs += 1
+
+        # ----------------------------------------------------
+        # Video workload
+        # ----------------------------------------------------
+
+        v0 = start.get("video") or {}
+        v1 = end.get("video") or {}
+
+        d0 = _finite_float(
+            v0.get("decodedFrames")
+        )
+
+        d1 = _finite_float(
+            v1.get("decodedFrames")
+        )
+
+        r0 = _finite_float(
+            v0.get("droppedFrames")
+        )
+
+        r1 = _finite_float(
+            v1.get("droppedFrames")
+        )
+
+        if (
+            math.isfinite(d0)
+            and math.isfinite(d1)
+            and d1 >= d0
+        ):
+            decoded_delta = d1 - d0
+
+            if (
+                math.isfinite(r0)
+                and math.isfinite(r1)
+                and r1 >= r0
+            ):
+                dropped_delta = r1 - r0
+            else:
+                dropped_delta = math.nan
+
+            video_decoded_delta_total += (
+                decoded_delta
+            )
+
+            video_decode_rates.append(
+                decoded_delta / elapsed
+            )
+
+            if math.isfinite(
+                dropped_delta
+            ):
+                video_dropped_delta_total += (
+                    dropped_delta
+                )
+
+                video_drop_rates.append(
+                    dropped_delta / elapsed
+                )
+
+            valid_video_tabs += 1
+
+    interval_mean = (
+        statistics.fmean(intervals)
+        if intervals
+        else math.nan
+    )
+
+    interval_min = (
+        min(intervals)
+        if intervals
+        else math.nan
+    )
+
+    interval_max = (
+        max(intervals)
+        if intervals
+        else math.nan
+    )
+
+    js_rate_total = (
+        sum(js_rates)
+        if js_rates
+        else math.nan
+    )
+
+    js_rate_mean = (
+        statistics.fmean(js_rates)
+        if js_rates
+        else math.nan
+    )
+
+    video_decode_fps_total = (
+        sum(video_decode_rates)
+        if video_decode_rates
+        else math.nan
+    )
+
+    video_decode_fps_mean = (
+        statistics.fmean(
+            video_decode_rates
+        )
+        if video_decode_rates
+        else math.nan
+    )
+
+    video_dropped_fps_total = (
+        sum(video_drop_rates)
+        if video_drop_rates
+        else math.nan
+    )
+
+    if (
+        valid_video_tabs > 0
+        and video_decoded_delta_total > 0
+    ):
+        video_drop_pct = (
+            100.0
+            * video_dropped_delta_total
+            / video_decoded_delta_total
+        )
+    else:
+        video_drop_pct = math.nan
+
+    return {
+        # Auditability
+        "measurement_perf_valid_tabs":
+            len(intervals),
+
+        "measurement_perf_interval_mean_sec":
+            interval_mean,
+
+        "measurement_perf_interval_min_sec":
+            interval_min,
+
+        "measurement_perf_interval_max_sec":
+            interval_max,
+
+        "measurement_perf_interval_span_sec":
+            (
+                interval_max - interval_min
+                if intervals
+                else math.nan
+            ),
+
+        # JavaScript
+        "measurement_js_valid_tabs":
+            valid_js_tabs,
+
+        "measurement_js_operations_delta":
+            (
+                js_delta_total
+                if valid_js_tabs
+                else math.nan
+            ),
+
+        "measurement_js_ops_per_sec_total":
+            js_rate_total,
+
+        "measurement_js_ops_per_sec_mean_per_tab":
+            js_rate_mean,
+
+        # Video
+        "measurement_video_valid_tabs":
+            valid_video_tabs,
+
+        "measurement_video_decoded_frames_delta":
+            (
+                video_decoded_delta_total
+                if valid_video_tabs
+                else math.nan
+            ),
+
+        "measurement_video_dropped_frames_delta":
+            (
+                video_dropped_delta_total
+                if valid_video_tabs
+                else math.nan
+            ),
+
+        "measurement_video_decoded_fps_total":
+            video_decode_fps_total,
+
+        "measurement_video_decoded_fps_mean_per_tab":
+            video_decode_fps_mean,
+
+        "measurement_video_dropped_fps_total":
+            video_dropped_fps_total,
+
+        "measurement_video_drop_pct":
+            video_drop_pct,
+    }
+
 def _phase_frame(rows: list[dict[str, Any]], phase: str | None = None) -> pd.DataFrame:
     df = pd.DataFrame(rows)
     if df.empty:
@@ -207,15 +509,106 @@ def run_core_trial(cfg: dict[str, Any], cond: Condition, server: WorkloadServer,
     handles: list[str] = []
     try:
         handles = open_tabs(session.driver, url, cond.tabs)
-        monitor.collect(float(section["warmup_seconds"]), "warmup")
-        monitor.collect(float(section["measure_seconds"]), "measure")
-        metrics = collect_page_metrics(session.driver, handles)
+
+        # Core multi-tab workloads deliberately keep the final workload
+        # tab foreground during warmup and measurement. Other tabs remain
+        # subject to each browser's native background-tab policy.
+        foreground_tab_index = len(handles) - 1
+        foreground_handle = handles[foreground_tab_index]
+
+        session.driver.switch_to.window(
+            foreground_handle
+        )
+
+        monitor.collect(
+            float(section["warmup_seconds"]),
+            "warmup",
+        )
+
+        # Read cumulative workload counters immediately before
+        # the resource-measurement interval.
+        metrics_before = collect_page_metrics(
+            session.driver,
+            handles,
+        )
+
+        # Reading all tab counters temporarily activates each tab.
+        # Restore the designated foreground tab before timed measurement.
+        session.driver.switch_to.window(
+            foreground_handle
+        )
+
+        monitor.collect(
+            float(section["measure_seconds"]),
+            "measure",
+        )
+
+        # Read them again afterwards. Performance is derived
+        # from counter deltas rather than cumulative page-life
+        # totals.
+        metrics_after = collect_page_metrics(
+            session.driver,
+            handles,
+        )
+
+        performance_delta = (
+            _measurement_performance_delta(
+                metrics_before,
+                metrics_after,
+            )
+        )
+
         summary = {
-            **_common_summary(cond, cfg, session, started, idle_power_w),
-            **_resource_summary(monitor.rows, "measure", idle_power_w),
-            **_flatten_page_metrics(metrics),
+            **_common_summary(
+                cond,
+                cfg,
+                session,
+                started,
+                idle_power_w,
+            ),
+
+            **_resource_summary(
+                monitor.rows,
+                "measure",
+                idle_power_w,
+            ),
+
+            # Retain old end-of-trial cumulative metrics for
+            # compatibility with existing output.
+            **_flatten_page_metrics(
+                metrics_after
+            ),
+
+            # New primary performance endpoints.
+            **performance_delta,
+
+            "measurement_foreground_tab_index":
+                foreground_tab_index,
         }
-        return summary, monitor.rows, monitor.process_rows, metrics
+
+        # Preserve BOTH raw snapshots for audit/recalculation.
+        page_metrics = [
+            {
+                **m,
+                "snapshot":
+                    "measurement_start",
+            }
+            for m in metrics_before
+        ] + [
+            {
+                **m,
+                "snapshot":
+                    "measurement_end",
+            }
+            for m in metrics_after
+        ]
+
+        return (
+            summary,
+            monitor.rows,
+            monitor.process_rows,
+            page_metrics,
+        )
     finally:
         session.close()
 

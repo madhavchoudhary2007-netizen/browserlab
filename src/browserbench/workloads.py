@@ -44,6 +44,7 @@ if (v) {
   if (v.getVideoPlaybackQuality) q = v.getVideoPlaybackQuality();
   video = {
     currentTime: v.currentTime || 0,
+    duration: Number.isFinite(v.duration) ? v.duration : null,
     decodedFrames: q ? q.totalVideoFrames : (v.webkitDecodedFrameCount || null),
     droppedFrames: q ? q.droppedVideoFrames : (v.webkitDroppedFrameCount || null),
     paused: v.paused
@@ -53,6 +54,7 @@ return {
   url: location.href,
   visibility: document.visibilityState,
   load_ms: nav ? nav.loadEventEnd - nav.startTime : null,
+  page_perf_ms: performance.now(),
   bench: b,
   video: video
 };
