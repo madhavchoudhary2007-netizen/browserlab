@@ -8,19 +8,24 @@ import numpy as np
 import pandas as pd
 from scipy import stats as st
 
+from . import anova_fallback as fb
+
 try:
     import statsmodels.api as sm
     import statsmodels.formula.api as smf
-except ImportError:  # no wheel exists for Windows ARM64; only the ANOVA functions need it
+except ImportError:  # no wheel exists for Windows ARM64; numpy/scipy fallback below
     sm = smf = None
 
 
-def _need_statsmodels() -> None:
+def _ols(d: pd.DataFrame, y: str, factors: Sequence[str], block: bool = False):
     if smf is None:
-        raise RuntimeError(
-            "statsmodels is not installed (it has no Windows ARM64 build). "
-            "Install an x64 Python 3.12 and rerun setup to get ANOVA; Welch tests still work."
-        )
+        return fb.fit(d, y, factors, block)
+    rhs = " * ".join(f"C({f})" for f in factors) + (" + C(block)" if block else "")
+    return smf.ols(f"{y} ~ {rhs}", data=d).fit()
+
+
+def _anova2(model) -> pd.DataFrame:
+    return fb.anova_type2(model) if smf is None else sm.stats.anova_lm(model, typ=2)
 
 
 def describe(x: Sequence[float]) -> dict[str, float]:
@@ -80,14 +85,13 @@ def factorial_anova(df: pd.DataFrame, y: str, log: bool = False) -> pd.DataFrame
 
     Requires replication within cells (otherwise residual df is zero).
     """
-    _need_statsmodels()
     d = df.copy()
     if log:
         d[y] = np.log(d[y])
-    model = smf.ols(f"{y} ~ C(browser) * C(workload) * C(tabs)", data=d).fit()
+    model = _ols(d, y, ["browser", "workload", "tabs"])
     if model.df_resid <= 0:
         raise ValueError("No residual degrees of freedom: need replication within cells")
-    return sm.stats.anova_lm(model, typ=2)
+    return _anova2(model)
 
 
 def permutation_test(a: Sequence[float], b: Sequence[float], n_perm: int = 10000, seed: int = 0) -> float:
@@ -116,7 +120,6 @@ def anova_auto(df: pd.DataFrame, y: str, factors: Sequence[str], log: bool = Fal
     Returns {"table": [...], "factors": [...], "df_resid": int, "block": {...}|None}.
     Raises ValueError when there is no residual df (no replication within cells).
     """
-    _need_statsmodels()
     d = df.dropna(subset=[y]).copy()
     if log:
         if (d[y] <= 0).any():
@@ -125,11 +128,10 @@ def anova_auto(df: pd.DataFrame, y: str, factors: Sequence[str], log: bool = Fal
     used = [f for f in factors if d[f].nunique() > 1]
     if not used:
         raise ValueError("no factor varies")
-    rhs = " * ".join(f"C({f})" for f in used)
-    model = smf.ols(f"{y} ~ {rhs}", data=d).fit()
+    model = _ols(d, y, used)
     if model.df_resid <= 0:
         raise ValueError("No residual degrees of freedom: need replication within cells")
-    tbl = sm.stats.anova_lm(model, typ=2)
+    tbl = _anova2(model)
     ss_res = float(tbl.loc["Residual", "sum_sq"])
     rows = []
     for name, r in tbl.iterrows():
@@ -139,13 +141,19 @@ def anova_auto(df: pd.DataFrame, y: str, factors: Sequence[str], log: bool = Fal
                      "p": float(r["PR(>F)"]), "partial_eta_sq": float(r["sum_sq"] / (r["sum_sq"] + ss_res))})
     out = {"table": rows, "factors": used, "df_resid": int(model.df_resid), "block": None, "bp": None}
     if "block" in d and d["block"].nunique() > 1:
-        with_block = smf.ols(f"{y} ~ {rhs} + C(block)", data=d).fit()
+        with_block = _ols(d, y, used, block=True)
         if with_block.df_resid > 0:
-            c = sm.stats.anova_lm(model, with_block)
-            out["block"] = {"F": float(c["F"].iloc[1]), "p": float(c["Pr(>F)"].iloc[1]), "df": float(c["df_diff"].iloc[1])}
-    from statsmodels.stats.diagnostic import het_breuschpagan
+            if smf is None:
+                out["block"] = fb.compare(model, with_block)
+            else:
+                c = sm.stats.anova_lm(model, with_block)
+                out["block"] = {"F": float(c["F"].iloc[1]), "p": float(c["Pr(>F)"].iloc[1]), "df": float(c["df_diff"].iloc[1])}
     try:
-        lm, p, _, _ = het_breuschpagan(model.resid, model.model.exog)
+        if smf is None:
+            lm, p = fb.breusch_pagan(model.resid, model.X)
+        else:
+            from statsmodels.stats.diagnostic import het_breuschpagan
+            lm, p, _, _ = het_breuschpagan(model.resid, model.model.exog)
         out["bp"] = {"lm": float(lm), "p": float(p)}
     except Exception:  # noqa: BLE001 - diagnostics must not break the analysis
         pass
@@ -190,17 +198,16 @@ def pairwise_holm(groups: dict[str, Sequence[float]]) -> list[dict]:
 
 
 def residual_diagnostics(df: pd.DataFrame, y: str, factors: Sequence[str], log: bool = False) -> dict:
-    _need_statsmodels()
     d = df.dropna(subset=[y]).copy()
     if log:
         d[y] = np.log(d[y])
     used = [f for f in factors if d[f].nunique() > 1]
-    model = smf.ols(f"{y} ~ " + " * ".join(f"C({f})" for f in used), data=d).fit()
+    model = _ols(d, y, used)
     if model.df_resid <= 0:
         raise ValueError("No residual degrees of freedom")
-    z = (model.resid / math.sqrt(model.mse_resid)).to_numpy()
+    z = np.asarray(model.resid, float) / math.sqrt(model.mse_resid)
     (theo, samp), _ = st.probplot(z, dist="norm")
-    out = {"fitted": model.fittedvalues.tolist(), "std_resid": z.tolist(), "qq_theoretical": theo.tolist(),
+    out = {"fitted": np.asarray(model.fittedvalues, float).tolist(), "std_resid": z.tolist(), "qq_theoretical": theo.tolist(),
            "qq_sample": samp.tolist(), "shapiro": None}
     if 3 <= len(z) <= 5000:
         w, p = st.shapiro(z)

@@ -70,7 +70,7 @@ def test_invalid_transitions(tmp_path):
 
 
 def test_failed_exit(tmp_path):
-    bad = tmp_path / "bad.py"; bad.write_text("import sys; sys.exit(3)")
+    bad = tmp_path / "bad.py"; bad.write_text("import sys; sys.exit(1)")
     ev = []
     c = RunController(tmp_path, [sys.executable, str(bad)], ev.append)
     c.start(); c.wait(10)

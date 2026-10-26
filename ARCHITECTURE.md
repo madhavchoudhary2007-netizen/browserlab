@@ -122,6 +122,7 @@ Baseline browser profiles live in `<project folder>/.browserbench/profiles/<brow
 | Energy sampling | `powermetrics` | unsupported | unsupported |
 | Stop/pause signal | SIGINT to process group | Ctrl+Break to process group | SIGINT to process group |
 | Browser version | `<binary> --version` | file version via PowerShell | `<binary> --version` |
+| ANOVA engine | statsmodels | statsmodels, or the built-in numpy/scipy `anova_fallback.py` on ARM64 (no statsmodels build) | statsmodels |
 
 The code for these lives in `platforms.py`, `system.py`, `macos_memory.py`, `energy.py`, `browsers.py` and `runctl.py`. Everything else is platform-neutral.
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 import signal
 import sys
 from pathlib import Path
@@ -34,6 +35,9 @@ def _parser() -> argparse.ArgumentParser:
     return p
 
 
+INCOMPLETE_EXIT = 3  # the run ended normally but some trials gave up after their retries
+
+
 def main() -> None:
     if sys.platform == "win32":  # BrowserLab stops a run at a trial boundary with Ctrl+Break; make it behave like Ctrl+C
         signal.signal(signal.SIGBREAK, signal.default_int_handler)
@@ -52,6 +56,14 @@ def main() -> None:
         cfg = with_overrides(cfg, repetitions=args.repetitions, measure_seconds=args.measure_seconds)
         out = run_suite(cfg, args.suite, repetitions=args.repetitions, resume=not args.no_resume)
         print(f"\nExperiment data written to: {Path(out).resolve()}")
+        try:
+            done = set(json.loads((Path(out) / "state.json").read_text())["completed_trial_ids"])
+        except (OSError, ValueError, KeyError):
+            done = set()
+        missing = [c.trial_id for c in build_schedule(cfg, args.suite, args.repetitions) if c.trial_id not in done]
+        if missing:
+            print(f"{len(missing)} scheduled trial(s) did not complete; run the same command again to retry them.")
+            raise SystemExit(INCOMPLETE_EXIT)
 
 
 if __name__ == "__main__":

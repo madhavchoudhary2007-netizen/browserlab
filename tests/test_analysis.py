@@ -10,7 +10,6 @@ from browserlab.rpc import Server
 
 ROOT = Path(__file__).resolve().parents[1]
 
-needs_sm = pytest.mark.skipif(stats.smf is None, reason="statsmodels is not installed (Windows ARM64)")
 
 
 def frame(reps=3, with_fp=True):
@@ -25,7 +24,6 @@ def frame(reps=3, with_fp=True):
     return pd.DataFrame(rows)
 
 
-@needs_sm
 def test_replicated_design_gets_inference(tmp_path):
     p = tmp_path / "s.csv"; frame().to_csv(p, index=False)
     a = analyze(p)
@@ -41,14 +39,12 @@ def test_single_rep_is_descriptive_only(tmp_path):
     assert not a["inference"]["allowed"] and a["anova"] is None
 
 
-@needs_sm
 def test_rss_fallback_is_labelled(tmp_path):
     p = tmp_path / "s.csv"; frame(with_fp=False).to_csv(p, index=False)
     a = analyze(p)
     assert a["metric"] == "mean_rss_mb" and any("RSS" in n for n in a["notes"])
 
 
-@needs_sm
 def test_missing_values_excluded_and_json_safe(tmp_path):
     f = frame(); f.loc[0, "mean_phys_footprint_mb"] = float("nan")
     p = tmp_path / "s.csv"; f.to_csv(p, index=False)
@@ -65,7 +61,6 @@ def test_real_dataset_via_rpc():
     assert s.handle(json.dumps({"id": 2, "method": "stats.run", "params": {"id": "nope"}}))["error"]["code"] == "not_found"
 
 
-@needs_sm
 def test_diagnostics_and_posthoc_present_when_inference_allowed(tmp_path):
     p = tmp_path / "s.csv"; frame(reps=4).to_csv(p, index=False)
     a = analyze(p)

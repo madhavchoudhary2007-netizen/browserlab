@@ -24,7 +24,7 @@ $venvPython = Join-Path $PSScriptRoot ".venv\Scripts\python.exe"
 & $venvPython -m pip install --upgrade pip setuptools wheel
 if ($LASTEXITCODE -ne 0) { Write-Error "pip could not update itself. Check your internet connection and rerun." }
 & $venvPython -m pip install -e ".[dev]"
-if ($LASTEXITCODE -ne 0) { Write-Error "Installing the Python packages failed (see the pip error above). On Windows ARM64 use an x64 Python 3.12, or install Visual Studio Build Tools." }
+if ($LASTEXITCODE -ne 0) { Write-Error "Installing the Python packages failed (see the pip error above). Check your internet connection and rerun." }
 
 if (-not (Get-Command ffmpeg -ErrorAction SilentlyContinue)) {
   Write-Host "ffmpeg is needed once to generate the video workload: winget install Gyan.FFmpeg (then open a new terminal)."

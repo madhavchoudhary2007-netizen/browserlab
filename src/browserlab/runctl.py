@@ -157,7 +157,7 @@ class RunController:
                 self._go("paused")
             elif interrupted and want == "stop":
                 self._go("stopped")
-            elif rc == 0:
+            elif rc in (0, 3):  # 3: the engine finished but some trials gave up (see below)
                 if self.state == "pausing":
                     self.state = "stopping"
                 missing = self._scheduled_count() - self.progress["completed"]
