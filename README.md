@@ -55,41 +55,52 @@ What "not yet run end to end" means: the Windows and Linux code paths (binary di
 
 ## Quick start
 
-You need Python 3.11 or newer and the four browsers. Everything else is installed by the scripts below. Pick your system.
+You need Python 3.11 or newer. Two steps, the same on every system:
+
+1. **Create the Python environment** with the setup script for your OS (it also installs the `browserbench` command).
+2. **Run `browserbench setup`.** It checks the system, installs any of the four browsers that are missing, and prints exactly what to do about anything it cannot do for you.
 
 ### macOS
 
 ```bash
-git clone <this repository> && cd <this repository>
-bash scripts/install_browsers.sh      # Chrome, Brave, Firefox, LibreWolf through Homebrew casks (skips installed ones)
-./setup_macos.sh                      # virtual environment, geckodriver, ffmpeg, the local video workload
+git clone https://github.com/madhavchoudhary2007-netizen/browserlab && cd browserlab
+./setup_macos.sh
 source .venv/bin/activate
-browserbench doctor
+browserbench setup
 ```
 
 ### Linux
 
 ```bash
-bash scripts/install_browsers.sh      # apt (Debian, Ubuntu), dnf (Fedora) or pacman/AUR (Arch)
+git clone https://github.com/madhavchoudhary2007-netizen/browserlab && cd browserlab
 ./setup_linux.sh
 source .venv/bin/activate
-browserbench doctor
+browserbench setup
 ```
-
-The script uses each vendor's own repository. Firefox comes from Mozilla's repository, **not** the Ubuntu snap, because the snap build cannot be driven reliably by geckodriver. Flatpak and snap browsers are not supported for measurements. Google publishes Chrome for Linux x86-64 only; on ARM, use Brave as the Chromium-family browser.
 
 ### Windows (PowerShell)
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File scripts\install_browsers.ps1     # winget: Chrome, Brave, Firefox, LibreWolf
+git clone https://github.com/madhavchoudhary2007-netizen/browserlab; cd browserlab
 powershell -ExecutionPolicy Bypass -File setup_windows.ps1
 .venv\Scripts\Activate.ps1
-browserbench doctor
+browserbench setup
 ```
 
-### Look before you install
+### What `browserbench setup` does
 
-Both install scripts can show every command without running it:
+It runs fixed checks, one after another, and behaves the same way every time:
+
+| Check | If it fails |
+|---|---|
+| Python 3.11 or newer, 20 GB free disk | tells you the command to install or free space |
+| Chrome, Brave, Firefox, LibreWolf present | asks, then runs `scripts/install_browsers.sh` (macOS, Linux) or `scripts/install_browsers.ps1` (Windows) for just the missing ones |
+| Video workload file present | prints the ffmpeg install command and `python tools/generate_video.py` |
+| Baseline browser profiles present | tells you to create them in the app under Settings (this needs a person) |
+
+Options: `--yes` installs without asking, `--dry-run` shows what would be installed. It exits with 0 when everything is ready and 2 when something still needs you; running it again only does what is still missing. If an install fails, it prints the installer command to run yourself, the vendor download page, and where to put a custom path in `config.yaml`.
+
+The installer scripts also work on their own:
 
 ```bash
 bash scripts/install_browsers.sh --dry-run
@@ -99,6 +110,8 @@ bash scripts/install_browsers.sh --only firefox,librewolf
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts\install_browsers.ps1 -DryRun
 ```
+
+On Linux the installer uses each vendor's own repository. Firefox comes from Mozilla's repository, **not** the Ubuntu snap, because the snap build cannot be driven reliably by geckodriver. Flatpak and snap browsers are not supported for measurements. Google publishes Chrome for Linux x86-64 only; on ARM, use Brave as the Chromium-family browser.
 
 ### `browserbench doctor`
 

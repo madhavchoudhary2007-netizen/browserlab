@@ -18,6 +18,10 @@ def _parser() -> argparse.ArgumentParser:
 
     d = sub.add_parser("doctor", help="Verify browsers, media asset, power/safety prerequisites")
 
+    st = sub.add_parser("setup", help="Check this system, install missing browsers and say what is left to do")
+    st.add_argument("--yes", action="store_true", help="Do not ask before installing")
+    st.add_argument("--dry-run", action="store_true", help="Show what would be installed without installing")
+
     s = sub.add_parser("schedule", help="Print the randomized blocked schedule without running it")
     s.add_argument("--suite", choices=["core", "lifecycle", "work"], default="core")
     s.add_argument("--repetitions", type=int)
@@ -37,6 +41,9 @@ def main() -> None:
     cfg = load_config(args.config)
     if args.command == "doctor":
         raise SystemExit(run_doctor(cfg))
+    if args.command == "setup":
+        from .onboard import run_setup
+        raise SystemExit(run_setup(cfg, assume_yes=args.yes, dry_run=args.dry_run))
     if args.command == "schedule":
         for c in build_schedule(cfg, args.suite, args.repetitions):
             print(c.trial_id)

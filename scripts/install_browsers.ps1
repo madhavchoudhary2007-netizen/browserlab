@@ -13,6 +13,8 @@ param(
   [string[]]$Only = @("chrome", "brave", "firefox", "librewolf")
 )
 $ErrorActionPreference = "Stop"
+# `-File ... -Only a,b` arrives as one string "a,b"; accept both forms.
+$Only = @($Only | ForEach-Object { $_ -split "," } | ForEach-Object { $_.Trim().ToLower() } | Where-Object { $_ })
 
 $pf = $env:ProgramFiles
 $pf86 = ${env:ProgramFiles(x86)}
