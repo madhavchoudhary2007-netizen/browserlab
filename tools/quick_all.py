@@ -11,6 +11,7 @@ import io
 import json
 import sys
 import tempfile
+import time
 from pathlib import Path
 
 import pandas as pd
@@ -38,6 +39,18 @@ def main() -> int:
     out = io.StringIO()
     s = Server(out, home, ROOT)
     bad = 0
+
+    def rpc(method, **params):
+        return s.handle(json.dumps({"id": 1, "method": method, "params": params}))
+
+    # The app's first-run step: Settings > baseline profiles (open the browser once, then save). Existing profiles are kept.
+    for b in browsers:
+        if (ROOT / ".browserbench" / "profiles" / b).exists():
+            continue
+        r = rpc("profiles.prepare", browser=b)
+        time.sleep(15)
+        r = rpc("profiles.finish") if "error" not in r else r
+        print(f"baseline profile {b}: {'ERROR ' + str(r['error']) if 'error' in r else 'created'}")
     for wl in a.workloads.split(","):
         r = json.loads(json.dumps(s.handle(json.dumps({"id": 1, "method": "run.start", "params": {
             "mode": "quick", "workload": wl, "tabs": a.tabs, "browsers": browsers}}))))
