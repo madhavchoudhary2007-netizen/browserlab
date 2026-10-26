@@ -9,6 +9,8 @@ It ships in two forms that share one engine:
 - **BrowserLab desktop app** (Tauri + React): run an experiment, watch the memory trace being drawn live, browse past experiments, compare two of them, export results.
 - **`browserbench` command line** (Python): the same engine for scripted and headless runs, plus R scripts for the full statistical analysis.
 
+[Architecture](ARCHITECTURE.md) · [Methods](METHODS.md) · [Data dictionary](DATA_DICTIONARY.md) · [Releases](../../releases)
+
 > **Safety first.** BrowserLab does not stress-test your machine. It uses ordinary workloads, a hard cap of 40 tabs, short measurement windows, cooldowns, and aborts a trial when memory or disk runs low. It never runs browsers or Python as root, and it never closes a browser it did not launch.
 
 ---
@@ -267,6 +269,8 @@ Experiment folders are ignored by git (`data_*/`), as are the baseline profiles 
 ---
 
 ## Repository layout
+
+A deeper tour of how the parts fit together is in [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ```text
 src/browserbench/   measurement engine and CLI (schedule, runner, monitor, browsers, safety checks, platforms)
