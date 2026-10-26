@@ -82,3 +82,27 @@ jobs:
         run: .venv/bin/browserbench doctor
       - name: Schedule
         run: .venv/bin/browserbench schedule --suite core --repetitions 1
+
+  smoke-windows:
+    name: Real smoke run on Windows (x64)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: powershell -ExecutionPolicy Bypass -File setup_windows.ps1
+      - name: Try to install the missing browsers (best effort; the runner image decides what is preinstalled)
+        continue-on-error: true
+        run: .venv\Scripts\browserbench.exe setup --yes
+      - name: Smoke config with only the browsers that are installed
+        run: .venv\Scripts\python.exe tools\ci_smoke_config.py
+      - run: .venv\Scripts\browserbench.exe --config config.ci.yaml run --suite core --repetitions 1
+      - name: Show the results
+        shell: pwsh
+        run: Get-Content data_ci\core\processed\trial_summary_core.csv | Select-Object -First 8
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-windows-data
+          path: data_ci
