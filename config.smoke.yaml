@@ -9,19 +9,19 @@ browsers:
   chrome:
     enabled: true
     engine: chromium
-    binary: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+    binary: auto
   brave:
     enabled: true
     engine: chromium
-    binary: /Applications/Brave Browser.app/Contents/MacOS/Brave Browser
+    binary: auto
   firefox:
     enabled: true
     engine: firefox
-    binary: /Applications/Firefox.app/Contents/MacOS/firefox
+    binary: auto
   librewolf:
     enabled: true
     engine: firefox
-    binary: /Applications/LibreWolf.app/Contents/MacOS/librewolf
+    binary: auto
 core:
   workloads:
   - static

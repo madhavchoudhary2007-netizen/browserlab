@@ -50,7 +50,7 @@ install_macos() {
       firefox)   cask=firefox;       app="Firefox" ;;
       librewolf) cask=librewolf;     app="LibreWolf" ;;
     esac
-    if [[ -d "/Applications/$app.app" ]]; then
+    if [[ -d "${APPS_DIR:-/Applications}/$app.app" ]]; then
       say "$app is already installed"
       continue
     fi

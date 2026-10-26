@@ -104,7 +104,7 @@ powershell -ExecutionPolicy Bypass -File scripts\install_browsers.ps1 -DryRun
 
 `doctor` is the gate before any data collection. It reports the operating system, power and safety state, each browser (found, version, whether it is currently running) and the video workload. For a missing browser it prints the install command for your system. Do not start collecting until all four browsers and the video asset report `OK`.
 
-Browser locations are detected automatically. Leave `binary` empty or set it to `auto` in your config, or keep the default; a configured path that exists is always used as written. Custom installs just need `binary: <path>` in `config.yaml`.
+Browser locations are detected automatically: the shipped `config.yaml` uses `binary: auto` on every system, so the same file works on macOS, Windows and Linux with no editing. A path you write yourself is used as written when it exists; a path from another system (such as an old `/Applications/...` line) is replaced by what is installed here. Only a non-standard install needs `binary: <path>`.
 
 ---
 
