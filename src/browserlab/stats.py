@@ -6,9 +6,21 @@ from typing import Sequence
 
 import numpy as np
 import pandas as pd
-import statsmodels.api as sm
-import statsmodels.formula.api as smf
 from scipy import stats as st
+
+try:
+    import statsmodels.api as sm
+    import statsmodels.formula.api as smf
+except ImportError:  # no wheel exists for Windows ARM64; only the ANOVA functions need it
+    sm = smf = None
+
+
+def _need_statsmodels() -> None:
+    if smf is None:
+        raise RuntimeError(
+            "statsmodels is not installed (it has no Windows ARM64 build). "
+            "Install an x64 Python 3.12 and rerun setup to get ANOVA; Welch tests still work."
+        )
 
 
 def describe(x: Sequence[float]) -> dict[str, float]:
@@ -68,6 +80,7 @@ def factorial_anova(df: pd.DataFrame, y: str, log: bool = False) -> pd.DataFrame
 
     Requires replication within cells (otherwise residual df is zero).
     """
+    _need_statsmodels()
     d = df.copy()
     if log:
         d[y] = np.log(d[y])
@@ -103,6 +116,7 @@ def anova_auto(df: pd.DataFrame, y: str, factors: Sequence[str], log: bool = Fal
     Returns {"table": [...], "factors": [...], "df_resid": int, "block": {...}|None}.
     Raises ValueError when there is no residual df (no replication within cells).
     """
+    _need_statsmodels()
     d = df.dropna(subset=[y]).copy()
     if log:
         if (d[y] <= 0).any():
@@ -176,6 +190,7 @@ def pairwise_holm(groups: dict[str, Sequence[float]]) -> list[dict]:
 
 
 def residual_diagnostics(df: pd.DataFrame, y: str, factors: Sequence[str], log: bool = False) -> dict:
+    _need_statsmodels()
     d = df.dropna(subset=[y]).copy()
     if log:
         d[y] = np.log(d[y])
