@@ -72,3 +72,11 @@ def test_protocol_base_does_not_require_ac():
     import yaml
     from browserlab.rpc import BASE
     assert yaml.safe_load(BASE.read_text())["safety"]["require_ac_power"] is False
+
+
+def test_non_macos_warns_that_memory_is_rss(tmp_path, monkeypatch):
+    import browserlab.preflight as pf
+    monkeypatch.setattr(pf, "current_os", lambda: "windows")
+    b = tmp_path / "chrome"; b.write_text("")
+    r = go(tmp_path, b)
+    assert status(r, "memory_metric") == "warn" and r["can_start"] and r["has_warnings"]

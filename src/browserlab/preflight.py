@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from browserbench.browsers import browser_version, matching_processes
+from browserbench.platforms import current_os
 from browserbench.system import safety_snapshot
 
 from .paths import workloads_dir
@@ -79,6 +80,9 @@ def run_preflight(
         gd = shutil.which("geckodriver")
         checks.append(Check("driver.gecko", "geckodriver", PASS if gd else WARN,
                             gd or "Not on PATH; Selenium Manager will try to resolve it (needs network on first use)"))
+    if current_os() != "macos":
+        checks.append(Check("memory_metric", "Memory metric", WARN,
+                            "This system measures summed process RSS, not macOS physical footprint. Do not compare the two; lifecycle reclamation analysis is macOS only."))
     return {
         "checks": [asdict(c) for c in checks],
         "can_start": all(c.status != FAIL for c in checks),
