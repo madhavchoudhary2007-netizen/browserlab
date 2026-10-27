@@ -16,6 +16,10 @@ def main(argv: list[str] | None = None) -> None:
     args = list(sys.argv if argv is None else argv)
     if len(args) > 1 and args[1] == "--bench":
         sys.argv = [args[0], *args[2:]]
+        # The app reads progress lines from a pipe; a frozen executable has no `python -u`, so flush per line.
+        for stream in (sys.stdout, sys.stderr):
+            if hasattr(stream, "reconfigure"):
+                stream.reconfigure(line_buffering=True)
         from browserbench.cli import main as bench_main
         bench_main()
         return
