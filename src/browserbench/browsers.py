@@ -109,20 +109,15 @@ def assert_no_existing_browser(binary: str) -> None:
         )
 
 
+_PROFILE_LOCKS = {
+    "chromium": ("SingletonLock", "SingletonCookie", "SingletonSocket"),
+    "firefox": ("parent.lock", "lock", ".parentlock"),
+}
+
+
 def _remove_profile_locks(profile_dir: Path, engine: str) -> None:
     """Remove transient browser lock artifacts from a cloned, closed profile."""
-    names = {
-        "chromium": (
-            "SingletonLock",
-            "SingletonCookie",
-            "SingletonSocket",
-        ),
-        "firefox": (
-            "parent.lock",
-            "lock",
-            ".parentlock",
-        ),
-    }
+    names = _PROFILE_LOCKS
 
     for name in names.get(engine, ()):
         path = profile_dir / name
@@ -184,11 +179,15 @@ def _create_trial_profile(
         )
 
     # mkdtemp creates the destination directory already.
+    # Lock artifacts are skipped, not copied and then removed: Chromium's SingletonSocket/Lock are
+    # links to temp files that no longer exist, and copying a dangling link fails on Linux.
+    lock_names = _PROFILE_LOCKS.get(engine, ())
     shutil.copytree(
         template,
         profile_dir,
         dirs_exist_ok=True,
         symlinks=False,
+        ignore=lambda d, names: [n for n in names if n in lock_names] if Path(d) == Path(template) else [],
     )
 
     _remove_profile_locks(
