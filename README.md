@@ -47,9 +47,9 @@ It ships in two forms that share one engine:
 | Optional power sampling (`powermetrics`) | yes | no | no |
 | Thermal-pressure abort | yes | not available (reported as unknown) | not available (reported as unknown) |
 | AC-power check | yes | yes (a desktop PC counts as mains power) | yes (same) |
-| Desktop app build | yes (`scripts/build_app.sh`, signed) | `python scripts/build.py` (untested) | `python scripts/build.py` (untested) |
+| Desktop app build | yes (`scripts/build_app.sh`, signed) | `python scripts/build.py` (MSI and setup .exe; built and run in CI on x64 and on an ARM64 machine) | `python scripts/build.py` (.deb, AppImage, rpm; built and run in CI on x64) |
 
-What "not yet run end to end" means: the Windows and Linux code paths (binary discovery, power and memory checks, install scripts, per-OS data folders) exist and the unit tests run on all three systems in CI, but no full experiment has been recorded on those systems yet. Treat Windows and Linux results as **pilot** until you have run `browserbench doctor` and a short pilot on your own machine. Do not compare RSS-based numbers (Windows, Linux) with footprint-based numbers (macOS): BrowserLab marks which one an experiment used and keeps them apart in the library.
+What has been verified on Windows and Linux: CI runs the unit tests on all three systems, builds the desktop app on Windows x64 and Linux x64, installs the Linux package, and runs a real Quick experiment with all four browsers through the packaged engine. On Windows ARM64 (a virtual machine) the command line and the packaged engine ran Quick mode on all three workloads with all four browsers. Linux ARM64 and long (Standard or Full) experiments on Windows and Linux have not been run. Treat Windows and Linux results as **pilot** until you have run `browserbench doctor` and a short pilot on your own machine. Do not compare RSS-based numbers (Windows, Linux) with footprint-based numbers (macOS): BrowserLab marks which one an experiment used and keeps them apart in the library.
 
 ---
 
@@ -166,7 +166,7 @@ macOS, unsigned local build:
 scripts/build_app.sh        # frozen engine (PyInstaller) -> Tauri bundle -> app/src-tauri/target/release/bundle/macos/BrowserLab.app
 ```
 
-Windows and Linux (and macOS without signing): one script does both steps. It has not been exercised on Windows or Linux yet, so expect to adjust.
+Windows and Linux (and macOS without signing): one script does both steps. It needs Rust, Node with pnpm, and your OS's Tauri prerequisites (Visual Studio C++ Build Tools on Windows; `libwebkit2gtk-4.1-dev` and friends on Linux). Most people do not need to build: the release workflow (`.github/workflows/release.yml`) builds installers for Windows x64 and ARM64, Linux x64 and ARM64 and macOS Apple Silicon, and attaches them to a GitHub release when a `v*` tag is pushed.
 
 ```bash
 python scripts/build.py     # frozen engine (PyInstaller), then the Tauri bundle for this system
@@ -316,10 +316,11 @@ GitHub Actions (`.github/workflows/ci.yml`) runs the Python tests on Ubuntu, Win
 
 ## Known limitations
 
-- Only macOS has been used for full experiments. Windows and Linux support is implemented and unit-tested but not yet validated on real machines; expect rough edges and report them.
+- Only macOS has been used for long experiments. Windows and Linux have passed short Quick runs on all four browsers (see above); expect rough edges on long runs and report them.
 - Lifecycle memory-reclamation analysis needs the physical-footprint metric and is macOS only. On Windows and Linux use the `core` and `work` suites.
 - RSS (Windows, Linux) and footprint (macOS) are different quantities; do not pool or compare them.
-- Packaged desktop builds are unsigned. `scripts/build.py` for Windows and Linux has not been run yet.
+- Packaged desktop builds are unsigned: Windows shows "Windows protected your PC" (choose More info, then Run anyway) and macOS needs right-click, Open on first launch.
+- On Windows ARM64 the Python statsmodels package has no build, so BrowserLab uses its own ANOVA code there (checked against statsmodels).
 - Firefox-family browsers need `geckodriver`; Selenium Manager downloads it when missing. Linux snap and Flatpak browsers are unsupported.
 - Chrome for Linux is not published for ARM.
 
