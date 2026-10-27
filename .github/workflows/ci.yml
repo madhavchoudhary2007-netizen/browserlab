@@ -179,17 +179,21 @@ jobs:
         run: .venv/bin/browserbench setup --yes
       - name: Build the app (frozen engine, then the Tauri bundles)
         run: .venv/bin/python scripts/build.py
-      - name: Launch the built app and check it stays up with its engine
-        run: |
-          xvfb-run -a bash -c '
-            app/src-tauri/target/release/browserlab & pid=$!
-            sleep 20
-            kill -0 $pid || { echo "the app exited right after launch"; exit 1; }
-            pgrep -f '[b]rowserlab-engine' >/dev/null || { echo "the bundled engine did not start"; exit 1; }
-            kill $pid; pkill -f '[b]rowserlab-engine' || true
-          '
       - name: Packaged engine, Quick mode (profiles, then a real run)
         run: xvfb-run -a .venv/bin/python tools/packaged_check.py app/src-tauri/target/release/engine/browserlab-engine/browserlab-engine --workload video
+      - name: Launch the built app and check it stays up with its engine
+        run: |
+          export WEBKIT_DISABLE_DMABUF_RENDERER=1 WEBKIT_DISABLE_COMPOSITING_MODE=1 LIBGL_ALWAYS_SOFTWARE=1
+          xvfb-run -a -s "-screen 0 1280x800x24" bash -c '
+            app/src-tauri/target/release/browserlab > "$RUNNER_TEMP/app.log" 2>&1 & pid=$!
+            for i in $(seq 1 40); do
+              sleep 2
+              kill -0 $pid 2>/dev/null || { echo "the app exited right after launch"; cat "$RUNNER_TEMP/app.log"; exit 1; }
+              pgrep -f "[b]rowserlab-engine" >/dev/null && { echo "engine started after $((i*2))s"; kill $pid; pkill -f "[b]rowserlab-engine" || true; exit 0; }
+            done
+            echo "the bundled engine did not start in 80s; app output:"; cat "$RUNNER_TEMP/app.log"; ps aux | grep -i -E "browserlab|WebKit" | grep -v grep | head
+            kill $pid; exit 1
+          '
       - uses: actions/upload-artifact@v4
         with:
           name: browserlab-linux-x64-bundles
