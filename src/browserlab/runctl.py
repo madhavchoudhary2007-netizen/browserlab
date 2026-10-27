@@ -45,6 +45,17 @@ def group_kwargs(platform: str | None = None) -> dict:
     return {"start_new_session": True}
 
 
+def _child_env() -> dict[str, str]:
+    """Environment for the engine subprocess. A packaged engine starts another copy of itself; PyInstaller
+    needs the bootloader state reset or the child inherits the parent's and can stall."""
+    env = dict(os.environ)
+    if getattr(sys, "frozen", False):
+        for k in [k for k in env if k.startswith(("_PYI", "_MEI")) or k in ("PYTHONHOME", "PYTHONPATH")]:
+            del env[k]
+        env["PYINSTALLER_RESET_ENVIRONMENT"] = "1"
+    return env
+
+
 class InvalidTransition(RuntimeError):
     pass
 
@@ -83,7 +94,7 @@ class RunController:
             self._go("running")
             self._proc = subprocess.Popen(
                 [*self.argv], cwd=self.cwd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
-                text=True, bufsize=1, **group_kwargs(),
+                text=True, bufsize=1, env=_child_env(), stdin=subprocess.DEVNULL, **group_kwargs(),
             )
             self._thread = threading.Thread(target=self._pump, args=(self._proc,), daemon=True)
             self._thread.start()
