@@ -236,11 +236,18 @@ jobs:
         run: .venv/bin/browserbench setup --yes
       - name: Build the app (frozen engine, then the Tauri bundle)
         run: .venv/bin/python scripts/build.py
+      - name: Locate the bundle
+        run: |
+          find app/src-tauri/target/release/bundle -maxdepth 3 | head -20
+          ENGINE=$(find app/src-tauri/target/release/bundle -path '*Resources*' -name browserlab-engine -type f | head -1)
+          APPBIN=$(find app/src-tauri/target/release/bundle -path '*.app/Contents/MacOS/*' -type f | head -1)
+          echo "engine: $ENGINE"; echo "app: $APPBIN"
+          echo "ENGINE=$ENGINE" >> "$GITHUB_ENV"; echo "APPBIN=$APPBIN" >> "$GITHUB_ENV"
       - name: Packaged engine, Quick mode (profiles, then a real run)
-        run: .venv/bin/python tools/packaged_check.py app/src-tauri/target/release/bundle/macos/BrowserLab.app/Contents/Resources/engine/browserlab-engine/browserlab-engine --workload video
+        run: .venv/bin/python tools/packaged_check.py "$ENGINE" --workload video
       - name: Launch the built app and check it stays up and starts its engine
         run: |
-          app/src-tauri/target/release/bundle/macos/BrowserLab.app/Contents/MacOS/browserlab > "$RUNNER_TEMP/app.log" 2>&1 & pid=$!
+          "$APPBIN" > "$RUNNER_TEMP/app.log" 2>&1 & pid=$!
           for i in $(seq 1 40); do
             sleep 2
             kill -0 $pid 2>/dev/null || { echo "the app exited right after launch"; cat "$RUNNER_TEMP/app.log"; exit 1; }
