@@ -187,6 +187,7 @@ def _create_trial_profile(
         profile_dir,
         dirs_exist_ok=True,
         symlinks=False,
+        ignore_dangling_symlinks=True,  # e.g. RunningChromeVersion on macOS: a link to a file that no longer exists
         ignore=lambda d, names: [n for n in names if n in lock_names] if Path(d) == Path(template) else [],
     )
 

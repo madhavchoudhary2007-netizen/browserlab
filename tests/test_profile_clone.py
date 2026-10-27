@@ -15,11 +15,14 @@ def test_clone_skips_chromium_singleton_links_that_point_nowhere(tmp_path):
     # A closed Chromium profile keeps these links to temp files that are gone by now.
     for n in ("SingletonSocket", "SingletonLock", "SingletonCookie"):
         os.symlink("/tmp/no-such-dir-chromium/" + n, template / n)
+    os.symlink("156.0.0.0", template / "RunningChromeVersion")  # macOS: link to a version file that is gone
+    os.symlink("/tmp/gone", template / "Default" / "stale-link")
     spec = {"profile_mode": "template_clone", "template_profile": str(template)}
     clone, mode = _create_trial_profile("chrome", "chromium", spec)
     try:
         assert mode == "template_clone"
         assert (clone / "Default" / "Preferences").read_text() == "{}"
+        assert not (clone / "RunningChromeVersion").exists() and not (clone / "Default" / "stale-link").exists()
         assert not any((clone / n).is_symlink() or (clone / n).exists() for n in ("SingletonSocket", "SingletonLock", "SingletonCookie"))
     finally:
         shutil.rmtree(clone, ignore_errors=True)
