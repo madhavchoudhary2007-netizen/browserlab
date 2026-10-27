@@ -114,7 +114,7 @@ jobs:
           path: data_ci
 
   app-windows:
-    name: Desktop app on Windows (x64): build, launch, packaged Quick run
+    name: "Desktop app on Windows (x64) - build, launch, packaged Quick run"
     runs-on: windows-latest
     timeout-minutes: 60
     steps:
