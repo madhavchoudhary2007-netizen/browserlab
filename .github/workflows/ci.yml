@@ -185,8 +185,8 @@ jobs:
             app/src-tauri/target/release/browserlab & pid=$!
             sleep 20
             kill -0 $pid || { echo "the app exited right after launch"; exit 1; }
-            pgrep -f browserlab-engine >/dev/null || { echo "the bundled engine did not start"; exit 1; }
-            kill $pid; pkill -f browserlab-engine || true
+            pgrep -f '[b]rowserlab-engine' >/dev/null || { echo "the bundled engine did not start"; exit 1; }
+            kill $pid; pkill -f '[b]rowserlab-engine' || true
           '
       - name: Packaged engine, Quick mode (profiles, then a real run)
         run: xvfb-run -a .venv/bin/python tools/packaged_check.py app/src-tauri/target/release/engine/browserlab-engine/browserlab-engine --workload video
