@@ -185,10 +185,13 @@ jobs:
         run: .venv/bin/browserbench setup --yes
       - name: Build the app (frozen engine, then the Tauri bundles)
         run: .venv/bin/python scripts/build.py
-      - name: Install the built .deb the way a user would
+      - name: Install with install.sh, served locally the way a download would be
         run: |
-          sudo apt-get install -y ./app/src-tauri/target/release/bundle/deb/*.deb
-          PKG=$(dpkg-deb -f app/src-tauri/target/release/bundle/deb/*.deb Package)
+          DEB=$(ls app/src-tauri/target/release/bundle/deb/*.deb | head -1)
+          (cd "$(dirname "$DEB")" && nohup python3 -m http.server 18765 --bind 127.0.0.1 >/dev/null 2>&1 &)
+          sleep 2
+          bash install.sh --url "http://127.0.0.1:18765/$(basename "$DEB")"
+          PKG=$(dpkg-deb -f "$DEB" Package)
           echo "package: $PKG"; dpkg -L "$PKG" | grep -E "bin/|browserlab-engine$"
           echo "ENGINE=$(dpkg -L "$PKG" | grep -E 'browserlab-engine/browserlab-engine$' | head -1)" >> "$GITHUB_ENV"
           echo "APP=$(dpkg -L "$PKG" | grep -E '/bin/' | head -1)" >> "$GITHUB_ENV"
@@ -236,11 +239,16 @@ jobs:
         run: .venv/bin/browserbench setup --yes
       - name: Build the app (frozen engine, then the Tauri bundle)
         run: .venv/bin/python scripts/build.py
-      - name: Locate the bundle
+      - name: Install with install.sh, served locally the way a download would be
         run: |
-          find app/src-tauri/target/release/bundle -maxdepth 3 | head -20
-          ENGINE=$(find app/src-tauri/target/release/bundle -path '*Resources*' -name browserlab-engine -type f | head -1)
-          APPBIN=$(find app/src-tauri/target/release/bundle -path '*.app/Contents/MacOS/*' -type f | head -1)
+          DMG=$(ls app/src-tauri/target/release/bundle/dmg/*.dmg | head -1)
+          (cd "$(dirname "$DMG")" && nohup python3 -m http.server 18765 --bind 127.0.0.1 >/dev/null 2>&1 &)
+          sleep 2
+          bash install.sh --url "http://127.0.0.1:18765/$(basename "$DMG")"
+          ls -la /Applications | grep -i browserlab || true
+          xattr -l /Applications/BrowserLab.app 2>/dev/null | grep -c quarantine || true
+          ENGINE=$(find /Applications/BrowserLab.app -path '*Resources*' -name browserlab-engine -type f | head -1)
+          APPBIN=$(find /Applications/BrowserLab.app/Contents/MacOS -type f | head -1)
           echo "engine: $ENGINE"; echo "app: $APPBIN"
           echo "ENGINE=$ENGINE" >> "$GITHUB_ENV"; echo "APPBIN=$APPBIN" >> "$GITHUB_ENV"
       - name: Packaged engine, Quick mode (profiles, then a real run)

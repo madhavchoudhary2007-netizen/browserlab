@@ -27,8 +27,10 @@ def main() -> int:
     ap.add_argument("--workload", default="static")
     ap.add_argument("--browsers", default="installed")
     ap.add_argument("--timeout", type=int, default=1500)
+    ap.add_argument("--home", help="reuse this BrowserLab home (keeps baseline profiles between runs)")
     a = ap.parse_args()
-    home = Path(tempfile.mkdtemp(prefix="packaged-"))
+    home = Path(a.home) if a.home else Path(tempfile.mkdtemp(prefix="packaged-"))
+    home.mkdir(parents=True, exist_ok=True)
     env = {**os.environ, "BROWSERLAB_HOME": str(home)}
     p = subprocess.Popen([a.engine], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                          text=True, bufsize=1, cwd=home, env=env)
@@ -57,6 +59,9 @@ def main() -> int:
     browsers = found if a.browsers == "installed" else a.browsers.split(",")
     print("browsers:", browsers)
     for b in browsers:
+        if (home / "workspace" / ".browserbench" / "profiles" / b).exists():
+            print(f"baseline profile {b}: kept (already exists)")
+            continue
         r = call("profiles.prepare", browser=b)
         time.sleep(15)
         r = call("profiles.finish") if "error" not in r else r
