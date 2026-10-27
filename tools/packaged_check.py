@@ -86,6 +86,10 @@ def main() -> int:
     rows = pd.read_csv(csv) if csv else pd.DataFrame()
     got = sorted(rows["browser"]) if len(rows) else []
     print(rows[["browser", "mean_rss_mb"]].to_string(index=False) if len(rows) else "no results")
+    for f in home.rglob(f"runs/{run_id}/data/core/logs/errors.jsonl"):
+        for line in f.read_text().splitlines():
+            e = json.loads(line)
+            print(f"ERROR {e['trial_id']} attempt {e['attempt']}: {e['error'][:400]}")
     ok = state == "completed" and got == sorted(browsers) and (rows["mean_rss_mb"] > 0).all()
     print("PACKAGED CHECK", "PASSED" if ok else f"FAILED (state={state})")
     return 0 if ok else 1
