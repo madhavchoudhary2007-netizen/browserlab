@@ -143,7 +143,7 @@ export function RunView() {
             <h2 className="run-launch-title">{ready && confirmed ? "Ready to launch" : "Before you launch"}</h2>
             <label className="run-check">
               <input type="checkbox" checked={confirmed} onChange={(e) => setConfirmed(e.target.checked)} />
-              I understand this launches real browsers for the full duration and I will not use this Mac meanwhile.
+              I understand this launches real browsers for the full duration and I will not use this computer meanwhile.
             </label>
             {startError && <p role="alert">{startError}</p>}
             <Button variant="primary" pending={starting} disabled={!ready || !confirmed} onClick={() => void start()}>
