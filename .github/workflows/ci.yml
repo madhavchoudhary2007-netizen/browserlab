@@ -112,3 +112,44 @@ jobs:
         with:
           name: smoke-windows-data
           path: data_ci
+
+  app-windows:
+    name: Desktop app on Windows (x64): build, launch, packaged Quick run
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: powershell -ExecutionPolicy Bypass -File setup_windows.ps1
+      - name: Try to install the missing browsers (best effort)
+        continue-on-error: true
+        run: .venv\Scripts\browserbench.exe setup --yes
+      - name: Build the app (frozen engine, then the Tauri installers)
+        run: .venv\Scripts\python.exe scripts\build.py
+      - name: Launch the built app and check its window opens
+        shell: pwsh
+        run: |
+          $p = Start-Process app\src-tauri\target\release\browserlab.exe -PassThru
+          Start-Sleep 20
+          $p.Refresh()
+          Get-Process browserlab* | Select-Object Name, Id, MainWindowTitle | Format-Table
+          if ($p.HasExited) { throw "the app exited right after launch" }
+          if (-not (Get-Process browserlab-engine -ErrorAction SilentlyContinue)) { throw "the bundled engine did not start" }
+          Stop-Process -Id $p.Id -Force
+          Get-Process browserlab-engine -ErrorAction SilentlyContinue | Stop-Process -Force
+      - name: Packaged engine, Quick mode (profiles, then a real run)
+        run: .venv\Scripts\python.exe tools\packaged_check.py app\src-tauri\target\release\engine\browserlab-engine\browserlab-engine.exe --workload video
+      - uses: actions/upload-artifact@v4
+        with:
+          name: browserlab-windows-x64-installers
+          path: |
+            app/src-tauri/target/release/bundle/msi/*.msi
+            app/src-tauri/target/release/bundle/nsis/*.exe

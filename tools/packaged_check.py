@@ -29,7 +29,7 @@ def main() -> int:
     ap.add_argument("--timeout", type=int, default=1500)
     a = ap.parse_args()
     home = Path(tempfile.mkdtemp(prefix="packaged-"))
-    env = {**os.environ, "BROWSERLAB_HOME": str(home), "BROWSERLAB_PROJECT_ROOT": str(home / "project")}
+    env = {**os.environ, "BROWSERLAB_HOME": str(home)}
     p = subprocess.Popen([a.engine], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
                          text=True, bufsize=1, cwd=home, env=env)
     n = [0]
