@@ -179,13 +179,20 @@ jobs:
         run: .venv/bin/browserbench setup --yes
       - name: Build the app (frozen engine, then the Tauri bundles)
         run: .venv/bin/python scripts/build.py
+      - name: Install the built .deb the way a user would
+        run: |
+          sudo apt-get install -y ./app/src-tauri/target/release/bundle/deb/*.deb
+          PKG=$(dpkg-deb -f app/src-tauri/target/release/bundle/deb/*.deb Package)
+          echo "package: $PKG"; dpkg -L "$PKG" | grep -E "bin/|browserlab-engine$"
+          echo "ENGINE=$(dpkg -L "$PKG" | grep -E 'browserlab-engine/browserlab-engine$' | head -1)" >> "$GITHUB_ENV"
+          echo "APP=$(dpkg -L "$PKG" | grep -E '/bin/' | head -1)" >> "$GITHUB_ENV"
       - name: Packaged engine, Quick mode (profiles, then a real run)
-        run: xvfb-run -a .venv/bin/python tools/packaged_check.py app/src-tauri/target/release/engine/browserlab-engine/browserlab-engine --workload video
-      - name: Launch the built app and check it stays up with its engine
+        run: xvfb-run -a .venv/bin/python tools/packaged_check.py "$ENGINE" --workload video
+      - name: Launch the installed app and check it stays up and starts its engine
         run: |
           export WEBKIT_DISABLE_DMABUF_RENDERER=1 WEBKIT_DISABLE_COMPOSITING_MODE=1 LIBGL_ALWAYS_SOFTWARE=1
           xvfb-run -a -s "-screen 0 1280x800x24" bash -c '
-            app/src-tauri/target/release/browserlab > "$RUNNER_TEMP/app.log" 2>&1 & pid=$!
+            "$APP" > "$RUNNER_TEMP/app.log" 2>&1 & pid=$!
             for i in $(seq 1 40); do
               sleep 2
               kill -0 $pid 2>/dev/null || { echo "the app exited right after launch"; cat "$RUNNER_TEMP/app.log"; exit 1; }
