@@ -1,0 +1,65 @@
+name: Release installers
+
+# Builds the desktop installers on each platform. Pushing a tag like v0.2.0 attaches them to that GitHub release;
+# "Run workflow" from the Actions tab builds them as downloadable artifacts only.
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Installers (${{ matrix.label }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { os: windows-latest, label: windows-x64, setup: "powershell -ExecutionPolicy Bypass -File setup_windows.ps1", py: ".venv/Scripts/python.exe" }
+          - { os: windows-11-arm, label: windows-arm64, setup: "powershell -ExecutionPolicy Bypass -File setup_windows.ps1", py: ".venv/Scripts/python.exe" }
+          - { os: ubuntu-latest, label: linux-x64, setup: "./setup_linux.sh", py: ".venv/bin/python" }
+          - { os: ubuntu-24.04-arm, label: linux-arm64, setup: "./setup_linux.sh", py: ".venv/bin/python" }
+          - { os: macos-latest, label: macos-arm64, setup: "./setup_macos.sh", py: ".venv/bin/python" }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Linux system libraries
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libgtk-3-dev libayatana-appindicator3-dev librsvg2-dev libssl-dev patchelf ffmpeg rpm
+      - run: ${{ matrix.setup }}
+      - run: ${{ matrix.py }} scripts/build.py
+      - name: Collect the installers
+        shell: bash
+        run: |
+          mkdir -p dist-installers
+          B=app/src-tauri/target/release/bundle
+          for f in $B/msi/*.msi $B/nsis/*.exe $B/deb/*.deb $B/appimage/*.AppImage $B/rpm/*.rpm $B/dmg/*.dmg; do
+            [ -f "$f" ] || continue
+            base=$(basename "$f"); ext="${base##*.}"; stem="${base%.*}"
+            cp "$f" "dist-installers/${stem}-${{ matrix.label }}.${ext}"
+          done
+          ls -la dist-installers
+      - uses: actions/upload-artifact@v4
+        with:
+          name: installers-${{ matrix.label }}
+          path: dist-installers/*
+      - name: Attach to the release
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ github.ref_name }}" dist-installers/* --clobber
