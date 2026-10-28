@@ -62,4 +62,8 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release upload "${{ github.ref_name }}" dist-installers/* --clobber
+        run: |
+          # The five platform jobs race to create the release; whichever loses just uploads.
+          gh release view "${{ github.ref_name }}" >/dev/null 2>&1 \
+            || gh release create "${{ github.ref_name }}" --title "BrowserLab ${{ github.ref_name }}" --generate-notes >/dev/null 2>&1 || true
+          gh release upload "${{ github.ref_name }}" dist-installers/* --clobber
