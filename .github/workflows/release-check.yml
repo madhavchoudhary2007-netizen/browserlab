@@ -1,0 +1,43 @@
+name: Release install check
+
+# Installs the published release the way a user does (install.ps1, no URL) on a clean Windows x64 machine,
+# then runs Quick on every workload through the installed engine with the app's default data folder.
+on:
+  workflow_dispatch:
+
+jobs:
+  windows-x64:
+    name: "Installed release on Windows (x64) - Quick on every workload"
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install BrowserLab from the latest release
+        shell: powershell
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File install.ps1
+      - name: Try to install the missing browsers (best effort)
+        continue-on-error: true
+        shell: powershell
+        run: powershell -NoProfile -ExecutionPolicy Bypass -File scripts\install_browsers.ps1
+      - run: python -m pip install pandas
+      - name: Quick runs, default data folder
+        shell: powershell
+        run: |
+          $eng = "$env:LOCALAPPDATA\BrowserLab\engine\browserlab-engine\browserlab-engine.exe"
+          $home2 = "$env:APPDATA\BrowserLab"
+          $failed = 0
+          foreach ($w in "static", "javascript", "video") {
+            "=== Quick $w"
+            python -u tools\packaged_check.py $eng --workload $w --home $home2
+            if ($LASTEXITCODE -ne 0) { $failed++ }
+          }
+          Get-ChildItem "$home2\runs" | ForEach-Object {
+            $d = Join-Path $_.FullName "data\core"
+            $rows = if (Test-Path "$d\processed\trial_summary_core.csv") { (Import-Csv "$d\processed\trial_summary_core.csv").Count } else { 0 }
+            "$($_.Name): $rows summary rows"
+            if (Test-Path "$d\logs\errors.jsonl") { Get-Content "$d\logs\errors.jsonl" | ForEach-Object { $_.Substring(0, [Math]::Min(400, $_.Length)) } }
+          }
+          if ($failed) { throw "$failed Quick run(s) failed" }
