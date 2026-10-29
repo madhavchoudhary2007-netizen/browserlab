@@ -7,6 +7,8 @@ from browserlab.runctl import engine_argv, prepare_run_dir
 
 def test_workloads_resolution(monkeypatch, tmp_path):
     monkeypatch.delenv("BROWSERLAB_WORKLOADS", raising=False)
+    assert paths.workloads_dir(tmp_path) == paths.bundle_dir() / "workloads"  # no pages of its own -> the repo's
+    (tmp_path / "workloads").mkdir()
     assert paths.workloads_dir(tmp_path) == tmp_path / "workloads"
     monkeypatch.setattr(sys, "frozen", True, raising=False)
     monkeypatch.setattr(sys, "_MEIPASS", str(tmp_path / "bundle"), raising=False)
@@ -56,3 +58,11 @@ def test_suite_argument_in_argv(monkeypatch, tmp_path):
     assert engine_argv("py", tmp_path / "c.yaml", "lifecycle")[-1] == "lifecycle"
     monkeypatch.setattr(sys, "frozen", True, raising=False)
     assert engine_argv("e", tmp_path / "c.yaml", "lifecycle")[-2:] == ["--suite", "lifecycle"]
+
+
+def test_source_root_outside_a_project_is_the_repo(monkeypatch, tmp_path):
+    # `pnpm tauri dev` starts the sidecar in app/src-tauri: no workloads there, so the repo root is used.
+    monkeypatch.delenv("BROWSERLAB_PROJECT_ROOT", raising=False)
+    monkeypatch.chdir(tmp_path)
+    assert paths.default_project_root(tmp_path / "home") == paths.bundle_dir()
+    assert (paths.bundle_dir() / "workloads" / "static.html").is_file()

@@ -982,8 +982,14 @@ def run_suite(cfg: dict[str, Any], suite: str, repetitions: int | None = None, r
                 "config": {k: v for k, v in cfg.items() if not k.startswith("_")},
             }, f, indent=2)
 
+    pages = root / "workloads"
+    missing = sorted({WorkloadServer.FILES[c.workload] for c in schedule if c.workload in WorkloadServer.FILES}
+                     - {f.name for f in pages.glob("*.html")})
+    if missing:
+        # Without this the browsers would load 404 pages and the trials would measure an error page.
+        raise FileNotFoundError(f"Workload pages missing from {pages}: {', '.join(missing)}")
     server = WorkloadServer(
-        directory=root / "workloads",
+        directory=pages,
         host=cfg.get("server", {}).get("host", "127.0.0.1"),
         port=int(cfg.get("server", {}).get("port", 0)),
     )

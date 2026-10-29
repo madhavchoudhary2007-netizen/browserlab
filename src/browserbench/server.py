@@ -18,6 +18,13 @@ class NoCacheHandler(SimpleHTTPRequestHandler):
 
 
 class WorkloadServer:
+    FILES = {
+        "static": "static.html",
+        "javascript": "javascript.html",
+        "video": "video.html",
+        "compute": "compute.html",
+    }
+
     def __init__(self, directory: Path, host: str = "127.0.0.1", port: int = 0):
         self.directory = directory.resolve()
         handler = functools.partial(NoCacheHandler, directory=str(self.directory))
@@ -38,12 +45,7 @@ class WorkloadServer:
         self.thread.join(timeout=3)
 
     def url(self, workload: str, **params) -> str:
-        filename = {
-            "static": "static.html",
-            "javascript": "javascript.html",
-            "video": "video.html",
-            "compute": "compute.html",
-        }[workload]
+        filename = self.FILES[workload]
         if not params:
             return f"{self.base_url}/{filename}"
         from urllib.parse import urlencode

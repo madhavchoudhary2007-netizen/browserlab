@@ -20,7 +20,8 @@ def workloads_dir(project_root: Path) -> Path:
         return Path(env)
     if is_frozen():
         return bundle_dir() / "workloads"
-    return project_root / "workloads"
+    own = project_root / "workloads"
+    return own if own.is_dir() else bundle_dir() / "workloads"  # a project folder without its own pages uses the repo's
 
 
 def default_project_root(home: Path) -> Path:
@@ -36,7 +37,10 @@ def default_project_root(home: Path) -> Path:
         root = home / "workspace"
         root.mkdir(parents=True, exist_ok=True)
         return root
-    return Path.cwd()
+    # Source run: the folder it was started from, when that is a project (the CLI's usual case). `pnpm tauri dev`
+    # starts the sidecar inside app/src-tauri, which is not one, so fall back to the repository root.
+    cwd = Path.cwd()
+    return cwd if (cwd / "workloads").is_dir() or (cwd / "config.yaml").is_file() else bundle_dir()
 
 
 TOOL_DIRS = ("/opt/homebrew/bin", "/usr/local/bin")
